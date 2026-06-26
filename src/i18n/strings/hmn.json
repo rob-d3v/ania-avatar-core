@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ntaus koj cov lus...",
+      "listening": "Mloog..."
+    },
+    "enableSound": "Qhib Suab",
+    "stt": {
+      "transcribing": "Kev sau ntawv: ",
+      "micActive": "Lub microphone ua haujlwm ...",
+      "heardError": "Thov txim, tsis tau hnov koj. Thov rov sim dua.",
+      "micAccessError": "Tsis tuaj yeem nkag mus rau microphone. Tshawb xyuas kev tso cai."
+    },
+    "speed": {
+      "idle": "Idle:",
+      "talk": "Tham:"
+    }
+  },
+  "avatar": {
+    "loading": "Loading avatar...",
+    "title": {
+      "maximize": "Maximize",
+      "minimize": "Tsawg kawg",
+      "close": "Kaw",
+      "clickToMaximize": "Nyem rau qhov loj",
+      "clickToMinimize": "Nyem kom txo qis"
+    },
+    "error": {
+      "loadFailed": "Ua tsis tiav rau kev thauj khoom avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer tsis loaded",
+      "passwordRequired": "Password yuav tsum tau encrypted .ania cov ntaub ntawv",
+      "noSource": "Tsis muaj avatar qhov chaw muab (avatarUrl lossis avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Nyob zoo! Kuv yuav pab tau koj li cas hnub no?",
+    "1": "Nyob zoo! Zoo siab txais tos! Kuv tuaj yeem ua dab tsi rau koj?",
+    "2": "Nyob zoo! Zoo siab nrog koj tham!",
+    "3": "Nyob zoo! Kuv nyob ntawm no los pab. Koj xav tau dab tsi?",
+    "4": "Nyob zoo! Koj nyob li cas? Kuv yuav pab tau li cas?"
+  },
+  "waiting": {
+    "0": "Cia kuv xav tias...",
+    "1": "Ib pliag...",
+    "2": "Kev ua...",
+    "3": "Tsuas yog ib pliag xwb...",
+    "4": "Kuv tab tom tshawb xyuas qhov ntawd rau koj ..."
+  }
+}

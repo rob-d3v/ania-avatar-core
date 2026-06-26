@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Īroksti sovu ziņu...",
+      "listening": "Klausūtīs..."
+    },
+    "enableSound": "Īspējuot skaņu",
+    "stt": {
+      "transcribing": "Pīraksteišona: ",
+      "micActive": "Mikrofons aktivs...",
+      "heardError": "Atlaidit, navarēju jūs dzierdēt. Lyudzu, raugi vēļreiz.",
+      "micAccessError": "Navar pīkļyut mikrofonam. Pārbaudiet atļaujas."
+    },
+    "speed": {
+      "idle": "Tukšums:",
+      "talk": "Saruna:"
+    }
+  },
+  "avatar": {
+    "loading": "Īluodejūt avataru...",
+    "title": {
+      "maximize": "Maksimali palelynuot",
+      "minimize": "Samazynuot",
+      "close": "Aizvērt",
+      "clickToMaximize": "Nūspīd, lai maksimali palelynuotu .",
+      "clickToMinimize": "Nūspīd, lai samazynuotu ."
+    },
+    "error": {
+      "loadFailed": "Naizadeve īluodēt avataru: {{error}} . ",
+      "playerNotLoaded": "AniaSpēlētuojs nav īluodāts",
+      "passwordRequired": "100 doc#1159 Vajadzeiga parole šifrātam .ania failam .",
+      "noSource": "Nav snāgts avatara olūts (avataraUrl voi avataraDati)"
+    }
+  },
+  "greetings": {
+    "0": "Sveiks! Kai es varu tev paleidzēt šudiņ?",
+    "1": "Loba dīna! Sveicynuot! Kū es tev varu dareit?",
+    "2": "Vasals! Tik prīca ar tevi parunuot!",
+    "3": "Loba dīna! Es asu ite, lai paleidzātu. Kū tev vajag?",
+    "4": "Vasals! Kai tev īt? Kai es varu byut nūdereigs?"
+  },
+  "waiting": {
+    "0": "Ļauj maņ padūmuot...",
+    "1": "Vīnu breidi...",
+    "2": "Apstruode...",
+    "3": "Tikai sekundi...",
+    "4": "Es tū puorbaudu deļ teve..."
+  }
+}

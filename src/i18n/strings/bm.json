@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "I ka cikan sɛbɛn...",
+      "listening": "Lamɛnni kɛli..."
+    },
+    "enableSound": "Mankan (Mankan) daminɛ",
+    "stt": {
+      "transcribing": "Sɛbɛnni kɛli: ",
+      "micActive": "Microphone active...",
+      "heardError": "Baasi tɛ, n ma se k'i ka kuma mɛn. Aw ye aw jija ka segin a kan.",
+      "micAccessError": "A tɛ se ka don mikro la. Aw ye yamaruyaw lajɛ."
+    },
+    "speed": {
+      "idle": "Idle:",
+      "talk": "Jɛmu:"
+    }
+  },
+  "avatar": {
+    "loading": "Avatar bɛ ka chargement...",
+    "title": {
+      "maximize": "A ka ca a la",
+      "minimize": "Aw ye a dɔgɔya",
+      "close": "A da tugu",
+      "clickToMaximize": "Klik walasa ka fɛn caman kɛ",
+      "clickToMinimize": "Klik walasa ka dɔgɔya"
+    },
+    "error": {
+      "loadFailed": "A ma se ka avatar doni: {{error}} . ",
+      "playerNotLoaded": "AniaPlayer ma doni",
+      "passwordRequired": "Password min ka kan ka kɛ .ania file sirilen na",
+      "noSource": "Avatar sɔrɔyɔrɔ si ma di (avatarUrl walima avatarData) ."
+    }
+  },
+  "greetings": {
+    "0": "Bonjour! Ne bɛ se k’i dɛmɛ cogo di bi?",
+    "1": "Aw ni baara! I danse! Ne bɛ se ka mun kɛ aw ye?",
+    "2": "Ani ce yan! A nisɔndiyara kosɛbɛ ka kuma i fɛ!",
+    "3": "Aw ni baara! Ne bɛ yan ka dɛmɛ don. I mago bɛ mun na?",
+    "4": "Aw ni baara! I ka kɛnɛ wa? Ne bɛ se ka kɛ mɔgɔ nafama ye cogo di?"
+  },
+  "waiting": {
+    "0": "A to n ka miiri...",
+    "1": "Waati kelen...",
+    "2": "Baarakɛcogo...",
+    "3": "Seginnkanni dɔrɔn...",
+    "4": "N b'o lajɛ aw ye..."
+  }
+}

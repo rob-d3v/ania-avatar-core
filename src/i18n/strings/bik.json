@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "I-type an saimong mensahe...",
+      "listening": "Nagdadangog..."
+    },
+    "enableSound": "I-enable an Tanog",
+    "stt": {
+      "transcribing": "Pag-transcribe: ",
+      "micActive": "Aktibo an mikropono...",
+      "heardError": "Pasensya na, dai taka nadangog. Pakiprobaran giraray.",
+      "micAccessError": "Dai kayang mag-access sa mikropono. Hilingon an mga pagtugot."
+    },
+    "speed": {
+      "idle": "Daing gibo:",
+      "talk": "Pahayag:"
+    }
+  },
+  "avatar": {
+    "loading": "Nagloading nin avatar...",
+    "title": {
+      "maximize": "Padakulaon",
+      "minimize": "Pababaon",
+      "close": "Isara",
+      "clickToMaximize": "I-click tanganing ma-maximize",
+      "clickToMinimize": "Mag-click tanganing maibanan"
+    },
+    "error": {
+      "loadFailed": "Dai naka-load an avatar: {{error}} ",
+      "playerNotLoaded": "Dai pa nakarga an AniaPlayer",
+      "passwordRequired": "Kaipuhan an sekretong panlaog para sa naka-encrypt na .ania na file",
+      "noSource": "Mayo nin itinaong pinagkukuanan nin avatar (avatarUrl o avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Pano ko kamo matatabangan ngunyan?",
+    "1": "Kumusta! Dagos! Ano an magigibo ko para saimo?",
+    "2": "Kumusta! Maogma akong makaolay ka!",
+    "3": "Kumusta! Yaon ako digdi para magtabang. Ano an kaipuhan mo?",
+    "4": "Kumusta! Kumusta ka? Paano ako magigin kapaki-pakinabang?"
+  },
+  "waiting": {
+    "0": "Mag-isip ako...",
+    "1": "Sarong momento...",
+    "2": "Pagproseso...",
+    "3": "Sarong segundo sana...",
+    "4": "Sinisiyasat ko iyan para saimo..."
+  }
+}

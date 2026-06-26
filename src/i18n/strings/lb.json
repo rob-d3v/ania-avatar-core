@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Schreift Äre Message ...",
+      "listening": "Lauschtert ..."
+    },
+    "enableSound": "Sound aktivéieren",
+    "stt": {
+      "transcribing": "Transkriptioun: ",
+      "micActive": "Mikrofon aktiv ...",
+      "heardError": "Sorry, konnt dech net héieren. Probéiert w.e.g. nach eng Kéier.",
+      "micAccessError": "Kann net Zougang zum Mikrofon kréien. Check Permissiounen."
+    },
+    "speed": {
+      "idle": "Idle:",
+      "talk": "Diskussioun:"
+    }
+  },
+  "avatar": {
+    "loading": "Luet den Avatar ...",
+    "title": {
+      "maximize": "Maximaliséieren",
+      "minimize": "Minimiséieren",
+      "close": "Zoumaachen",
+      "clickToMaximize": "Klickt fir ze maximéieren",
+      "clickToMinimize": "Klickt fir ze minimiséieren"
+    },
+    "error": {
+      "loadFailed": "Konnt den Avatar net lueden: {{error}} ",
+      "playerNotLoaded": "AniaPlayer net gelueden",
+      "passwordRequired": "Passwuert néideg fir verschlësselte .ania Fichier",
+      "noSource": "Keng Avatarquell geliwwert (avatarUrl oder avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Moien! Wéi kann ech Iech haut hëllefen?",
+    "1": "Hallo! Wëllkomm! Wat kann ech fir dech maachen?",
+    "2": "Moien alleguer! Sou frou mat Iech ze schwätzen!",
+    "3": "Hallo! Ech sinn hei fir ze hëllefen. Wat brauchs du?",
+    "4": "Salut! Wéi geet et dir? Wéi kann ech nëtzlech sinn?"
+  },
+  "waiting": {
+    "0": "Loosst mech denken ...",
+    "1": "Ee Moment ...",
+    "2": "Veraarbechtung...",
+    "3": "Just eng Sekonn ...",
+    "4": "Ech kontrolléieren dat fir Iech ..."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ŋlɔ wò gbedasi...",
+      "listening": "Toɖoɖo..."
+    },
+    "enableSound": "Na Gbeɖiɖi Nawɔ dɔ",
+    "stt": {
+      "transcribing": "Nuŋɔŋlɔ ŋɔŋlɔ: ",
+      "micActive": "Nuƒomɔ̃ si le dɔ wɔm...",
+      "heardError": "Kpeɖeŋutɔ, nyemete ŋu se wò nya o. Taflatse gadze agbagba ake.",
+      "micAccessError": "Mete ŋu ge ɖe nuƒomɔ̃a me o. Kpɔ mɔɖeɖewo ɖa."
+    },
+    "speed": {
+      "idle": "Dɔmawɔmawɔ:",
+      "talk": "Nuƒo:"
+    }
+  },
+  "avatar": {
+    "loading": "Wole avatar xɔm...",
+    "title": {
+      "maximize": "Madzi ɖe edzi",
+      "minimize": "Ðe edzi",
+      "close": "Kloe",
+      "clickToMaximize": "Zi edzi be nàkpɔe wòalolo wu",
+      "clickToMinimize": "Zi edzi be nàɖe edzi akpɔtɔ"
+    },
+    "error": {
+      "loadFailed": "Do kpo avatar ƒe agba tsɔtsɔ: {{error}} . ",
+      "playerNotLoaded": "AniaPlayer metsɔ agba o",
+      "passwordRequired": "Nyagbe si hiã na .ania faɛl si wotsɔ nya ɣaɣlawo ŋlɔ",
+      "noSource": "Wometsɔ avatar dzɔtsoƒe aɖeke na o (avatarUrl alo avatarData) ."
+    }
+  },
+  "greetings": {
+    "0": "Hi! Aleke mate ŋu akpe ɖe ŋuwò egbea?",
+    "1": "Hello! Woezɔ̃! Nukae mate ŋu awɔ na wò?",
+    "2": "Medo gbe na mi! Edzɔ dzi nam ŋutɔ be meƒo nu kpli wò!",
+    "3": "Hello! Meva afisia be makpe ɖe ŋunye. Nukae nèhiã?",
+    "4": "Alekee! Efɔ̃a? Aleke mate ŋu aɖe vi?"
+  },
+  "waiting": {
+    "0": "Mina mabu eŋu be...",
+    "1": "Ɣeyiɣi ɖeka...",
+    "2": "Dɔwɔwɔ tso eŋu...",
+    "3": "Sɛkɛnd ɖeka pɛ ko...",
+    "4": "Mele ŋku lém ɖe ema ŋu na wò..."
+  }
+}

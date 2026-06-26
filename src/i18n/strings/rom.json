@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Xramosar tiro mesažo...",
+      "listening": "Shunen..."
+    },
+    "enableSound": "Aktivisar o avazi",
+    "stt": {
+      "transcribing": "Transkripcia: ",
+      "micActive": "Mikrofono aktivo...",
+      "heardError": "Sàr man, naśti te aśunav tut. Mangav tumen te zumaven pale.",
+      "micAccessError": "Nashti te resel pes o mikrofono. Dikh e permisie."
+    },
+    "speed": {
+      "idle": "Bibutjako:",
+      "talk": "Vorbin:"
+    }
+  },
+  "avatar": {
+    "loading": "Te ćhivel pes o avatar...",
+    "title": {
+      "maximize": "Maj baro",
+      "minimize": "Te ciknjarel pes",
+      "close": "Phande",
+      "clickToMaximize": "Klikisar te barǒres",
+      "clickToMinimize": "Klikisar te ciknjares"
+    },
+    "error": {
+      "loadFailed": "Naśti te ćhivel pes o avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer na si pherdo",
+      "passwordRequired": "Trubul o parovipen vaś o .ania lil kriptime",
+      "noSource": "Na si dino o źanglipe vaś o avatar (avatarUrl vaj avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Bachtalo! Sar shaj zhutiv tut adyes?",
+    "1": "So keres! Miśto avilăn! So daștiv te kerav tuke?",
+    "2": "So keres! But bahtalo te dav duma tusa!",
+    "3": "So keres! Me sem kate te zhutiv. So trubul tut?",
+    "4": "So keres! So keres? Sar śaj te avav laćho?"
+  },
+  "waiting": {
+    "0": "Mukav man te gîndiv...",
+    "1": "Jekh momento...",
+    "2": "Procesing...",
+    "3": "Numa jekh dujto...",
+    "4": "Me dikhav kodo tuke..."
+  }
+}

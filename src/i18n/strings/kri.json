@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Tayp yu mɛsej...",
+      "listening": "We yu de lisin..."
+    },
+    "enableSound": "Enable Saund",
+    "stt": {
+      "transcribing": "We dɛn de transkrib: ",
+      "micActive": "Maykrofon aktif...",
+      "heardError": "Sɔri, a nɔ bin ebul fɔ yɛri yu. Duya tray bak.",
+      "micAccessError": "Nɔ ebul fɔ akses maykrofon. Chek di permishɔn dɛn."
+    },
+    "speed": {
+      "idle": "Idle:",
+      "talk": "Tɔk:"
+    }
+  },
+  "avatar": {
+    "loading": "We yu de lod avatar...",
+    "title": {
+      "maximize": "Maksimayz am",
+      "minimize": "Minimiz am",
+      "close": "Klos",
+      "clickToMaximize": "Klik fɔ mek yu maksimayz",
+      "clickToMinimize": "Klik fɔ mek yu smɔl smɔl"
+    },
+    "error": {
+      "loadFailed": "Fail fɔ lod avatar: {{error}} . ",
+      "playerNotLoaded": "AniaPlayer nɔ lod",
+      "passwordRequired": "Paswɔd nid fɔ enkript .ania fayl",
+      "noSource": "No avatar sɔs nɔ de we dɛn gi (avatarUrl ɔ avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Aw a go ɛp yu tide?",
+    "1": "Adu! Wɛlkɔm! Wetin a go du fɔ yu?",
+    "2": "Kushɛ-o! So gladi fɔ tɔk to yu!",
+    "3": "Adu! A de ya fɔ ɛp. Wetin yu nid?",
+    "4": "Kushɛ! Aw di bɔdi? Aw a go bi yusful pɔsin?"
+  },
+  "waiting": {
+    "0": "Mek a tink se...",
+    "1": "Wan mɔnt...",
+    "2": "Di we aw dɛn de prosɛs...",
+    "3": "Jɔs wan sɛkɔn...",
+    "4": "A de chɛk dat fɔ yu..."
+  }
+}

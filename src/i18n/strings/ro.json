@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Introduceți mesajul dvs....",
+      "listening": "Ascultând..."
+    },
+    "enableSound": "Activați sunet",
+    "stt": {
+      "transcribing": "Transcriere: ",
+      "micActive": "Microfon activ...",
+      "heardError": "Îmi pare rău, nu te-am auzit. Vă rugăm să încercați din nou.",
+      "micAccessError": "Nu se poate accesa microfonul. Verificați permisiunile."
+    },
+    "speed": {
+      "idle": "Inactiv:",
+      "talk": "Vorba:"
+    }
+  },
+  "avatar": {
+    "loading": "Se încarcă avatarul...",
+    "title": {
+      "maximize": "Maximizați",
+      "minimize": "Minimizați",
+      "close": "Închide",
+      "clickToMaximize": "Faceți clic pentru a maximiza",
+      "clickToMinimize": "Faceți clic pentru a minimiza"
+    },
+    "error": {
+      "loadFailed": "Avatarul nu a putut fi încărcat: {{error}} ",
+      "playerNotLoaded": "AniaPlayer nu este încărcat",
+      "passwordRequired": "Este necesară parola pentru fișierul criptat .ania",
+      "noSource": "Nu este furnizată nicio sursă de avatar (avatarUrl sau avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Salut! Cum te pot ajuta azi?",
+    "1": "Buna ziua! Bun venit! Cu ce ​​vă pot ajuta?",
+    "2": "Bună! Mă bucur să vorbesc cu tine!",
+    "3": "Buna ziua! Sunt aici să ajut. De ce ai nevoie?",
+    "4": "Hi! Ce mai faci? Cum pot fi de folos?"
+  },
+  "waiting": {
+    "0": "Lasă-mă să mă gândesc...",
+    "1": "Un moment...",
+    "2": "Se procesează...",
+    "3": "Doar o secundă...",
+    "4": "verific asta pentru tine..."
+  }
+}

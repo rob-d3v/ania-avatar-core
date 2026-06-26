@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Sisestage oma sõnum...",
+      "listening": "Kuulan..."
+    },
+    "enableSound": "Luba heli",
+    "stt": {
+      "transcribing": "Transkribeerimine: ",
+      "micActive": "Mikrofon aktiivne...",
+      "heardError": "Vabandust, ma ei kuulnud teid. Palun proovi uuesti.",
+      "micAccessError": "Mikrofonile ei pääse juurde. Kontrolli õigusi."
+    },
+    "speed": {
+      "idle": "Tühikäik:",
+      "talk": "Rääkige:"
+    }
+  },
+  "avatar": {
+    "loading": "Avatari laadimine...",
+    "title": {
+      "maximize": "Maksimeerida",
+      "minimize": "Minimeeri",
+      "close": "Sule",
+      "clickToMaximize": "Maksimeerimiseks klõpsake",
+      "clickToMinimize": "Minimeerimiseks klõpsake"
+    },
+    "error": {
+      "loadFailed": "Avatari laadimine ebaõnnestus: {{error}} ",
+      "playerNotLoaded": "AniaPlayerit pole laaditud",
+      "passwordRequired": "Krüptitud .ania-faili jaoks on vaja parooli",
+      "noSource": "Avatari allikat ei pakuta (avatarUrl või avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Tere! Kuidas saan teid täna aidata?",
+    "1": "Tere! Tere tulemast! Mida ma saan teie heaks teha?",
+    "2": "Tere! Nii hea meel teiega rääkida!",
+    "3": "Tere! Olen siin, et aidata. Mida sa vajad?",
+    "4": "Tere! Kuidas läheb? Kuidas saan kasulik olla?"
+  },
+  "waiting": {
+    "0": "Las ma mõtlen...",
+    "1": "Üks hetk...",
+    "2": "Töötlemine...",
+    "3": "Vaid sekund...",
+    "4": "Ma kontrollin seda teie jaoks..."
+  }
+}

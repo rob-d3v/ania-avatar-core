@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "打你嘅訊息 ...",
+      "listening": "聽緊 ..."
+    },
+    "enableSound": "啟用聲音",
+    "stt": {
+      "transcribing": "轉錄緊： ",
+      "micActive": "麥克風有效 ...",
+      "heardError": "對唔住，聽唔到你講嘢。請試多一次。",
+      "micAccessError": "存取唔到麥克風。檢查權限。"
+    },
+    "speed": {
+      "idle": "閒置：",
+      "talk": "講嘢："
+    }
+  },
+  "avatar": {
+    "loading": "載入緊頭像 ...",
+    "title": {
+      "maximize": "最大化",
+      "minimize": "將佢減到最低",
+      "close": "閂咗",
+      "clickToMaximize": "撳一下就可以最大化",
+      "clickToMinimize": "撳一下就可以最小化"
+    },
+    "error": {
+      "loadFailed": "載入唔到頭像： {{error}} ",
+      "playerNotLoaded": "未載入 AniaPlayer",
+      "passwordRequired": "加密嘅 .ania 檔案需要密碼",
+      "noSource": "冇提供頭像來源（頭像網址或者頭像數據）"
+    }
+  },
+  "greetings": {
+    "0": "你好！我今日點樣幫到你？",
+    "1": "你好！歡迎！我可以為你做啲咩？",
+    "2": "喂！好開心同你傾偈！",
+    "3": "你好！我喺度幫手。你需要啲咩？",
+    "4": "你好！你點啊？我點樣可以有用？"
+  },
+  "waiting": {
+    "0": "等我諗下 ...",
+    "1": "有一刻 … …",
+    "2": "處理緊 ...",
+    "3": "只係一秒 ...",
+    "4": "我幫你檢查緊 ..."
+  }
+}

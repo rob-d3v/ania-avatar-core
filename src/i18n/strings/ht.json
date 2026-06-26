@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Tape mesaj ou a...",
+      "listening": "Tande..."
+    },
+    "enableSound": "Pèmèt son",
+    "stt": {
+      "transcribing": "Transkripsyon: ",
+      "micActive": "Mikwofòn aktif...",
+      "heardError": "Padon, mwen pa t 'kapab tande ou. Tanpri eseye ankò.",
+      "micAccessError": "Pa kapab jwenn aksè nan mikwofòn. Tcheke otorizasyon yo."
+    },
+    "speed": {
+      "idle": "San fè anyen konsa:",
+      "talk": "Pale:"
+    }
+  },
+  "avatar": {
+    "loading": "Chaje avatar...",
+    "title": {
+      "maximize": "Maksimize",
+      "minimize": "Minimize",
+      "close": "Fèmen",
+      "clickToMaximize": "Klike pou maksimize",
+      "clickToMinimize": "Klike pou minimize"
+    },
+    "error": {
+      "loadFailed": "Echwe pou chaje avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer pa chaje",
+      "passwordRequired": "Modpas obligatwa pou fichye .ania chiffres",
+      "noSource": "Pa gen sous avatar bay (avatarUrl oswa avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Alo! Kouman mwen ka ede w jodi a?",
+    "1": "Bonjou! Byenvini! Kisa mwen ka fè pou ou?",
+    "2": "Bonjou la! Se konsa, mwen kontan pale ak ou!",
+    "3": "Bonjou! Mwen la pou ede. Kisa ou bezwen?",
+    "4": "Alo! koman ou ye? Kouman mwen ka itil?"
+  },
+  "waiting": {
+    "0": "Kite m panse...",
+    "1": "Yon moman...",
+    "2": "Pwosesis...",
+    "3": "Jis yon segond...",
+    "4": "Mwen tcheke sa pou ou..."
+  }
+}

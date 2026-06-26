@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Skriv inn meldingen din...",
+      "listening": "Lytter..."
+    },
+    "enableSound": "Aktiver lyd",
+    "stt": {
+      "transcribing": "Transkribering: ",
+      "micActive": "Mikrofon aktiv...",
+      "heardError": "Beklager, jeg kunne ikke høre deg. Vennligst prøv igjen.",
+      "micAccessError": "Får ikke tilgang til mikrofonen. Sjekk tillatelser."
+    },
+    "speed": {
+      "idle": "Inaktiv:",
+      "talk": "Snakk:"
+    }
+  },
+  "avatar": {
+    "loading": "Laster inn avatar ...",
+    "title": {
+      "maximize": "Maksimer",
+      "minimize": "Minimer",
+      "close": "Lukk",
+      "clickToMaximize": "Klikk for å maksimere",
+      "clickToMinimize": "Klikk for å minimere"
+    },
+    "error": {
+      "loadFailed": "Kunne ikke laste avataren: {{error}} ",
+      "playerNotLoaded": "AniaPlayer ikke lastet",
+      "passwordRequired": "Passord kreves for kryptert .ania-fil",
+      "noSource": "Ingen avatarkilde oppgitt (avatarUrl eller avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hei! Hvordan kan jeg hjelpe deg i dag?",
+    "1": "Hallo! Velkomst! Hva kan jeg gjøre for deg?",
+    "2": "Hei! Så glad for å snakke med deg!",
+    "3": "Hallo! Jeg er her for å hjelpe. Hva trenger du?",
+    "4": "Hei! Hvordan har du det? Hvordan kan jeg være nyttig?"
+  },
+  "waiting": {
+    "0": "La meg tenke...",
+    "1": "Et øyeblikk...",
+    "2": "Behandler...",
+    "3": "Bare et sekund...",
+    "4": "Jeg sjekker det for deg..."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "I-type me ing kekang mensahi...",
+      "listening": "Makiramdam..."
+    },
+    "enableSound": "I-enable ing Sound",
+    "stt": {
+      "transcribing": "Transcribe: ",
+      "micActive": "Microphone active...",
+      "heardError": "Pasensya na, eku daka dimdam. Subukan meng pasibayu.",
+      "micAccessError": "E malyaring lungub keng mikropono. Lawen la reng kapaintulutan."
+    },
+    "speed": {
+      "idle": "alang gagawan:",
+      "talk": "Magsalita:"
+    }
+  },
+  "avatar": {
+    "loading": "Loading avatar...",
+    "title": {
+      "maximize": "Maximize",
+      "minimize": "Bawasan",
+      "close": "malapit",
+      "clickToMaximize": "Pindutan me para mas maragul",
+      "clickToMinimize": "Pindutan me para mabawas"
+    },
+    "error": {
+      "loadFailed": "mebigu yang me load ing avatar: {{error}} ",
+      "playerNotLoaded": "E ya makaload ing AniaPlayer",
+      "passwordRequired": "kailangan ing password para keng encrypted a .ania file",
+      "noSource": "Ala yang avatar source (avatarUrl o avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! makananu dakang asaupan ngeni?",
+    "1": "Komusta! Salangi! Nanung agyu kung gawan para keka?",
+    "2": "Hello! Masaya kung akasabi daka!",
+    "3": "Komusta! Atyu ku keni para sumaup. Nanu ing kailangan mu?",
+    "4": "Komusta! Komusta naka? Makananu kung maging kapakibatan?"
+  },
+  "waiting": {
+    "0": "isipan ku...",
+    "1": "Metung a penandit...",
+    "2": "Processing...",
+    "3": "Saguli mu...",
+    "4": "tignan ke ita para keka..."
+  }
+}

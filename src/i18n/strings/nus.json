@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Gɔ̱ri ruacdu...",
+      "listening": "Li̱eŋ..."
+    },
+    "enableSound": "Enable jɔw",
+    "stt": {
+      "transcribing": "Tra̱ni̱thkri̱piŋ: ",
+      "micActive": "Mai̱kröpuɔɔn lätdɛ...",
+      "heardError": "Sorry, couldn't hear you. Ɣän göörä ɣöö bä nyɔk kɛ ɣɔ̱n.",
+      "micAccessError": "Unable to access microphone. Check permi̱cini̱."
+    },
+    "speed": {
+      "idle": "/Thiɛl:",
+      "talk": "Ruac:"
+    }
+  },
+  "avatar": {
+    "loading": "Kämdɛ raar avatar...",
+    "title": {
+      "maximize": "Makdhi̱maidhe",
+      "minimize": "Mini̱mai̱dhi̱",
+      "close": "Ga̱ŋ",
+      "clickToMaximize": "Click kɛ ɣöö biɛ kulɛ di̱t",
+      "clickToMinimize": "Click kɛ ɣöö ba kulɛ jakä kuiy"
+    },
+    "error": {
+      "loadFailed": "Failed to load avatar:  {{error}} ",
+      "playerNotLoaded": "AniaPlɛyɛr /ka̱nɛ kuëŋ thi̱n",
+      "passwordRequired": "Password required for encrypted .ania file",
+      "noSource": "/Thiɛlɛ gua̱a̱th in tuɔɔk avatar thi̱n mi̱ ca ŋun (abatarUrl kiɛ abatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Ɣi̱! How can I help you today?",
+    "1": "Malɛ! Ca ji nho̱k bën! Ɛŋu mi dëë lät kä ji̱?",
+    "2": "Ma̱lɛ! Kä ɣän tɛɛth lɔcdä ɛlɔ̱ŋ kɛ ruac kɛ ji̱!",
+    "3": "Malɛ! Ɣän ta̱a̱ wanɛ mɛ kɛ ɣöö bä ji̱ luäk. Ɛŋu mi go̱o̱ri?",
+    "4": "Ne̱rä ji! Ma̱l puɔ̱nydu? Ɣän bä tekɛ luɔt i̱di?"
+  },
+  "waiting": {
+    "0": "Ɣän cä car...",
+    "1": "Kɛ gua̱a̱th kɛl...",
+    "2": "La̱tdɛ...",
+    "3": "Ɛ thɛkɔnd kärɔa...",
+    "4": "I'm checking that for you..."
+  }
+}

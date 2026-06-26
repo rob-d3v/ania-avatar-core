@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Willakuyniykita qillqay...",
+      "listening": "Uyarispa..."
+    },
+    "enableSound": "T’uqyayta atichiy",
+    "stt": {
+      "transcribing": "Transcripción: 1.1. ",
+      "micActive": "Micrófono activo...",
+      "heardError": "Pampachaykuway, mana uyariyta atirqaykichu. Ama hina kaspa, hukmanta kallpachakuy.",
+      "micAccessError": "Micrófonoman mana yaykuyta atispa. Permisokunata qhaway."
+    },
+    "speed": {
+      "idle": "Ocioso: 1.1.",
+      "talk": "Rimanakuy:"
+    }
+  },
+  "avatar": {
+    "loading": "Avatarta kargachkanki...",
+    "title": {
+      "maximize": "Maximizar",
+      "minimize": "Minimizar",
+      "close": "Wichqay",
+      "clickToMaximize": "Aswan hatun kananpaq ñit’iy",
+      "clickToMinimize": "Aswan pisi kananpaq ñit’iy"
+    },
+    "error": {
+      "loadFailed": "Mana avatarta kargayta atirqanchu: {{error}} . ",
+      "playerNotLoaded": "AniaPlayer mana kargasqachu",
+      "passwordRequired": "Chifrasqa .ania willañiqipaq yaykuna rimay munasqa",
+      "noSource": "Mana avatar pukyuta qusqachu (avatarUrl icha avatarData) ."
+    }
+  },
+  "greetings": {
+    "0": "¡Hola! ¿Imaynatataq kunan punchaw yanapaykiman?",
+    "1": "Allinllachu! Allinlla chayaykamuy! ¿Imatataq qampaq ruwayman?",
+    "2": "Imaynallam! ¡Ancha kusisqan qanwan rimaspa!",
+    "3": "Allinllachu! Yanapanaypaqmi kaypi kachkani. ¿Imatataq necesitanki?",
+    "4": "Allinllachu! Imaynallam? ¿Imaynatataq yanapakuq kayman?"
+  },
+  "waiting": {
+    "0": "Yuyaymanasaq...",
+    "1": "Huk ratulla...",
+    "2": "Procesamiento...",
+    "3": "Huk segundolla...",
+    "4": "Chayta qampaq qhawachkani..."
+  }
+}

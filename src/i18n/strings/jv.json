@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ketik pesen sampeyan...",
+      "listening": "Ngrungokake..."
+    },
+    "enableSound": "Aktifake Swara",
+    "stt": {
+      "transcribing": "Transkripsi: ",
+      "micActive": "Mikropon aktif...",
+      "heardError": "Sorry, ora bisa krungu sampeyan. Coba maneh.",
+      "micAccessError": "Ora bisa ngakses mikropon. Priksa ijin."
+    },
+    "speed": {
+      "idle": "nganggur:",
+      "talk": "Dhiskusi:"
+    }
+  },
+  "avatar": {
+    "loading": "Loading avatar...",
+    "title": {
+      "maximize": "maksimalake",
+      "minimize": "nyilikake",
+      "close": "Nutup",
+      "clickToMaximize": "Klik kanggo nggedhekake",
+      "clickToMinimize": "Klik kanggo nyilikake"
+    },
+    "error": {
+      "loadFailed": "Gagal mbukak avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer ora dimuat",
+      "passwordRequired": "Tembung sandhi dibutuhake kanggo file .ania sing dienkripsi",
+      "noSource": "Ora ana sumber avatar sing diwenehake (avatarUrl utawa avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Kepiye carane aku bisa nulungi sampeyan dina iki?",
+    "1": "Hello! Sugeng rawuh! Apa sing bisa daktindakake kanggo sampeyan?",
+    "2": "Sugeng rawuh! Seneng banget ngomong karo sampeyan!",
+    "3": "Hello! Aku kene kanggo bantuan. Apa sing sampeyan butuhake?",
+    "4": "Hi! piye kabare? Kepiye carane bisa migunani?"
+  },
+  "waiting": {
+    "0": "Ayo aku mikir ...",
+    "1": "Sedhela...",
+    "2": "Ngolah...",
+    "3": "Sedhela wae...",
+    "4": "Aku mriksa sampeyan ..."
+  }
+}

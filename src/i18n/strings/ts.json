@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Thayipha rungula ra wena...",
+      "listening": "Ku yingisela..."
+    },
+    "enableSound": "Endla leswaku Mpfumawulo wu tirha",
+    "stt": {
+      "transcribing": "Ku tsala: . ",
+      "micActive": "Microphone yi tirha...",
+      "heardError": "Sorry, a ndzi swi kotanga ku ku twa. Hi kombela u ringeta nakambe.",
+      "micAccessError": "A swi koteki ku nghena eka microphone. Languta mpfumelelo."
+    },
+    "speed": {
+      "idle": "Ku nga tirhi: .",
+      "talk": "Nkulumo: ."
+    }
+  },
+  "avatar": {
+    "loading": "Ku layicha avatar...",
+    "title": {
+      "maximize": "Ku kurisa",
+      "minimize": "Ku hunguta",
+      "close": "Pfala",
+      "clickToMaximize": "Click ku kurisa",
+      "clickToMinimize": "Click ku hunguta"
+    },
+    "error": {
+      "loadFailed": "Ku tsandzekile ku layicha avatar: {{error}} . ",
+      "playerNotLoaded": "AniaPlayer a yi layichiwanga",
+      "passwordRequired": "Phasiwedi ya laveka eka fayili ya .ania leyi pfaleriweke",
+      "noSource": "Ku hava xihlovo xa avatar lexi nyikiweke (avatarUrl kumbe avatarData) ."
+    }
+  },
+  "greetings": {
+    "0": "Hi! Xana ndzi nga ku pfuna njhani namuntlha?",
+    "1": "Avuxeni! Amukela! Xana ndzi nga ku endlela yini?",
+    "2": "Avuxeni kwalaho! Ndzi tsakile swinene ku vulavula na wena!",
+    "3": "Avuxeni! Ndzi kona ku ta pfuna. Xana u lava yini?",
+    "4": "Xewani! Ku njhani? Xana ndzi nga pfuna njhani?"
+  },
+  "waiting": {
+    "0": "Ndzi pfumeleleni ndzi ehleketa...",
+    "1": "Nkarhi wun'we...",
+    "2": "Ku lulamisiwa ka...",
+    "3": "Sekoni ntsena...",
+    "4": "Ndzi ku checker sweswo..."
+  }
+}

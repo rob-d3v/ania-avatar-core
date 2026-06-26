@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ndik ote mari...",
+      "listening": "Winjo..."
+    },
+    "enableSound": "Yawo Dwol",
+    "stt": {
+      "transcribing": "Ndiko weche: ",
+      "micActive": "Maikrofon tiyo...",
+      "heardError": "<2Zepa> Akwayo ng'uono, ne ok anyal winjo wachni. Yie mondo item kendo.",
+      "micAccessError": "Ok nyal yudo maikrofon. Rang chike ma imiye."
+    },
+    "speed": {
+      "idle": "Ok otiyo:",
+      "talk": "Wach:"
+    }
+  },
+  "avatar": {
+    "loading": "Oting'o tipo...",
+    "title": {
+      "maximize": "Medo maduong'",
+      "minimize": "Duok piny",
+      "close": "Lor",
+      "clickToMaximize": "Gwel mondo imed",
+      "clickToMinimize": "Gwel mondo iduok piny"
+    },
+    "error": {
+      "loadFailed": "Orem keto avatar: {{error}} ",
+      "playerNotLoaded": "Jatugo mar Ania pok oting'o",
+      "passwordRequired": "Wach mar kadho dwarore mar fail mar .ania mondiki",
+      "noSource": "Onge kama avatar wuokie (Url mar rang'iny kata data mar rang'iny)"
+    }
+  },
+  "greetings": {
+    "0": "Amosi! Ere kaka anyalo konyi sani?",
+    "1": "Misawa! Machiegni! Ang’o ma anyalo timo ni in?",
+    "2": "Amosi kanyo! Omiyo, amor ahinya wuoyo kodi!",
+    "3": "Misawa! An kae mondo akony. Ang'o ma dwarore?",
+    "4": "Amosi! Idhi nade? Ere kaka inyalo bedo gi konyruok?"
+  },
+  "waiting": {
+    "0": "We apar...",
+    "1": "Kinde achiel...",
+    "2": "Tiyo...",
+    "3": "Sekon achiel kende...",
+    "4": "Arang'o mano kuomi..."
+  }
+}

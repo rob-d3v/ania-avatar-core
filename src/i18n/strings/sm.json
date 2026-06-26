@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Tusi lau fe'au...",
+      "listening": "Fa'alogo..."
+    },
+    "enableSound": "Fa'aaga le leo",
+    "stt": {
+      "transcribing": "Tusitala: ",
+      "micActive": "Ua gaioi le masini faaleotele leo...",
+      "heardError": "Fa'amalie atu, ua le mafai ona fa'alogoina oe. Fa'amolemole toe taumafai.",
+      "micAccessError": "Le mafai ona maua le masini faaleotele leo. Siaki fa'atagaga."
+    },
+    "speed": {
+      "idle": "Pi'e:",
+      "talk": "Talanoaga:"
+    }
+  },
+  "avatar": {
+    "loading": "Tu'u avatar...",
+    "title": {
+      "maximize": "Fa'atele",
+      "minimize": "Fa'aitiitiga",
+      "close": "Tapuni",
+      "clickToMaximize": "Kiliki e fa'ateleina",
+      "clickToMinimize": "Kiliki e fa'aitiitia"
+    },
+    "error": {
+      "loadFailed": "Ua le mafai ona uta le avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer e le'i utaina",
+      "passwordRequired": "Manaomia upu fa'aigoa mo faila .ania fa'ailoga",
+      "noSource": "Leai se puna avatar ua saunia (avatarUrl po'o avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Talofa! E mafai faapefea ona ou fesoasoani ia te oe i le aso?",
+    "1": "Talofa! Afio mai! O le a se mea e mafai ona ou faia mo oe?",
+    "2": "O a mai oe! E fiafia lava e talanoa atu ia te oe!",
+    "3": "Talofa! Ua ou i ai e fesoasoani. O a mea e te mana'omia?",
+    "4": "Talofa! O a mai oe? E mafai faapefea ona ou aoga?"
+  },
+  "waiting": {
+    "0": "Sei ou mafaufau...",
+    "1": "E tasi le taimi...",
+    "2": "Fa'agasolo...",
+    "3": "Na'o sina sekone...",
+    "4": "Ou te siakiina lena mea mo oe..."
+  }
+}

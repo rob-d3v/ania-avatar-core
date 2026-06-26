@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Bizskrivit ho kemennadenn...",
+      "listening": "O selaou..."
+    },
+    "enableSound": "Gweredekaat ar son",
+    "stt": {
+      "transcribing": "Treuzskrivañ : ",
+      "micActive": "Mikrofon oberiant...",
+      "heardError": "Digarez, n'em eus ket klevet ac'hanoc'h. Klaskit en-dro mar plij.",
+      "micAccessError": "N'haller ket mont e darempred gant ar mikro. Gwiriañ an aotreoù."
+    },
+    "speed": {
+      "idle": "Didalvoud :",
+      "talk": "Komz :"
+    }
+  },
+  "avatar": {
+    "loading": "O kargañ an avatar...",
+    "title": {
+      "maximize": "Brasaat",
+      "minimize": "Bihanaat",
+      "close": "Serriñ",
+      "clickToMaximize": "Klikañ evit brasaat",
+      "clickToMinimize": "Klikañ evit digreskiñ"
+    },
+    "error": {
+      "loadFailed": "C'hwitet war kargañ an avatar : {{error}} ",
+      "playerNotLoaded": "N'eo ket bet karget AniaPlayer",
+      "passwordRequired": "Ur ger-tremen ret evit ar restr .ania enrineget",
+      "noSource": "Mammenn avatar ebet kinniget (avatarUrl pe avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Salud ! Penaos e c'hellan sikour ac'hanoc'h hiziv?",
+    "1": "Salud deoc'h! Degemer mat! Petra a c'hellan ober evidoc'h?",
+    "2": "Ac'hanta tudoù! Laouen on o komz ganeoc'h !",
+    "3": "Salud deoc'h! Amañ emaon evit sikour. Petra hoc'h eus ezhomm?",
+    "4": "Salud! Mont a ra? Penaos e c'hellan bezañ talvoudus?"
+  },
+  "waiting": {
+    "0": "Lakait ac'hanon da soñjal...",
+    "1": "Ur pennadig...",
+    "2": "O treuzfurmiñ...",
+    "3": "Un eilenn hepken...",
+    "4": "Gwiriañ a ran an dra-se evidoc'h..."
+  }
+}

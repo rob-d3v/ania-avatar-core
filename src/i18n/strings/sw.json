@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Andika ujumbe wako...",
+      "listening": "Inasikiliza..."
+    },
+    "enableSound": "Washa Sauti",
+    "stt": {
+      "transcribing": "Kunukuu: ",
+      "micActive": "Maikrofoni inatumika...",
+      "heardError": "Samahani, sikuweza kukusikia. Tafadhali jaribu tena.",
+      "micAccessError": "Haiwezi kufikia maikrofoni. Angalia ruhusa."
+    },
+    "speed": {
+      "idle": "Bila kufanya kitu:",
+      "talk": "Mazungumzo:"
+    }
+  },
+  "avatar": {
+    "loading": "Inapakia avatar...",
+    "title": {
+      "maximize": "Ongeza",
+      "minimize": "Punguza",
+      "close": "Funga",
+      "clickToMaximize": "Bofya ili kuongeza",
+      "clickToMinimize": "Bofya ili kupunguza"
+    },
+    "error": {
+      "loadFailed": "Imeshindwa kupakia avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer haijapakiwa",
+      "passwordRequired": "Nenosiri linahitajika kwa faili iliyosimbwa kwa njia fiche ya .ania",
+      "noSource": "Hakuna chanzo cha ishara kilichotolewa (avatarUrl au avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Habari! Nikusaidieje leo?",
+    "1": "Habari! Karibu! Nikufanyie nini?",
+    "2": "Habari! Nimefurahi sana kuzungumza nawe!",
+    "3": "Habari! Niko hapa kusaidia. Unahitaji nini?",
+    "4": "Habari! Habari yako? Ninawezaje kuwa na manufaa?"
+  },
+  "waiting": {
+    "0": "Hebu nifikirie...",
+    "1": "Dakika moja...",
+    "2": "Inachakata...",
+    "3": "Sekunde moja tu...",
+    "4": "Ninakuangalia hiyo..."
+  }
+}

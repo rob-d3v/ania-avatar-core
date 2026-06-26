@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Type wo nkrasɛm no...",
+      "listening": "Tie a woretie..."
+    },
+    "enableSound": "Ma Nnyigyei nyɛ adwuma",
+    "stt": {
+      "transcribing": "Nsɛm a wɔkyerɛw: ",
+      "micActive": "Microphone a ɛyɛ adwuma...",
+      "heardError": "Yɛpa wo kyɛw, mantumi ante wo. Yɛsrɛ sɛ sɔ hwɛ bio.",
+      "micAccessError": "Wontumi nkɔ afiri a wɔde kasa no so. Hwɛ tumi krataa ahorow."
+    },
+    "speed": {
+      "idle": "Idle: 1 .",
+      "talk": "Ɔkasa:"
+    }
+  },
+  "avatar": {
+    "loading": "Wode avatar rekɔ so...",
+    "title": {
+      "maximize": "Maximize",
+      "minimize": "Tew so",
+      "close": "Bɛto mu",
+      "clickToMaximize": "Klik so na fa yɛ kɛse",
+      "clickToMinimize": "Klik so na fa ketewaa bi"
+    },
+    "error": {
+      "loadFailed": "Wɔantumi anhyɛ avatar: {{error}} . ",
+      "playerNotLoaded": "AniaPlayer no nnyɛ load",
+      "passwordRequired": "Password a ɛho hia ma .ania fael a wɔabɔ no kokoam",
+      "noSource": "Wɔamfa avatar fibea biara amma (avatarUrl anaa avatarData) ."
+    }
+  },
+  "greetings": {
+    "0": "Hi! Mɛyɛ dɛn aboa wo nnɛ?",
+    "1": "Hɛlo! Akwaaba! Dɛn na metumi ayɛ ama wo?",
+    "2": "Wo a wowɔ hɔ! Anigye kɛse sɛ me ne wo bɛkasa!",
+    "3": "Hɛlo! Mewɔ ha sɛ merebɛboa. Dɛn na wuhia?",
+    "4": "Hi! Wo ho te sɛn? Mɛyɛ dɛn atumi anya mfaso?"
+  },
+  "waiting": {
+    "0": "Ma mensusuw ho...",
+    "1": "Bere tiaa bi...",
+    "2": "Nneɛma a wɔyɛ...",
+    "3": "Sekan biako pɛ...",
+    "4": "Me deɛ, merehwɛ saa ama wo..."
+  }
+}

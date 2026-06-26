@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Picatz vòstre messatge...",
+      "listening": "Escotant..."
+    },
+    "enableSound": "Activar lo son",
+    "stt": {
+      "transcribing": "Transcripcion: ",
+      "micActive": "Micròfon actiu...",
+      "heardError": "O planhèm, vos ai pas pogut ausir. Ensajatz tornarmai.",
+      "micAccessError": "Impossible d'accedir al micrò. Verificar las permissions."
+    },
+    "speed": {
+      "idle": "Inactiu:",
+      "talk": "Conferéncia:"
+    }
+  },
+  "avatar": {
+    "loading": "En cargament d'avatar...",
+    "title": {
+      "maximize": "Maximizar",
+      "minimize": "Minimizar",
+      "close": "Barrar",
+      "clickToMaximize": "Clicatz per maximizar",
+      "clickToMinimize": "Clicatz per minimizar"
+    },
+    "error": {
+      "loadFailed": "Fracàs de cargar l'avatar : {{error}} ",
+      "playerNotLoaded": "AniaPlayer pas cargat",
+      "passwordRequired": "Senhal requerit pel fichièr .ania chifrat",
+      "noSource": "Cap de font avatar provesida (avatarUrl o avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Salut! Cossí vos pòdi ajudar uèi?",
+    "1": "Adieu! Benvengut! Qué pòdi far per tu?",
+    "2": "Adieu l'òme! Tan content de vos parlar!",
+    "3": "Adieu! Soi aquí per ajudar. De qué vos cal?",
+    "4": "Adieu! Cossí va? Cossí pòdi èsser util?"
+  },
+  "waiting": {
+    "0": "Me daissatz pensar...",
+    "1": "Un moment...",
+    "2": "Tractament...",
+    "3": "Sonque una segonda...",
+    "4": "Verifiqui aquò per tu..."
+  }
+}

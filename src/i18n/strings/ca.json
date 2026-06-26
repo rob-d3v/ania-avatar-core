@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Escriu el teu missatge...",
+      "listening": "Escoltant..."
+    },
+    "enableSound": "Activa el so",
+    "stt": {
+      "transcribing": "Transcripció: ",
+      "micActive": "Micròfon actiu...",
+      "heardError": "Ho sento, no t'he pogut escoltar. Si us plau, torna-ho a provar.",
+      "micAccessError": "No es pot accedir al micròfon. Comproveu els permisos."
+    },
+    "speed": {
+      "idle": "Inactiu:",
+      "talk": "Xerrada:"
+    }
+  },
+  "avatar": {
+    "loading": "S'està carregant l'avatar...",
+    "title": {
+      "maximize": "Maximitzar",
+      "minimize": "Minimitzar",
+      "close": "Tancar",
+      "clickToMaximize": "Feu clic per maximitzar",
+      "clickToMinimize": "Feu clic per minimitzar"
+    },
+    "error": {
+      "loadFailed": "No s'ha pogut carregar l'avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer no carregat",
+      "passwordRequired": "Cal una contrasenya per al fitxer .ania xifrat",
+      "noSource": "No s'ha proporcionat cap font d'avatar (avatarUrl o avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "hola! Com et puc ajudar avui?",
+    "1": "hola! Benvingut! Què puc fer per tu?",
+    "2": "Hola! Molt content de parlar amb tu!",
+    "3": "hola! Estic aquí per ajudar. Què necessites?",
+    "4": "hola! Com estàs? Com puc ser útil?"
+  },
+  "waiting": {
+    "0": "Deixa'm pensar...",
+    "1": "Un moment...",
+    "2": "S'està processant...",
+    "3": "Només un segon...",
+    "4": "T'estic comprovant..."
+  }
+}

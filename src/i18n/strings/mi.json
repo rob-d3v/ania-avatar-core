@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Patohia to karere...",
+      "listening": "Whakarongo..."
+    },
+    "enableSound": "Whakahohe Oro",
+    "stt": {
+      "transcribing": "Whakatuhi: ",
+      "micActive": "Hohe hopuoro...",
+      "heardError": "Aroha mai, kaore i rongo i a koe. Me ngana ano.",
+      "micAccessError": "Kaore e taea te uru ki te hopuoro. Tirohia nga whakaaetanga."
+    },
+    "speed": {
+      "idle": "Karekau:",
+      "talk": "Korero:"
+    }
+  },
+  "avatar": {
+    "loading": "Uta ana te avatar...",
+    "title": {
+      "maximize": "Whakanuia",
+      "minimize": "Whakaiti",
+      "close": "Katia",
+      "clickToMaximize": "Pāwhiri ki te whakanui",
+      "clickToMinimize": "Patohia ki te whakaiti"
+    },
+    "error": {
+      "loadFailed": "I rahua te uta i te avatar: {{error}} ",
+      "playerNotLoaded": "Kaore a AniaPlayer i utaina",
+      "passwordRequired": "Kupuhipa e hiahiatia ana mo te konae .ania whakamunatia",
+      "noSource": "Kaore he puna avatar i whakaratohia (avatarUrl, avatarData ranei)"
+    }
+  },
+  "greetings": {
+    "0": "Kia ora! Me pehea taku awhina i a koe i tenei ra?",
+    "1": "Kia ora! Nau mai haere mai! He aha taku mahi mo koe?",
+    "2": "Kia ora! Tena koa ki te korero ki a koe!",
+    "3": "Kia ora! Kei konei ahau ki te awhina. He aha e hiahia ana koe?",
+    "4": "Kia ora! Kei te pehea koe? Me pehea e whai hua ai ahau?"
+  },
+  "waiting": {
+    "0": "Kia whakaaro ahau...",
+    "1": "Kotahi te wa...",
+    "2": "Tukatuka...",
+    "3": "He rua noa...",
+    "4": "Kei te tirotiro ahau mo koe..."
+  }
+}

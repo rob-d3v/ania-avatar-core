@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ku qor fariintaada...",
+      "listening": "Dhegeysi..."
+    },
+    "enableSound": "Daar Codka",
+    "stt": {
+      "transcribing": "Qoraal: ",
+      "micActive": "Makarafoonka firfircoon...",
+      "heardError": "Waan ka xunahay, kuma maqli karin Fadlan isku day mar kale",
+      "micAccessError": "Aan awoodin in uu galo makarafoon Hubi ogolaanshaha"
+    },
+    "speed": {
+      "idle": "Shaqo la'aan",
+      "talk": "Hadal:"
+    }
+  },
+  "avatar": {
+    "loading": "Soodejinaya avatar...",
+    "title": {
+      "maximize": "Kordhi",
+      "minimize": "Yaree",
+      "close": "Xir",
+      "clickToMaximize": "Guji si aad u badiso",
+      "clickToMinimize": "Guji si aad u yarayso"
+    },
+    "error": {
+      "loadFailed": "Ku guuldareystay inuu soo geliyo avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer lama rarin",
+      "passwordRequired": "Erayga sirta ah ayaa looga baahan yahay faylka .ania sir ah",
+      "noSource": "Isha avatar lama bixiyo (avatarUrl ama avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Sideen ku caawin karaa maanta?",
+    "1": "Hello! Soo dhawoow! Maxaan kuu qabtaa?",
+    "2": "Waa salaaman tahay! Aad ayaan ugu faraxsanahay inaan kula hadlo!",
+    "3": "Hello! waxaan u imid inaan caawiyo Maxaad u baahan tahay?",
+    "4": "Hi! iska waran Sideen waxtar u yeelan karaa?"
+  },
+  "waiting": {
+    "0": "Aan ka fikiro...",
+    "1": "Hal daqiiqo...",
+    "2": "Habaynta...",
+    "3": "Kaliya hal ilbiriqsi...",
+    "4": "Taas ayaan adiga kuu eegayaa..."
+  }
+}

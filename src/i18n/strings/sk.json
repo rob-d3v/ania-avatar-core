@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Napíšte svoju správu...",
+      "listening": "Počúvanie..."
+    },
+    "enableSound": "Povoliť zvuk",
+    "stt": {
+      "transcribing": "Prepis: ",
+      "micActive": "Mikrofón aktívny...",
+      "heardError": "Prepáčte, nepočul som vás. Skúste to znova.",
+      "micAccessError": "Nedá sa získať prístup k mikrofónu. Skontrolujte povolenia."
+    },
+    "speed": {
+      "idle": "Nečinný:",
+      "talk": "Hovor:"
+    }
+  },
+  "avatar": {
+    "loading": "Načítava sa avatar...",
+    "title": {
+      "maximize": "Maximalizovať",
+      "minimize": "Minimalizovať",
+      "close": "Zavrieť",
+      "clickToMaximize": "Kliknutím maximalizujete",
+      "clickToMinimize": "Kliknutím minimalizujete"
+    },
+    "error": {
+      "loadFailed": "Nepodarilo sa načítať avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer nie je načítaný",
+      "passwordRequired": "Pre zašifrovaný súbor .ania sa vyžaduje heslo",
+      "noSource": "Nebol poskytnutý žiadny zdroj avatara (avatarUrl alebo avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Ahoj! Ako ti dnes môžem pomôcť?",
+    "1": "Dobrý deň! Vitajte! čo pre teba môžem urobiť?",
+    "2": "Dobrý deň! Som rád, že s vami môžem hovoriť!",
+    "3": "Dobrý deň! Som tu, aby som vám pomohol. čo potrebuješ",
+    "4": "Ahoj! ako sa máš? Ako môžem byť užitočný?"
+  },
+  "waiting": {
+    "0": "Nechaj ma premýšľať...",
+    "1": "Moment...",
+    "2": "Spracováva sa...",
+    "3": "Len sekundu...",
+    "4": "Kontrolujem ti to..."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Taip mesej anda...",
+      "listening": "Mendengar..."
+    },
+    "enableSound": "Dayakan Bunyi",
+    "stt": {
+      "transcribing": "Mentranskripsi: ",
+      "micActive": "Mikrofon aktif...",
+      "heardError": "Maaf, tidak dapat mendengar anda. Sila cuba lagi.",
+      "micAccessError": "Tidak dapat mengakses mikrofon. Semak kebenaran."
+    },
+    "speed": {
+      "idle": "terbiar:",
+      "talk": "ceramah:"
+    }
+  },
+  "avatar": {
+    "loading": "Memuatkan avatar...",
+    "title": {
+      "maximize": "Maksimumkan",
+      "minimize": "Minimumkan",
+      "close": "tutup",
+      "clickToMaximize": "Klik untuk memaksimumkan",
+      "clickToMinimize": "Klik untuk meminimumkan"
+    },
+    "error": {
+      "loadFailed": "Gagal memuatkan avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer tidak dimuatkan",
+      "passwordRequired": "Kata laluan diperlukan untuk fail .ania yang disulitkan",
+      "noSource": "Tiada sumber avatar disediakan (avatarUrl atau avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hai! Bagaimana saya boleh membantu anda hari ini?",
+    "1": "hello! Selamat datang! Apa yang boleh saya lakukan untuk awak?",
+    "2": "Hai! Sangat gembira untuk bercakap dengan anda!",
+    "3": "hello! Saya di sini untuk membantu. Apa yang anda perlukan?",
+    "4": "Hai! apa khabar Bagaimana saya boleh berguna?"
+  },
+  "waiting": {
+    "0": "Biar saya fikir...",
+    "1": "sekejap...",
+    "2": "Memproses...",
+    "3": "Kejap lagi...",
+    "4": "Saya sedang menyemaknya untuk anda..."
+  }
+}

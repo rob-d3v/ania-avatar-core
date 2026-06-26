@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Thaepa molaetša wa gago...",
+      "listening": "Go theeletša..."
+    },
+    "enableSound": "Kgontšha Modumo",
+    "stt": {
+      "transcribing": "Go ngwalolla: . ",
+      "micActive": "Maekrofouno e šomago...",
+      "heardError": "Maswabi, ga se ka kgona go go kwa. Hle leka gape.",
+      "micAccessError": "Ga a kgone go fihlelela maekrofouno. Lekola ditumelelo."
+    },
+    "speed": {
+      "idle": "Go se dire selo: .",
+      "talk": "Polelo: ."
+    }
+  },
+  "avatar": {
+    "loading": "Go laetša avatar...",
+    "title": {
+      "maximize": "Godiša",
+      "minimize": "Fokotša",
+      "close": "Tswala",
+      "clickToMaximize": "Tobetsa go godiša",
+      "clickToMinimize": "Tobetsa go fokotša"
+    },
+    "error": {
+      "loadFailed": "E paletšwe ke go laetša avatar: {{error}} . ",
+      "playerNotLoaded": "AniaPlayer ga se ya imelwa",
+      "passwordRequired": "Phasewete e nyakegago bakeng sa faele ya .ania yeo e šitišitšwego",
+      "noSource": "Ga go na mothopo wa avatar wo o filwego (avatarUrl goba avatarData) ."
+    }
+  },
+  "greetings": {
+    "0": "Thobela! Nka go thuša bjang lehono?",
+    "1": "Thobela! Le amogetšwe! Nka go direla eng?",
+    "2": "Dumela moo! Ke thabile kudu go bolela le wena!",
+    "3": "Thobela! Ke mo go thuša. O hloka eng?",
+    "4": "Thobela! Le kae? Nka ba le mohola bjang?"
+  },
+  "waiting": {
+    "0": "E re ke nagane...",
+    "1": "Motsotso o tee...",
+    "2": "Tshepedišo ya...",
+    "3": "Motsotswana feela...",
+    "4": "Ke go lekola seo..."
+  }
+}

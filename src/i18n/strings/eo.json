@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Tajpu vian mesaĝon...",
+      "listening": "Aŭskultante..."
+    },
+    "enableSound": "Ebligu Sonon",
+    "stt": {
+      "transcribing": "Transskribado: ",
+      "micActive": "Aktiva mikrofono...",
+      "heardError": "Pardonu, mi ne povis aŭdi vin. Bonvolu provi denove.",
+      "micAccessError": "Ne eblas aliri mikrofonon. Kontrolu permesojn."
+    },
+    "speed": {
+      "idle": "Neaktiva:",
+      "talk": "Diskuto:"
+    }
+  },
+  "avatar": {
+    "loading": "Ŝarĝante avataron...",
+    "title": {
+      "maximize": "Maksimumigi",
+      "minimize": "Minimumigi",
+      "close": "Fermu",
+      "clickToMaximize": "Klaku por maksimumigi",
+      "clickToMinimize": "Klaku por minimumigi"
+    },
+    "error": {
+      "loadFailed": "Malsukcesis ŝargi avataron: {{error}} ",
+      "playerNotLoaded": "AniaPlayer ne ŝargita",
+      "passwordRequired": "Pasvorto necesa por ĉifrita .ania dosiero",
+      "noSource": "Neniu avatarfonto disponigita (avatarUrl aŭ avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Saluton! Kiel mi povas helpi vin hodiaŭ?",
+    "1": "Saluton! Bonvenon! Kion mi povas fari por vi?",
+    "2": "Saluton! Tiel ĝojas paroli kun vi!",
+    "3": "Saluton! Mi estas ĉi tie por helpi. Kion vi bezonas?",
+    "4": "Saluton! Kiel vi fartas? Kiel mi povas esti utila?"
+  },
+  "waiting": {
+    "0": "Lasu min pensi...",
+    "1": "Unu momento...",
+    "2": "Prilaborado...",
+    "3": "Nur sekundo...",
+    "4": "Mi kontrolas tion por vi..."
+  }
+}

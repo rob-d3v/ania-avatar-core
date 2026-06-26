@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Scrivite u vostru messagiu...",
+      "listening": "Ascolta..."
+    },
+    "enableSound": "Attivà u sonu",
+    "stt": {
+      "transcribing": "Trascrizione: ",
+      "micActive": "Microfonu attivu...",
+      "heardError": "Scusate, ùn ti pudia sente. Per piacè pruvate di novu.",
+      "micAccessError": "Impossibile à accede à u microfonu. Verificate i permessi."
+    },
+    "speed": {
+      "idle": "Idle:",
+      "talk": "Parlà:"
+    }
+  },
+  "avatar": {
+    "loading": "Caricamentu di l'avatar...",
+    "title": {
+      "maximize": "Maximize",
+      "minimize": "Minimizà",
+      "close": "Chiudi",
+      "clickToMaximize": "Cliccate per maximizà",
+      "clickToMinimize": "Cliccate per minimizzà"
+    },
+    "error": {
+      "loadFailed": "Fallu di carica l'avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer ùn hè micca caricatu",
+      "passwordRequired": "Password necessaria per u schedariu .ania criptatu",
+      "noSource": "Nisuna fonte di avatar furnita (avatarUrl o avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Salute ! Cumu possu aiutà vi oghje ?",
+    "1": "Bonghjornu! Benvenuti! Chì possu fà per voi ?",
+    "2": "Bonghjornu à tutti! Cusì felice di parlà cun voi!",
+    "3": "Bonghjornu! Sò quì per aiutà. Chì avete bisognu?",
+    "4": "Salute ! Cumu si? Cumu possu esse utile?"
+  },
+  "waiting": {
+    "0": "Lasciami pensà...",
+    "1": "Un mumentu...",
+    "2": "Trattamentu...",
+    "3": "Solu un secondu...",
+    "4": "Aghju verificatu chì per voi..."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Clóscríobh do theachtaireacht...",
+      "listening": "Ag éisteacht..."
+    },
+    "enableSound": "Cumasaigh Fuaim",
+    "stt": {
+      "transcribing": "Ag tras-scríobh: ",
+      "micActive": "Micreafón gníomhach...",
+      "heardError": "Tá brón orm, níorbh fhéidir thú a chloisteáil. Bain triail eile as.",
+      "micAccessError": "Ní féidir rochtain a fháil ar an micreafón. Seiceáil ceadanna."
+    },
+    "speed": {
+      "idle": "Díomhaoin:",
+      "talk": "Labhair:"
+    }
+  },
+  "avatar": {
+    "loading": "Avatar á lódáil...",
+    "title": {
+      "maximize": "Uasmhéadaigh",
+      "minimize": "Íoslaghdaigh",
+      "close": "Dún",
+      "clickToMaximize": "Cliceáil chun uasmhéadú",
+      "clickToMinimize": "Cliceáil chun a íoslaghdú"
+    },
+    "error": {
+      "loadFailed": "Theip ar an avatar a lódáil: {{error}} ",
+      "playerNotLoaded": "AniaPlayer gan luchtú",
+      "passwordRequired": "Pasfhocal ag teastáil le haghaidh comhad .ania criptithe",
+      "noSource": "Níor soláthraíodh aon fhoinse avatar (avatarUrl nó avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Dia duit! Conas is féidir liom cabhrú leat inniu?",
+    "1": "Dia duit! Fáilte romhat! Cad is féidir liom a dhéanamh duit?",
+    "2": "Dia duit ann! Chomh sásta labhairt leat!",
+    "3": "Dia duit! Tá mé anseo chun cabhrú leat. Cad atá uait?",
+    "4": "Dia duit! Conas atá tú? Conas is féidir liom a bheith úsáideach?"
+  },
+  "waiting": {
+    "0": "Lig dom smaoineamh...",
+    "1": "Nóiméad amháin...",
+    "2": "Próiseáil...",
+    "3": "Níl ach soicind...",
+    "4": "Tá mé ag seiceáil sin duit ..."
+  }
+}

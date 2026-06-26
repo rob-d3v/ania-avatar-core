@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Nhập tin nhắn của bạn...",
+      "listening": "Đang nghe..."
+    },
+    "enableSound": "Bật âm thanh",
+    "stt": {
+      "transcribing": "Phiên âm: ",
+      "micActive": "Micrô đang hoạt động...",
+      "heardError": "Xin lỗi, không thể nghe thấy bạn. Vui lòng thử lại.",
+      "micAccessError": "Không thể truy cập micrô. Kiểm tra quyền."
+    },
+    "speed": {
+      "idle": "Nhàn rỗi:",
+      "talk": "Nói chuyện:"
+    }
+  },
+  "avatar": {
+    "loading": "Đang tải hình đại diện...",
+    "title": {
+      "maximize": "Tối đa hóa",
+      "minimize": "Giảm thiểu",
+      "close": "Đóng",
+      "clickToMaximize": "Nhấp để tối đa hóa",
+      "clickToMinimize": "Bấm để thu nhỏ"
+    },
+    "error": {
+      "loadFailed": "Không tải được hình đại diện: {{error}} ",
+      "playerNotLoaded": "AniaPlayer chưa được tải",
+      "passwordRequired": "Yêu cầu mật khẩu cho tệp .ania được mã hóa",
+      "noSource": "Không có nguồn hình đại diện nào được cung cấp (avatarUrl hoặc avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Xin chào! Hôm nay tôi có thể giúp gì cho bạn?",
+    "1": "Xin chào! Chào mừng! Tôi có thể làm gì cho bạn?",
+    "2": "Chào bạn! Rất vui được nói chuyện với bạn!",
+    "3": "Xin chào! Tôi ở đây để giúp đỡ. Bạn cần gì?",
+    "4": "CHÀO! Bạn có khỏe không? Làm thế nào tôi có thể hữu ích?"
+  },
+  "waiting": {
+    "0": "Để tôi nghĩ...",
+    "1": "Một khoảnh khắc...",
+    "2": "Đang xử lý...",
+    "3": "Chỉ một giây thôi...",
+    "4": "Tôi đang kiểm tra điều đó cho bạn..."
+  }
+}

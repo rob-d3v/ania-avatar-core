@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Wandiika obubaka bwo...",
+      "listening": "Okuwuliriza..."
+    },
+    "enableSound": "Ssobozesa Eddoboozi",
+    "stt": {
+      "transcribing": "Okuwandiika: ",
+      "micActive": "Microphone ekola...",
+      "heardError": "Bambi, saasobola kukuwulira. Nsaba oddemu ogezeeko.",
+      "micAccessError": "Tesobola kuyingira mu mayirofooni. Kebera olukusa."
+    },
+    "speed": {
+      "idle": "Idle:",
+      "talk": "Emboozi:"
+    }
+  },
+  "avatar": {
+    "loading": "Okutikka avatar...",
+    "title": {
+      "maximize": "Maximize nnyo",
+      "minimize": "Kikendeeze ku nsonga eno",
+      "close": "Ggalawo",
+      "clickToMaximize": "Nyiga okufuna ebisingawo",
+      "clickToMinimize": "Nyiga okendeeze"
+    },
+    "error": {
+      "loadFailed": "Eremereddwa okutikka avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer tetikkiddwa",
+      "passwordRequired": "Password eyeetaagibwa ku fayiro ya .ania ensirifu",
+      "noSource": "Tewali nsibuko ya avatar eweereddwa (avatarUrl oba avatarData) ."
+    }
+  },
+  "greetings": {
+    "0": "Hi! Nnyinza ntya okukuyamba leero?",
+    "1": "Nkulamusizza! Kaale! Kiki kye nnyinza okukukolera?",
+    "2": "Nkulamusizaako! Nsanyuse nnyo okwogera naawe!",
+    "3": "Nkulamusizza! Nze ndi wano okuyamba. Kiki kye weetaaga?",
+    "4": "Nkulamusizza! Oli otya? Nnyinza ntya okuba ow’omugaso?"
+  },
+  "waiting": {
+    "0": "Ka ndowooza nti...",
+    "1": "Akaseera kamu...",
+    "2": "Okukola ku nsonga eno...",
+    "3": "Akasekondi katono...",
+    "4": "Ekyo nkikebera ku lulwo..."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Soraty ny hafatrao...",
+      "listening": "Mihaino..."
+    },
+    "enableSound": "Alefaso ny feo",
+    "stt": {
+      "transcribing": "Mandika: ",
+      "micActive": "Microphone mavitrika...",
+      "heardError": "Miala tsiny fa tsy nahare anao. Andramo indray azafady.",
+      "micAccessError": "Tsy afaka miditra mikrofona. Jereo ny fahazoan-dàlana."
+    },
+    "speed": {
+      "idle": "tsy miasa:",
+      "talk": "Resaka:"
+    }
+  },
+  "avatar": {
+    "loading": "Mametraka avatar...",
+    "title": {
+      "maximize": "Maximize",
+      "minimize": "Manamaivana",
+      "close": "Akatona",
+      "clickToMaximize": "Kitiho raha ampitomboina",
+      "clickToMinimize": "Tsindrio raha hanamaivana"
+    },
+    "error": {
+      "loadFailed": "Tsy nahomby ny fampidirana avatar: {{error}} ",
+      "playerNotLoaded": "Tsy voaloa ny AniaPlayer",
+      "passwordRequired": "Ilaina ny tenimiafina ho an'ny rakitra .ania miafina",
+      "noSource": "Tsy misy loharano avatar omena (avatarUrl na avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Salama! Ahoana no ahafahako manampy anao anio?",
+    "1": "Salama! Tongasoa! Inona no azoko atao ho anao?",
+    "2": "Salama e! Tena faly miresaka aminao!",
+    "3": "Salama! Eto aho hanampy. Inona no ilainao?",
+    "4": "Salama! Manao ahoana ianao? Ahoana no hahasoa ahy?"
+  },
+  "waiting": {
+    "0": "Avelao aho hieritreritra...",
+    "1": "Indray mandeha...",
+    "2": "Mikarakara...",
+    "3": "Kely kely...",
+    "4": "Manamarina izany ho anao aho..."
+  }
+}

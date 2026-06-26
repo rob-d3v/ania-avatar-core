@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ketik pesan droeneuh...",
+      "listening": "Teungoh tadeungo..."
+    },
+    "enableSound": "Aktifkan Su",
+    "stt": {
+      "transcribing": "Transkripsi: ",
+      "micActive": "Mikrofon aktif...",
+      "heardError": "Maaf, hana jeut lon deungoe. Neu cuba lom.",
+      "micAccessError": "Hana jeuet ta akses mikrofon. Cek izin."
+    },
+    "speed": {
+      "idle": "Nganggur:",
+      "talk": "Ceramah:"
+    }
+  },
+  "avatar": {
+    "loading": "Meumuat avatar...",
+    "title": {
+      "maximize": "Maksimalkan",
+      "minimize": "Meuminimalkan",
+      "close": "Tutop",
+      "clickToMaximize": "Klik keu maksimal",
+      "clickToMinimize": "Klik keu neu minimalkan"
+    },
+    "error": {
+      "loadFailed": "Gagal memuat avatar: {{error}} . ",
+      "playerNotLoaded": "AniaPlayer hana geumuat",
+      "passwordRequired": "Kata sandi nyang peureulee keu file .ania nyang ka teusandi .",
+      "noSource": "Hana sumber avatar nyang ka geubri (Url avatar atawa Data avatar)"
+    }
+  },
+  "greetings": {
+    "0": "Hai! Pakriban cara lôn tulông gata uroenyoe?",
+    "1": "Halo! Saleuem! Peue nyang jeuet ulôn peubuet keu gata?",
+    "2": "Euk! Jadi seunang that meututo ngon droeneuh!",
+    "3": "Halo! Lon disinoe keuneuk bantu. Peue nyang gata peureulée?",
+    "4": "Hai! Puhaba? Pakriban cara jeuet keu manfaat?"
+  },
+  "waiting": {
+    "0": "Bah lon pike...",
+    "1": "Saboh saat...",
+    "2": "Peuproses...",
+    "3": "Cuma si detik...",
+    "4": "Lon cek nyan keu droeneuh..."
+  }
+}

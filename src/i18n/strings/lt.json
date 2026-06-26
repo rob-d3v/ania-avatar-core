@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Įveskite savo žinutę...",
+      "listening": "Klausau..."
+    },
+    "enableSound": "Įjungti garsą",
+    "stt": {
+      "transcribing": "Transkribavimas: ",
+      "micActive": "Mikrofonas aktyvus...",
+      "heardError": "Atsiprašau, negirdėjau. Bandykite dar kartą.",
+      "micAccessError": "Nepavyko pasiekti mikrofono. Patikrinkite leidimus."
+    },
+    "speed": {
+      "idle": "Tuščia eiga:",
+      "talk": "Pokalbis:"
+    }
+  },
+  "avatar": {
+    "loading": "Įkeliamas pseudoportretas...",
+    "title": {
+      "maximize": "Maksimaliai",
+      "minimize": "Sumažinti",
+      "close": "Uždaryti",
+      "clickToMaximize": "Spustelėkite, kad padidintumėte",
+      "clickToMinimize": "Spustelėkite, kad sumažintumėte"
+    },
+    "error": {
+      "loadFailed": "Nepavyko įkelti avataro: {{error}} ",
+      "playerNotLoaded": "AniaPlayer neįkeltas",
+      "passwordRequired": "Užšifruotam .ania failui reikalingas slaptažodis",
+      "noSource": "Nepateiktas avataro šaltinis (avatarUrl arba avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Sveiki! Kaip aš galiu tau padėti šiandien?",
+    "1": "Sveiki! Sveiki atvykę! Ką aš galiu jums padėti?",
+    "2": "Sveiki! Labai malonu su tavimi pasikalbėti!",
+    "3": "Sveiki! Aš čia, kad padėčiau. ko tau reikia?",
+    "4": "Sveiki! kaip sekasi? Kaip aš galiu būti naudingas?"
+  },
+  "waiting": {
+    "0": "Leisk man pagalvoti...",
+    "1": "Viena akimirka...",
+    "2": "Apdorojama...",
+    "3": "Tik sekundę...",
+    "4": "Aš tai tikrinu už jus..."
+  }
+}

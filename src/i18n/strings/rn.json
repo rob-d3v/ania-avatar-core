@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Andika ubutumwa bwawe...",
+      "listening": "Kumviriza..."
+    },
+    "enableSound": "Gushoboza Ijwi",
+    "stt": {
+      "transcribing": "Guhindura: ",
+      "micActive": "Mikoro irakora...",
+      "heardError": "Mbabarira, sinshobora kukwumva. Ndagusavye wongere ugerageze.",
+      "micAccessError": "Ntishobora gushika ku mikoro. Suzuma uruhusha."
+    },
+    "speed": {
+      "idle": "Ubusa:",
+      "talk": "Ikiganiro:"
+    }
+  },
+  "avatar": {
+    "loading": "Gushiramwo ishusho...",
+    "title": {
+      "maximize": "Gushiramwo vyinshi",
+      "minimize": "Kugabanya",
+      "close": "Gufunga",
+      "clickToMaximize": "Fyonda kugira ngo ushire hejuru",
+      "clickToMinimize": "Fyonda kugira ngo ugabanye"
+    },
+    "error": {
+      "loadFailed": "Yananiwe gushiramwo avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer ntiyashizwemwo",
+      "passwordRequired": "Ijambobanga rikenewe kuri dosiye .ania yashizwemwo",
+      "noSource": "Nta nkomoko y'ishusho yatanzwe (Url y'ishusho canke amakuru y'ishusho)"
+    }
+  },
+  "greetings": {
+    "0": "Ndagusavye! None nogufasha gute uno musi?",
+    "1": "Mwaramutse! Muratumiwe! None nogukorera iki?",
+    "2": "Mwaramutse! Nishimiye cane kuvugana nawe!",
+    "3": "Mwaramutse! Ndi hano kugira mfashe. None wewe ukeneye iki?",
+    "4": "Mwaramutse! Umerewe gute? Noba ngirakamaro gute?"
+  },
+  "waiting": {
+    "0": "Reka niyumvire...",
+    "1": "Umusi umwe...",
+    "2": "Gutunganya...",
+    "3": "Umusegonda gusa...",
+    "4": "Ivyo ndabisuzuma kuri wewe..."
+  }
+}

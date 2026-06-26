@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ketik ma pesan nassiam...",
+      "listening": "Manangar..."
+    },
+    "enableSound": "Aktifkon Soara",
+    "stt": {
+      "transcribing": "Manranskripsihon: ",
+      "micActive": "Mikrofon aktif...",
+      "heardError": "Santabi, lang tarbogei ham. Uji ma use.",
+      "micAccessError": "Lang boi masuk hu mikrofon. Pareksa ma ijin."
+    },
+    "speed": {
+      "idle": "Lang marhorja:",
+      "talk": "Marsahap:"
+    }
+  },
+  "avatar": {
+    "loading": "Mamuat avatar...",
+    "title": {
+      "maximize": "Maksimalhon",
+      "minimize": "Paetek",
+      "close": "Tutup",
+      "clickToMaximize": "Klik laho mamaksimalhon",
+      "clickToMinimize": "Klik laho mangurangi"
+    },
+    "error": {
+      "loadFailed": "Gagal mamuat avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer lang i muat",
+      "passwordRequired": "Hata sandi na ihaporluhon bani file .ania na terenkripsi",
+      "noSource": "Lang dong sumber avatar na ibere (avatarUrl atap avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Horas! Sonaha ahu boi mangurupi ham sadari on?",
+    "1": "Horas! Selamat datang! Aha ma na boi bahenonku bamu?",
+    "2": "Oi baya! Malas tumang uhurhu marsahap pakon nassiam!",
+    "3": "Horas! Ijon do ahu laho mangurupi. Aha do na porlu bamu?",
+    "4": "Horas! Aha kabarmu? Sonaha ase boi ahu marguna?"
+  },
+  "waiting": {
+    "0": "Paturut ham ma ahu marpingkir...",
+    "1": "Sada panorang...",
+    "2": "Mamproses...",
+    "3": "Sadetik dassa...",
+    "4": "Hupareksa do ai bamu..."
+  }
+}

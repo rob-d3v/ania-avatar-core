@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Tyá message na yo...",
+      "listening": "Koyoka..."
+    },
+    "enableSound": "Activer Son",
+    "stt": {
+      "transcribing": "Kokoma na mikanda: ",
+      "micActive": "Microphone ezali kosala...",
+      "heardError": "Pardon, nakokaki koyoka yo te. Svp meka lisusu.",
+      "micAccessError": "Kokoka te kokɔta na micro. Talá ndingisa."
+    },
+    "speed": {
+      "idle": "Kosala mosala te:",
+      "talk": "Lisolo:"
+    }
+  },
+  "avatar": {
+    "loading": "Nazali ko charger avatar...",
+    "title": {
+      "maximize": "Maximiser yango mingi",
+      "minimize": "Bosala ete ezala moke",
+      "close": "Bokanga",
+      "clickToMaximize": "Cliquez pona ko maximiser",
+      "clickToMinimize": "Cliquez pona ko minimiser"
+    },
+    "error": {
+      "loadFailed": "Elongi te ko charger avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer ezo charger te",
+      "passwordRequired": "Mot de passe esengeli mpo na fichier .ania chiffré",
+      "noSource": "Liziba ya avatar epesami te (avatarUrl to avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Mbote Mbote! Ndenge nini nakoki kosalisa yo lelo?",
+    "1": "Mbote! Boyei malamu! Nakoki kosala nini mpo na yo?",
+    "2": "Mbote kuna! Esengo mingi ya kosolola na yo!",
+    "3": "Mbote! Nazali awa mpo na kosalisa. Ozali na mposa ya nini?",
+    "4": "Mbote! Boni? Ndenge nini nakoki kozala na ntina?"
+  },
+  "waiting": {
+    "0": "Tika nakanisa...",
+    "1": "Moment moko...",
+    "2": "Traitement ya...",
+    "3": "Kaka na segɔnde moko...",
+    "4": "Nazo vérifier yango pona bino..."
+  }
+}

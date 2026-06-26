@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Sgrìobh do theachdaireachd...",
+      "listening": "Ag èisteachd..."
+    },
+    "enableSound": "Dèan comas air Fuaim",
+    "stt": {
+      "transcribing": "Ag ath-sgrìobhadh: ",
+      "micActive": "Microfòn gnìomhach ...",
+      "heardError": "Duilich, cha chualas tu. Feuch ris a-rithist.",
+      "micAccessError": "Chan urrainn dhuinn cothrom fhaighinn air a’ mhicreofon. Thoir sùil air ceadan."
+    },
+    "speed": {
+      "idle": "Dìomhair:",
+      "talk": "Bruidhinn:"
+    }
+  },
+  "avatar": {
+    "loading": "A luchdachadh a-nuas bho avatar.. .",
+    "title": {
+      "maximize": "Meudaich",
+      "minimize": "Lùghdaich",
+      "close": "Dùin",
+      "clickToMaximize": "Cliog gus a mheudachadh",
+      "clickToMinimize": "Cliog gus a lughdachadh"
+    },
+    "error": {
+      "loadFailed": "Cha b’ urrainn dhuinn an avatar a luchdachadh: {{error}} ",
+      "playerNotLoaded": "Aniaplayer cha deach a luchdadh",
+      "passwordRequired": "Facal-faire a dhìth airson faidhle .ania crioptaichte",
+      "noSource": "Chan eil stòr avatar air a thoirt seachad (avatarUrl no avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Ciamar as urrainn dhomh do chuideachadh an-diugh?",
+    "1": "Halò! Fàilte! Dè as urrainn dhomh a dhèanamh dhut?",
+    "2": "Haigh! Cho toilichte bruidhinn riut!",
+    "3": "Halò! Tha mi an seo airson cuideachadh. Dè tha a dhìth ort?",
+    "4": "Hi! Ciamar a tha thu? Ciamar as urrainn dhomh a bhith feumail?"
+  },
+  "waiting": {
+    "0": "Leig leam smaoineachadh ...",
+    "1": "Aon mhionaid...",
+    "2": "A' giullachd...",
+    "3": "Dìreach diog...",
+    "4": "Tha mi a’ dèanamh sgrùdadh air sin dhut..."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Taipa imbila yobe...",
+      "listening": "Ukukutika..."
+    },
+    "enableSound": "Suminisheni Iciunda",
+    "stt": {
+      "transcribing": "Ukupilibula: ",
+      "micActive": "Maikulofoni ilebomba...",
+      "heardError": "Mutwelele, nshaumfwile. Mukwai esheniko nakabili.",
+      "micAccessError": "Teti mukwate maikulofoni. Moneni ifyasuminishiwa."
+    },
+    "speed": {
+      "idle": "Uushabomba:",
+      "talk": "Ukulanshanya:"
+    }
+  },
+  "avatar": {
+    "loading": "Ukubika icikope...",
+    "title": {
+      "maximize": "Ukukulisha",
+      "minimize": "Ukucefyako",
+      "close": "Isaleni",
+      "clickToMaximize": "Tinikeni pakukulisha",
+      "clickToMinimize": "Tinikeni pakucefyako"
+    },
+    "error": {
+      "loadFailed": "Cafilwa ukubika icikope: {{error}} ",
+      "playerNotLoaded": "Icakubelenga ica Ania tacibikwa",
+      "passwordRequired": "Ishiwi lya kwisalilako lilekabilwa ku fayelo ya .ania iyafisama",
+      "noSource": "Tapali intuntuko ya cikope iyapeelwe (Url ya cikope nangu amashiwi ya cikope)"
+    }
+  },
+  "greetings": {
+    "0": "Mwapoleni! Bushe kuti namwafwa shani lelo?",
+    "1": "Muli shani! Ukusengela! Cinshi ningamucitila?",
+    "2": "Muli shani imwe! Nalitemwa nga nshi ukulanda naimwe!",
+    "3": "Muli shani! Naisa pano ku kwafwilisha. Cinshi ico mulekabila?",
+    "4": "Muli shani! Muli shani? Bushe kuti naba shani uwacindama?"
+  },
+  "waiting": {
+    "0": "Lekeni ntontonkanye...",
+    "1": "Inshita imo...",
+    "2": "Ukubombela pa...",
+    "3": "Sekondi fye imo...",
+    "4": "Naleceeceeta ifyo kuli imwe..."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Wpisz wiadomość...",
+      "listening": "Słucham..."
+    },
+    "enableSound": "Włącz dźwięk",
+    "stt": {
+      "transcribing": "Transkrypcja: ",
+      "micActive": "Mikrofon aktywny...",
+      "heardError": "Przepraszam, nie słyszałem cię. Spróbuj ponownie.",
+      "micAccessError": "Nie można uzyskać dostępu do mikrofonu. Sprawdź uprawnienia."
+    },
+    "speed": {
+      "idle": "Bezczynność:",
+      "talk": "Dyskusja:"
+    }
+  },
+  "avatar": {
+    "loading": "Ładowanie awatara...",
+    "title": {
+      "maximize": "Maksymalizuj",
+      "minimize": "Minimalizuj",
+      "close": "Zamknij",
+      "clickToMaximize": "Kliknij, aby zmaksymalizować",
+      "clickToMinimize": "Kliknij, aby zminimalizować"
+    },
+    "error": {
+      "loadFailed": "Nie udało się załadować awatara: {{error}} ",
+      "playerNotLoaded": "AniaPlayer nie został załadowany",
+      "passwordRequired": "Hasło wymagane do zaszyfrowanego pliku .ania",
+      "noSource": "Nie podano źródła awatara (avatarUrl lub avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Cześć! Jak mogę Ci dzisiaj pomóc?",
+    "1": "Cześć! Powitanie! Co mogę dla Ciebie zrobić?",
+    "2": "Cześć! Bardzo się cieszę, że mogę z tobą porozmawiać!",
+    "3": "Cześć! Jestem tu, żeby pomóc. Czego potrzebujesz?",
+    "4": "Cześć! Jak się masz? Jak mogę się przydać?"
+  },
+  "waiting": {
+    "0": "Daj mi pomyśleć...",
+    "1": "Jedna chwila...",
+    "2": "Przetwarzanie...",
+    "3": "Tylko sekundę...",
+    "4": "Sprawdzam to dla ciebie..."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "I-type ti mensahem...",
+      "listening": "Dumdumngeg..."
+    },
+    "enableSound": "Pagbalinen ti Uni",
+    "stt": {
+      "transcribing": "Panag-transkripsion: ",
+      "micActive": "Aktibo ti mikropono...",
+      "heardError": "Sorry, diak nangngeg. Pangngaasiyo ta padasenyo manen.",
+      "micAccessError": "Saan a makastrek iti mikropono. Kitaen dagiti pammalubos."
+    },
+    "speed": {
+      "idle": "Idle:",
+      "talk": "Palawag:"
+    }
+  },
+  "avatar": {
+    "loading": "Karga ti avatar...",
+    "title": {
+      "maximize": "Maximize ti",
+      "minimize": "Pabassitem",
+      "close": "Agserra",
+      "clickToMaximize": "I-click tapno ma-maximize",
+      "clickToMinimize": "I-click tapno mapabassit"
+    },
+    "error": {
+      "loadFailed": "Napaay a mangikarga iti avatar: {{error}} . ",
+      "playerNotLoaded": "AniaPlayer saan a naikarga",
+      "passwordRequired": "Kasapulan ti password para iti na-encrypt a .ania file",
+      "noSource": "Awan ti naited a taudan ti avatar (avatarUrl wenno avatarData) ."
+    }
+  },
+  "greetings": {
+    "0": "Hi! Kasano a matulongakkayo ita nga aldaw?",
+    "1": "Hello! Naragsak nga isasangbay! Ania ti maaramidak para kenka?",
+    "2": "Hi kaniam! Maragsakanak unay a makisarita kadakayo!",
+    "3": "Hello! Addaak ditoy tapno tumulong. Ania ti kasapulam?",
+    "4": "Hi! Kumusta kan? Kasano a makagunggonaak?"
+  },
+  "waiting": {
+    "0": "Bay-anyo a panunotek...",
+    "1": "Maysa a kanito...",
+    "2": "Panagproseso ti...",
+    "3": "Maysa laeng a segundo...",
+    "4": "I-check ko dayta para kenka..."
+  }
+}

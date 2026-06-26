@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Thayipha umlayezo wakho...",
+      "listening": "Ilalele..."
+    },
+    "enableSound": "Nika amandla Umsindo",
+    "stt": {
+      "transcribing": "Ukuloba: ",
+      "micActive": "Imakrofoni iyasebenza...",
+      "heardError": "Uxolo, angikwazanga ukukuzwa. Sicela uzame futhi.",
+      "micAccessError": "Ayikwazi ukufinyelela imakrofoni. Hlola izimvume."
+    },
+    "speed": {
+      "idle": "Ukungenzi lutho:",
+      "talk": "Inkulumo:"
+    }
+  },
+  "avatar": {
+    "loading": "Ilayisha isithombe...",
+    "title": {
+      "maximize": "Khulisa",
+      "minimize": "Nciphisa",
+      "close": "Vala",
+      "clickToMaximize": "Chofoza ukuze ukhulise",
+      "clickToMinimize": "Chofoza ukuze unciphise"
+    },
+    "error": {
+      "loadFailed": "Yehlulekile ukulayisha isithombe: {{error}} ",
+      "playerNotLoaded": "I-AniaPlayer ayilayishiwe",
+      "passwordRequired": "Kudingeka iphasiwedi kufayela elibethelwe le-.ania",
+      "noSource": "Awukho umthombo wesithombe onikeziwe (i-avatarUrl noma i-avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Sawubona! Ngingakusiza ngani namuhla?",
+    "1": "Sawubona! Siyakwamukela! Ngingakwenzelani?",
+    "2": "Sawubona lapho! Ngijabule kakhulu ukukhuluma nawe!",
+    "3": "Sawubona! Ngilapha ukuze ngisize. Udinga ini?",
+    "4": "Sawubona! Unjani? Ngingaba kanjani usizo?"
+  },
+  "waiting": {
+    "0": "Ake ngicabange...",
+    "1": "Umzuzu owodwa...",
+    "2": "Iyacubungula...",
+    "3": "Umzuzwana nje...",
+    "4": "Ngikuhlolela lokho..."
+  }
+}

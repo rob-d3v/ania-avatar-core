@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ts'íibt a t'aan...",
+      "listening": "Táan in wu'uyik..."
+    },
+    "enableSound": "Habilitar u juum",
+    "stt": {
+      "transcribing": "Transcripción: ",
+      "micActive": "Micrófono activo...",
+      "heardError": "Perdón, ma' tin wu'uyajech. Béet ka'a ilawil.",
+      "micAccessError": "Ma' tu páajtal u yokol micrófono. Ilawil le permiso'obo'."
+    },
+    "speed": {
+      "idle": "Ma' meyaj:",
+      "talk": "T'aan:"
+    }
+  },
+  "avatar": {
+    "loading": "Táan u kuuch avatar...",
+    "title": {
+      "maximize": "Maximizar",
+      "minimize": "Minimizar",
+      "close": "Muts'ik",
+      "clickToMaximize": "u beetik clic uti'al u maximizar",
+      "clickToMinimize": "u beetik clic uti'al u xu'ulul"
+    },
+    "error": {
+      "loadFailed": "Ma' béeyak u kuuch avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer ma' u kuuch",
+      "passwordRequired": "K'a'abéet u contraseña uti'al u archivo .ania encriptado",
+      "noSource": "Mix jump'éel fuente avatar proporcionada (avatarUrl wa avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "¡Hola! ¿Bix je'el in wáantkech bejla'e'?",
+    "1": "Bix túun! Ki'imak óolal! ba'ax je'el u páajtal in beetik ta wo'olal?",
+    "2": "Ey! jach ki'imak in wóol in t'aan ta wéetel!",
+    "3": "Bix túun! Teen waye' uti'al in wáantik. Ba'ax k'a'abéet ti' teech?",
+    "4": "Bix a beel! Bix a beel? ¿Bix je'el u páajtal in meyaj?"
+  },
+  "waiting": {
+    "0": "Cha' in tuukul...",
+    "1": "Junsúutuk...",
+    "2": "Procesamiento...",
+    "3": "chéen jump'éel segundo...",
+    "4": "Táan in wilik uti'al tech..."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Typus nuntium tuum.",
+      "listening": "Auditio..."
+    },
+    "enableSound": "Sonus activare",
+    "stt": {
+      "transcribing": "Transcribendo: ",
+      "micActive": "Tortor ligula ac...",
+      "heardError": "Ignosce, te audire non potuit. Quaeso, iterum conare.",
+      "micAccessError": "'Non accedere tortor ligula. Perscriptio permissionum."
+    },
+    "speed": {
+      "idle": "Otiosa:",
+      "talk": "Loquere:"
+    }
+  },
+  "avatar": {
+    "loading": "Loading avatar...",
+    "title": {
+      "maximize": "Maximize",
+      "minimize": "Minimize",
+      "close": "Close",
+      "clickToMaximize": "Click ut maximize",
+      "clickToMinimize": "Click ad circumscribendam"
+    },
+    "error": {
+      "loadFailed": "Failed to load avatar: {{error}}",
+      "playerNotLoaded": "AniaPlayer non loaded",
+      "passwordRequired": "Password requisiti encrypted .ania lima",
+      "noSource": "Nulla copia avatar (avatarUrl vel avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Salve! Quomodo te adiuvare possum hodie?",
+    "1": "salve! salve! quid faciam tibi?",
+    "2": "Salve! Gaudeo igitur tecum loqui!",
+    "3": "salve! Sum hic ad auxilium. Quid opus est tibi?",
+    "4": "Salve! Quomodo vales? Quomodo utilis esse possum?"
+  },
+  "waiting": {
+    "0": "Cogitem...",
+    "1": "Unum momentum...",
+    "2": "Processus...",
+    "3": "Justo secundo...",
+    "4": "Im 'reprehendo quod pro te ..."
+  }
+}

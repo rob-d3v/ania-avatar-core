@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Upišite svoju poruku...",
+      "listening": "slušam..."
+    },
+    "enableSound": "Omogući zvuk",
+    "stt": {
+      "transcribing": "Transkripcija: ",
+      "micActive": "Mikrofon aktivan...",
+      "heardError": "Izvinite, nisam vas čuo. Molimo pokušajte ponovo.",
+      "micAccessError": "Nije moguće pristupiti mikrofonu. Provjerite dozvole."
+    },
+    "speed": {
+      "idle": "mirovanje:",
+      "talk": "razgovor:"
+    }
+  },
+  "avatar": {
+    "loading": "Učitavanje avatara...",
+    "title": {
+      "maximize": "Maksimiziraj",
+      "minimize": "Minimizirajte",
+      "close": "Zatvori",
+      "clickToMaximize": "Kliknite da povećate",
+      "clickToMinimize": "Kliknite da minimizirate"
+    },
+    "error": {
+      "loadFailed": "Učitavanje avatara nije uspjelo: {{error}} ",
+      "playerNotLoaded": "AniaPlayer nije učitan",
+      "passwordRequired": "Lozinka je potrebna za šifriranu .ania datoteku",
+      "noSource": "Nije naveden izvor avatara (avatarUrl ili avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Zdravo! Kako vam mogu pomoći danas?",
+    "1": "Zdravo! Dobrodošli! Šta mogu učiniti za vas?",
+    "2": "Zdravo! Drago mi je da razgovaram sa vama!",
+    "3": "Zdravo! Tu sam da pomognem. sta ti treba",
+    "4": "Zdravo! Kako si? Kako mogu biti koristan?"
+  },
+  "waiting": {
+    "0": "pusti me da razmislim...",
+    "1": "jedan trenutak...",
+    "2": "Obrada...",
+    "3": "Samo trenutak...",
+    "4": "Provjeravam to za tebe..."
+  }
+}

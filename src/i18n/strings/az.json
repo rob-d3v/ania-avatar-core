@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Mesajınızı yazın...",
+      "listening": "Dinlənir..."
+    },
+    "enableSound": "Səsi aktivləşdirin",
+    "stt": {
+      "transcribing": "Transkripsiya: ",
+      "micActive": "Mikrofon aktivdir...",
+      "heardError": "Bağışlayın, sizi eşitmək mümkün olmadı. Yenidən cəhd edin.",
+      "micAccessError": "Mikrofona daxil olmaq mümkün deyil. İcazələri yoxlayın."
+    },
+    "speed": {
+      "idle": "Boş:",
+      "talk": "Danışmaq:"
+    }
+  },
+  "avatar": {
+    "loading": "Avatar yüklənir...",
+    "title": {
+      "maximize": "Maksimallaşdırın",
+      "minimize": "minimuma endir",
+      "close": "Bağlayın",
+      "clickToMaximize": "Maksimum artırmaq üçün klikləyin",
+      "clickToMinimize": "Küçültmək üçün klikləyin"
+    },
+    "error": {
+      "loadFailed": "Avatarı yükləmək alınmadı: {{error}} ",
+      "playerNotLoaded": "AniaPlayer yüklənməyib",
+      "passwordRequired": "Şifrələnmiş .ania faylı üçün parol tələb olunur",
+      "noSource": "Heç bir avatar mənbəyi təqdim edilməyib (avatarUrl və ya avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "salam! Bu gün sizə necə kömək edə bilərəm?",
+    "1": "salam! Xoş gəldiniz! Mən sizin üçün nə edə bilərəm?",
+    "2": "salam! Sizinlə danışmağa çox şadam!",
+    "3": "salam! Mən kömək etmək üçün buradayam. sənə nə lazımdır?",
+    "4": "salam! necesen Necə faydalı ola bilərəm?"
+  },
+  "waiting": {
+    "0": "Qoy fikirləşim...",
+    "1": "Bir an...",
+    "2": "Emal edilir...",
+    "3": "Bir saniyə...",
+    "4": "Bunu sizin üçün yoxlayıram..."
+  }
+}

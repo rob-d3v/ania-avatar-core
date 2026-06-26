@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Kirjoita viestisi...",
+      "listening": "Kuuntelee..."
+    },
+    "enableSound": "Ota ääni käyttöön",
+    "stt": {
+      "transcribing": "Transkriptio: ",
+      "micActive": "Mikrofoni aktiivinen...",
+      "heardError": "Anteeksi, en kuullut sinua. Yritä uudelleen.",
+      "micAccessError": "Mikrofonia ei voi käyttää. Tarkista käyttöoikeudet."
+    },
+    "speed": {
+      "idle": "Tyhjäkäynti:",
+      "talk": "Puhu:"
+    }
+  },
+  "avatar": {
+    "loading": "Ladataan avataria...",
+    "title": {
+      "maximize": "Maksimoi",
+      "minimize": "Minimoi",
+      "close": "Sulje",
+      "clickToMaximize": "Klikkaa suurentaaksesi",
+      "clickToMinimize": "Napsauta pienentääksesi"
+    },
+    "error": {
+      "loadFailed": "Avatarin lataaminen epäonnistui: {{error}} ",
+      "playerNotLoaded": "AniaPlayeria ei ladattu",
+      "passwordRequired": "Salattua .ania-tiedostoa varten vaaditaan salasana",
+      "noSource": "Avatar-lähdettä ei ole annettu (avatarUrl tai avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hei! Kuinka voin auttaa sinua tänään?",
+    "1": "Hei! Tervetuloa! Voinko auttaa?",
+    "2": "Hei! Niin ilo puhua kanssasi!",
+    "3": "Hei! Olen täällä auttamassa. Mitä sinä tarvitset?",
+    "4": "Hei! Miten voit? Kuinka voin olla hyödyllinen?"
+  },
+  "waiting": {
+    "0": "Anna minun ajatella...",
+    "1": "Yksi hetki...",
+    "2": "Käsitellään...",
+    "3": "Hetki...",
+    "4": "Tarkistan sen puolestasi..."
+  }
+}

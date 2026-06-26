@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Mesajınızı yazın...",
+      "listening": "Dinleniyor..."
+    },
+    "enableSound": "Sesi Etkinleştir",
+    "stt": {
+      "transcribing": "Transkripsiyon: ",
+      "micActive": "Mikrofon aktif...",
+      "heardError": "Kusura bakmayın, sizi duyamadım. Lütfen tekrar deneyin.",
+      "micAccessError": "Mikrofona erişilemiyor. İzinleri kontrol edin."
+    },
+    "speed": {
+      "idle": "Boşta:",
+      "talk": "Konuşma:"
+    }
+  },
+  "avatar": {
+    "loading": "Avatar yükleniyor...",
+    "title": {
+      "maximize": "Büyüt",
+      "minimize": "Küçült",
+      "close": "Kapat",
+      "clickToMaximize": "Büyütmek için tıklayın",
+      "clickToMinimize": "Küçültmek için tıklayın"
+    },
+    "error": {
+      "loadFailed": "Avatar yüklenemedi: {{error}} ",
+      "playerNotLoaded": "AniaPlayer yüklenmedi",
+      "passwordRequired": "Şifrelenmiş .ania dosyası için şifre gerekli",
+      "noSource": "Avatar kaynağı sağlanmadı (avatarUrl veya avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Merhaba! Bugün sana nasıl yardımcı olabilirim?",
+    "1": "Merhaba! Hoş geldin! Sizin için ne yapabilirim?",
+    "2": "Merhaba! Seninle konuştuğuma çok sevindim!",
+    "3": "Merhaba! Yardım etmek için buradayım. Ne istiyorsun?",
+    "4": "MERHABA! Nasılsın? Nasıl faydalı olabilirim?"
+  },
+  "waiting": {
+    "0": "Bir düşüneyim...",
+    "1": "Bir dakika...",
+    "2": "İşleniyor...",
+    "3": "Bir saniye...",
+    "4": "Bunu senin için kontrol ediyorum..."
+  }
+}

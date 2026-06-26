@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Chwetheza umyalezo wakho...",
+      "listening": "Ndimamele..."
+    },
+    "enableSound": "Vula isandi",
+    "stt": {
+      "transcribing": "Ukukhuphela: ",
+      "micActive": "Imayikrofoni iyasebenza...",
+      "heardError": "Uxolo, andikuva. Nceda zama kwakhona.",
+      "micAccessError": "Ayikwazanga ukufikelela kwimayikrofoni. Jonga iimvume."
+    },
+    "speed": {
+      "idle": "Ayisebenzi:",
+      "talk": "Thetha:"
+    }
+  },
+  "avatar": {
+    "loading": "Ilayisha i-avatar...",
+    "title": {
+      "maximize": "Yandisa",
+      "minimize": "Nciphisa",
+      "close": "Vala",
+      "clickToMaximize": "Cofa ukwandisa",
+      "clickToMinimize": "Cofa ukunciphisa"
+    },
+    "error": {
+      "loadFailed": "Ayiphumelelanga ukulayisha i-avatar: {{error}} ",
+      "playerNotLoaded": "I-AniaPlayer ayilayishwanga",
+      "passwordRequired": "Igama lokugqithisa elifunekayo kwifayile efihliweyo .ania",
+      "noSource": "Akukho mthombo we-avatar unikiweyo (i-avatarUrl okanye i-avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Molo! Ndingakunceda ngantoni namhlanje?",
+    "1": "Mholo! Wamkelekile! Ndingakwenzela ntoni?",
+    "2": "Molo apho! Ndiyavuya ukuthetha nawe!",
+    "3": "Mholo! Ndilapha ukunceda. Ingaba udinga ntoni?",
+    "4": "Mholo Icomo estas? Ndinokuba luncedo njani?"
+  },
+  "waiting": {
+    "0": "Makhe ndicinge...",
+    "1": "Umzuzu omnye...",
+    "2": "Iyaqhuba...",
+    "3": "Umzuzwana nje...",
+    "4": "ndikujongela lonto..."
+  }
+}

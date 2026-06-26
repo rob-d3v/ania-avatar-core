@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Co lok ni...",
+      "listening": "Wiinyo..."
+    },
+    "enableSound": "Yer dwan",
+    "stt": {
+      "transcribing": "Coyo lok: ",
+      "micActive": "Microphone tye ka tic...",
+      "heardError": "Tima kica, pe atwero winyo lokki. Tim ber item doki.",
+      "micAccessError": "Pe itwero donyo i cim. Nen twero."
+    },
+    "speed": {
+      "idle": "Pe tiyo:",
+      "talk": "Lok:"
+    }
+  },
+  "avatar": {
+    "loading": "Tye ka keto cal ma ki lwongo ni avatar...",
+    "title": {
+      "maximize": "Med",
+      "minimize": "Dwok piny",
+      "close": "Cego",
+      "clickToMaximize": "Dii me medo",
+      "clickToMinimize": "Dii me dwoko piny"
+    },
+    "error": {
+      "loadFailed": "Pe ki twero keto cal: {{error}} ",
+      "playerNotLoaded": "AniaPlayer pe ki keto",
+      "passwordRequired": "Lok me donyo ma mite pi karatac ma ki keto i .ania",
+      "noSource": "Pe kimiyo kama ki kwanyo iye cal (avatarUrl onyo avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Apwoyo! Atwero konyi nining tin?",
+    "1": "Amoti! Wa joli! Atwero timo gin ango piri?",
+    "2": "Amoto wu! Cwinya yom me lok kwedi!",
+    "3": "Amoti! Atye kany me konyi. Gin ango ma imito?",
+    "4": "Amoti kactoma! Itye ma be? Atwero bedo ki kony nining?"
+  },
+  "waiting": {
+    "0": "Wek atam...",
+    "1": "Cawa acel...",
+    "2": "Tiimo...",
+    "3": "Pi ceken manok...",
+    "4": "Atye ka neno ni piri..."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Daħħal il-messaġġ tiegħek...",
+      "listening": "Nisimgħu..."
+    },
+    "enableSound": "Ippermetti Sound",
+    "stt": {
+      "transcribing": "Traskrizzjoni: ",
+      "micActive": "Mikrofonu attiv...",
+      "heardError": "Jiddispjacini, ma stajtx nismagħk. Jekk jogħġbok erġa' pprova.",
+      "micAccessError": "Ma tistax taċċessa l-mikrofonu. Iċċekkja l-permessi."
+    },
+    "speed": {
+      "idle": "Idle:",
+      "talk": "Tkellem:"
+    }
+  },
+  "avatar": {
+    "loading": "Tagħbija avatar...",
+    "title": {
+      "maximize": "Timmassimizza",
+      "minimize": "Imminimizza",
+      "close": "Agħlaq",
+      "clickToMaximize": "Ikklikkja biex timmassimizza",
+      "clickToMinimize": "Ikklikkja biex timminimizza"
+    },
+    "error": {
+      "loadFailed": "Naqas milli tgħabbi l-avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer mhux mgħobbi",
+      "passwordRequired": "Password meħtieġa għall-fajl .ania encrypted",
+      "noSource": "L-ebda sors tal-avatar ipprovdut (avatarUrl jew avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Kif nista’ ngħinek illum?",
+    "1": "Hello! Merħba! X'nista' nagħmel għalik?",
+    "2": "Hi hemm! Hekk ferħan li nitkellem miegħek!",
+    "3": "Hello! Jien hawn biex ngħin. X'għandek bżonn?",
+    "4": "Hi! Kif int? Kif nista' nkun utli?"
+  },
+  "waiting": {
+    "0": "Ħallini naħseb...",
+    "1": "Mument wieħed...",
+    "2": "Ipproċessar...",
+    "3": "Sekondi biss...",
+    "4": "Qed niċċekkja li għalik..."
+  }
+}

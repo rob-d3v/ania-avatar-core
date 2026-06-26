@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Taipa oshɛɛ sane...",
+      "listening": "Toiboo..."
+    },
+    "enableSound": "Ha Gbee lɛ atsu nii",
+    "stt": {
+      "transcribing": "Niŋmaa: ",
+      "micActive": "Maikrofon miitsu nii...",
+      "heardError": "Kɛ ke mi, mi nyɛɛɛ manu bo. Ofainɛ kaa ekoŋŋ.",
+      "micAccessError": "Enyɛɛɛ oya maikrofon nɔ. Kwɛmɔ gbɛŋmɛɛi."
+    },
+    "speed": {
+      "idle": "Etsuuu nii:",
+      "talk": "Wiemɔ:"
+    }
+  },
+  "avatar": {
+    "loading": "Amɛwoɔ avatar...",
+    "title": {
+      "maximize": "Feemɔ babaoo",
+      "minimize": "Tsɔɔmɔ shi",
+      "close": "Gbalamɔ",
+      "clickToMaximize": "Klikimɔ nɔ koni ona babaoo",
+      "clickToMinimize": "Klikimɔ nɔ ni okɛba shi"
+    },
+    "error": {
+      "loadFailed": "Eyeee akɛ ekɛ avatar lɛ baawo mli: {{error}} ",
+      "playerNotLoaded": "AniaShwɛmɔ lɛ ehiɛɛɛ",
+      "passwordRequired": "Password he hiaa kɛha .ania faili ni akɛwo mli",
+      "noSource": "Akɛ avatar jɛɛhe ko haaa (avatarUrl loo avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Te mafee tɛŋŋ maye mabua bo ŋmɛnɛ?",
+    "1": "Hɛloo! Afeee noko! Mɛni ma nyɛ ma pee ma ha mo?",
+    "2": "Agoo! Eŋɔɔ mi naa waa akɛ mikɛ bo baawie!",
+    "3": "Hɛloo! Miyɛ biɛ koni maye mabua. Mɛni he hiaa bo?",
+    "4": "Amɛɛ! Te oyɔɔ tɛŋŋ? Te mafee tɛŋŋ mafee mɔ ni he yɔɔ sɛɛnamɔ?"
+  },
+  "waiting": {
+    "0": "Ha masusu he...",
+    "1": "Be kome...",
+    "2": "Etsuɔ nii...",
+    "3": "Sɛkɛndi kome pɛ...",
+    "4": "Miikwɛ nakai miha bo..."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Sláðu inn skilaboðin þín...",
+      "listening": "Hlustar..."
+    },
+    "enableSound": "Virkja hljóð",
+    "stt": {
+      "transcribing": "Umritun: ",
+      "micActive": "Hljóðnemi virkur...",
+      "heardError": "Því miður, ég heyrði ekki í þér. Vinsamlegast reyndu aftur.",
+      "micAccessError": "Ekki hægt að nálgast hljóðnema. Athugaðu heimildir."
+    },
+    "speed": {
+      "idle": "Aðgerðarlaus:",
+      "talk": "Spjall:"
+    }
+  },
+  "avatar": {
+    "loading": "Hleður avatar...",
+    "title": {
+      "maximize": "Hámarka",
+      "minimize": "Lágmarka",
+      "close": "Loka",
+      "clickToMaximize": "Smelltu til að hámarka",
+      "clickToMinimize": "Smelltu til að lágmarka"
+    },
+    "error": {
+      "loadFailed": "Mistókst að hlaða avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer ekki hlaðinn",
+      "passwordRequired": "Lykilorð krafist fyrir dulkóðaða .ania skrá",
+      "noSource": "Engin avataruppspretta veitt (avatarUrl eða avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hæ! Hvernig get ég hjálpað þér í dag?",
+    "1": "Halló! Velkomin! Hvað get ég gert fyrir þig?",
+    "2": "Hæ! Svo gaman að tala við þig!",
+    "3": "Halló! Ég er hér til að hjálpa. Hvað þarftu?",
+    "4": "Hæ! Hvernig hefurðu það? Hvernig get ég verið gagnleg?"
+  },
+  "waiting": {
+    "0": "Leyfðu mér að hugsa...",
+    "1": "Eitt augnablik...",
+    "2": "Vinnur...",
+    "3": "Bara sekúndu...",
+    "4": "Ég er að athuga það fyrir þig..."
+  }
+}

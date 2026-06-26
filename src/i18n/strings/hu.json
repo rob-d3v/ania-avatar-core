@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Írja be üzenetét...",
+      "listening": "Hallgat..."
+    },
+    "enableSound": "Hang engedélyezése",
+    "stt": {
+      "transcribing": "Átírás: ",
+      "micActive": "Mikrofon aktív...",
+      "heardError": "Sajnálom, nem hallottam. Kérjük, próbálja újra.",
+      "micAccessError": "Nem lehet hozzáférni a mikrofonhoz. Ellenőrizze az engedélyeket."
+    },
+    "speed": {
+      "idle": "Üresjárat:",
+      "talk": "Beszélgetés:"
+    }
+  },
+  "avatar": {
+    "loading": "Avatar betöltése...",
+    "title": {
+      "maximize": "Maximalizálás",
+      "minimize": "Minimalizálja",
+      "close": "Bezárás",
+      "clickToMaximize": "Kattintson a maximalizáláshoz",
+      "clickToMinimize": "Kattintson a kicsinyítéshez"
+    },
+    "error": {
+      "loadFailed": "Nem sikerült betölteni az avatart: {{error}} ",
+      "playerNotLoaded": "Az AniaPlayer nincs betöltve",
+      "passwordRequired": "A titkosított .ania fájlhoz jelszó szükséges",
+      "noSource": "Nincs megadva avatarforrás (avatarUrl vagy avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Szia! Hogyan segíthetek ma?",
+    "1": "Helló! Üdvözöljük! Mit tehetek érted?",
+    "2": "Sziasztok! Nagyon örülök, hogy beszélhetek veled!",
+    "3": "Helló! Azért vagyok itt, hogy segítsek. Mi kell neked?",
+    "4": "Szia! Hogy vagy? Hogyan lehetek hasznos?"
+  },
+  "waiting": {
+    "0": "Hadd gondolkozzam...",
+    "1": "Egy pillanat...",
+    "2": "Feldolgozás...",
+    "3": "Csak egy pillanat...",
+    "4": "Ezt ellenőrzöm neked..."
+  }
+}

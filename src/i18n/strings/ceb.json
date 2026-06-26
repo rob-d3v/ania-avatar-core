@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "I-type ang imong mensahe...",
+      "listening": "Nagpaminaw..."
+    },
+    "enableSound": "I-enable ang Tingog",
+    "stt": {
+      "transcribing": "Pag-transcribe: ",
+      "micActive": "Aktibo ang mikropono...",
+      "heardError": "Sorry, dili ko makadungog nimo. Palihug sulayi pag-usab.",
+      "micAccessError": "Dili ma-access ang mikropono. Susiha ang mga permiso."
+    },
+    "speed": {
+      "idle": "walay pulos:",
+      "talk": "Pakigsulti:"
+    }
+  },
+  "avatar": {
+    "loading": "Nagkarga sa avatar...",
+    "title": {
+      "maximize": "I-maximize",
+      "minimize": "Pagminus",
+      "close": "Duol",
+      "clickToMaximize": "I-klik aron ma-maximize",
+      "clickToMinimize": "Pag-klik aron maminusan"
+    },
+    "error": {
+      "loadFailed": "Napakyas sa pag-load sa avatar: {{error}} ",
+      "playerNotLoaded": "Wala gikarga ang AniaPlayer",
+      "passwordRequired": "Kinahanglan ang password para sa na-encrypt nga .ania file",
+      "noSource": "Walay gihatag nga tinubdan sa avatar (avatarUrl o avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Unsaon nako pagtabang kanimo karon?",
+    "1": "Hello! Welcome! Unsa may akong mabuhat para nimo?",
+    "2": "Kumusta diha! Nalipay kaayo nga nakigsulti kanimo!",
+    "3": "Hello! Ania ko aron motabang. Unsay imong gikinahanglan?",
+    "4": "Hi! Naunsa ka? Sa unsang paagi ako mahimong mapuslanon?"
+  },
+  "waiting": {
+    "0": "Pahunahuna ko...",
+    "1": "Usa ka higayon...",
+    "2": "Nagproseso...",
+    "3": "Kadiyot lang...",
+    "4": "Gisusi ko kana alang kanimo ..."
+  }
+}

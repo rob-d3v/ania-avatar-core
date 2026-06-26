@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Shkruani mesazhin tuaj...",
+      "listening": "Duke dëgjuar..."
+    },
+    "enableSound": "Aktivizo Tingullin",
+    "stt": {
+      "transcribing": "Transkriptimi: ",
+      "micActive": "Mikrofoni aktiv...",
+      "heardError": "Më falni, nuk ju dëgjova. Ju lutemi provoni përsëri.",
+      "micAccessError": "Nuk mund të qaset në mikrofon. Kontrolloni lejet."
+    },
+    "speed": {
+      "idle": "I papunë:",
+      "talk": "Bisedoni:"
+    }
+  },
+  "avatar": {
+    "loading": "Po ngarkon avatarin...",
+    "title": {
+      "maximize": "Maksimizoni",
+      "minimize": "Minimizoje",
+      "close": "Mbylle",
+      "clickToMaximize": "Klikoni për të maksimizuar",
+      "clickToMinimize": "Kliko për të minimizuar"
+    },
+    "error": {
+      "loadFailed": "Ngarkimi i avatarit dështoi: {{error}} ",
+      "playerNotLoaded": "AniaPlayer nuk është ngarkuar",
+      "passwordRequired": "Kërkohet fjalëkalimi për skedarin .ania të koduar",
+      "noSource": "Nuk është dhënë asnjë burim avatar (avatarUrl ose avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Përshëndetje! Si mund t'ju ndihmoj sot?",
+    "1": "Përshëndetje! Mirë se vini! Çfarë mund të bëj për ju?",
+    "2": "Përshëndetje! Shumë i lumtur të flas me ju!",
+    "3": "Përshëndetje! Unë jam këtu për të ndihmuar. Çfarë ju duhet?",
+    "4": "Përshëndetje! si jeni? Si mund të jem i dobishëm?"
+  },
+  "waiting": {
+    "0": "Më lër të mendoj...",
+    "1": "Një moment...",
+    "2": "Po përpunohet...",
+    "3": "Vetëm një sekondë...",
+    "4": "Po e kontrolloj për ty..."
+  }
+}

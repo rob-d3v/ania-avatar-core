@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "輸入您的訊息...",
+      "listening": "聽..."
+    },
+    "enableSound": "啟用聲音",
+    "stt": {
+      "transcribing": "抄寫：",
+      "micActive": "麥克風處於活動狀態...",
+      "heardError": "抱歉，聽不到你的聲音。請再試一次。",
+      "micAccessError": "無法存取麥克風。檢查權限。"
+    },
+    "speed": {
+      "idle": "空閒：",
+      "talk": "談話："
+    }
+  },
+  "avatar": {
+    "loading": "正在加載頭像...",
+    "title": {
+      "maximize": "最大化",
+      "minimize": "最小化",
+      "close": "關閉",
+      "clickToMaximize": "點擊以最大化",
+      "clickToMinimize": "點擊以最小化"
+    },
+    "error": {
+      "loadFailed": "頭像載入失敗：{{error}}",
+      "playerNotLoaded": "AniaPlayer 未載入",
+      "passwordRequired": "加密的 .ania 檔案需要密碼",
+      "noSource": "未提供頭像來源（avatarUrl 或 avatarData）"
+    }
+  },
+  "greetings": {
+    "0": "嗨！今天我能為您提供什麼幫助？",
+    "1": "你好！歡迎！我能為你做什麼？",
+    "2": "你好呀！很高興與你交談！",
+    "3": "你好！我是來幫忙的。你需要什麼？",
+    "4": "你好！你好嗎？我怎樣才能變得有用？"
+  },
+  "waiting": {
+    "0": "讓我想想...",
+    "1": "一會兒...",
+    "2": "處理中...",
+    "3": "只需一秒鐘...",
+    "4": "我正在為你檢查..."
+  }
+}

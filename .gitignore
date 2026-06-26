@@ -1,0 +1,9 @@
+node_modules/
+*.log
+.DS_Store
+.idea/
+.vscode/
+*.tsbuildinfo
+
+# NOTE: dist/ is intentionally committed so jsDelivr can serve it from the repo.
+# Do NOT add dist/ here.

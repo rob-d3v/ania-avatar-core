@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ketik pesen anjeun...",
+      "listening": "Dengekeun..."
+    },
+    "enableSound": "Aktipkeun Sora",
+    "stt": {
+      "transcribing": "Transkripsi: ",
+      "micActive": "Mikropon aktip...",
+      "heardError": "Hapunten, teu tiasa ngadangu anjeun. Mangga cobian deui.",
+      "micAccessError": "Teu bisa ngakses mikropon. Pariksa idin."
+    },
+    "speed": {
+      "idle": "dianggurkeun:",
+      "talk": "Obrolan:"
+    }
+  },
+  "avatar": {
+    "loading": "Ngamuat avatar...",
+    "title": {
+      "maximize": "Maksimalkeun",
+      "minimize": "Ngaleutikan",
+      "close": "Tutup",
+      "clickToMaximize": "Klik pikeun maksimalkeun pungsi",
+      "clickToMinimize": "Klik pikeun ngaleutikan"
+    },
+    "error": {
+      "loadFailed": "Gagal ngamuat avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer teu dimuat",
+      "passwordRequired": "Sandi diperlukeun pikeun énkripsi file .ania",
+      "noSource": "Teu aya sumber avatar anu disayogikeun (avatarUrl atanapi avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hai! Kumaha abdi tiasa ngabantosan anjeun dinten ayeuna?",
+    "1": "Halo! Wilujeng sumping! Naon anu tiasa abdi lakukeun pikeun anjeun?",
+    "2": "Héi anu di dinya! Jadi bungah ngobrol jeung anjeun!",
+    "3": "Halo! Abdi di dieu pikeun mantuan. Kunaon anjeun peryogi?",
+    "4": "Hai! Kumaha damang? Kumaha carana abdi tiasa mangpaat?"
+  },
+  "waiting": {
+    "0": "Hayu atuh mikir...",
+    "1": "Sakedap...",
+    "2": "Ngolah...",
+    "3": "Sakedap...",
+    "4": "Abdi mariksa éta pikeun anjeun ..."
+  }
+}

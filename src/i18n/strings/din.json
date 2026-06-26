@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Gät wɛ̈tdu...",
+      "listening": "Piŋ..."
+    },
+    "enableSound": "Tääu ë röl",
+    "stt": {
+      "transcribing": "Gät de wël: ",
+      "micActive": "Miikröfon atɔ̈u...",
+      "heardError": "Pääl ɣën awuoc, këc yïn pïŋ. Yïn thiëcku ba bɛɛr them.",
+      "micAccessError": "Acïï lëu bï yök në maikrofon yic. Tïŋ kä cïke puɔ̈l."
+    },
+    "speed": {
+      "idle": "Kë cïn kë lui:",
+      "talk": "Jam:"
+    }
+  },
+  "avatar": {
+    "loading": "Tääu ë thura...",
+    "title": {
+      "maximize": "Tääu ë kë dït",
+      "minimize": "Koor",
+      "close": "Thiök",
+      "clickToMaximize": "Tuany ba dït",
+      "clickToMinimize": "Tuany ba cɔk koor"
+    },
+    "error": {
+      "loadFailed": "Acï löny bï thura tääu thïn: {{error}} ",
+      "playerNotLoaded": "AniaPlëyer akëc tääu",
+      "passwordRequired": "Wɛ̈t ë gël akɔɔr tënë athör cï thiaan .ania",
+      "noSource": "Acïn të bïï ë kë cï nyuɔɔth thïn cï bɛ̈i (kë cï nyuɔɔthUrl wɛ̈lɛ̈/ka Kä cïke nyuɔɔth)"
+    }
+  },
+  "greetings": {
+    "0": "Yïn yök! Yeŋö ba looi ba yï kony akölë?",
+    "1": "Ɣä! Taue thin! Yeŋö ba looi tënë yï?",
+    "2": "Kuudwal käjuec! Ku ɣɛn acï puɔ̈u miɛt ba jam kek yïn!",
+    "3": "Ɣä! Ɣɛn tɔ̈ ëtënë ba kuɔny. Yeŋö wïc yïn?",
+    "4": "Yin ca möth! Loi ɣëdε? Yeŋö lëu ba ya luui?"
+  },
+  "waiting": {
+    "0": "Cɔk ɣɛn tak...",
+    "1": "Thaar tök...",
+    "2": "Luɔɔi...",
+    "3": "Aköl tök abac...",
+    "4": "Ɣɛn ye yeen tïŋ tënë yïn..."
+  }
+}

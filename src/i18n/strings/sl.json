@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Vnesite sporočilo ...",
+      "listening": "Poslušanje ..."
+    },
+    "enableSound": "Omogoči zvok",
+    "stt": {
+      "transcribing": "Prepisovanje: ",
+      "micActive": "Mikrofon aktiven...",
+      "heardError": "Oprostite, nisem vas slišal. prosim poskusite ponovno",
+      "micAccessError": "Do mikrofona ni mogoče dostopati. Preverite dovoljenja."
+    },
+    "speed": {
+      "idle": "nedejaven:",
+      "talk": "Pogovor:"
+    }
+  },
+  "avatar": {
+    "loading": "Nalaganje avatarja ...",
+    "title": {
+      "maximize": "Povečaj",
+      "minimize": "Zmanjšaj",
+      "close": "Zapri",
+      "clickToMaximize": "Kliknite za povečavo",
+      "clickToMinimize": "Kliknite za pomanjšanje"
+    },
+    "error": {
+      "loadFailed": "Nalaganje avatarja ni uspelo: {{error}} ",
+      "playerNotLoaded": "AniaPlayer ni naložen",
+      "passwordRequired": "Za šifrirano datoteko .ania je potrebno geslo",
+      "noSource": "Vir avatarja ni naveden (avatarUrl ali avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "zdravo Kako ti lahko danes pomagam?",
+    "1": "pozdravljena Dobrodošli! Kaj lahko storim za vas?",
+    "2": "Pozdravljeni! Zelo me veseli, da se pogovarjam s teboj!",
+    "3": "pozdravljena Tukaj sem, da pomagam. kaj potrebuješ",
+    "4": "zdravo kako si Kako sem lahko koristen?"
+  },
+  "waiting": {
+    "0": "Naj pomislim...",
+    "1": "Trenutek ...",
+    "2": "Obdelava ...",
+    "3": "Samo trenutek ...",
+    "4": "To preverjam za vas ..."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Buga sakon ku...",
+      "listening": "Ana saurare..."
+    },
+    "enableSound": "Kunna Sauti",
+    "stt": {
+      "transcribing": "Rubutu: ",
+      "micActive": "Makirufo yana aiki...",
+      "heardError": "Yi haƙuri, ban ji ku ba. Da fatan za a sake gwadawa.",
+      "micAccessError": "An kasa samun damar makirufo. Duba izini."
+    },
+    "speed": {
+      "idle": "Rago:",
+      "talk": "Magana:"
+    }
+  },
+  "avatar": {
+    "loading": "Ana loda avatar...",
+    "title": {
+      "maximize": "Girma",
+      "minimize": "Rage girman",
+      "close": "Kusa",
+      "clickToMaximize": "Danna don ƙara girma",
+      "clickToMinimize": "Danna don rage girman"
+    },
+    "error": {
+      "loadFailed": "An kasa loda avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer ba a loda shi ba",
+      "passwordRequired": "Ana buƙatar kalmar sirri don fayil ɗin .ania rufaffen",
+      "noSource": "Babu tushen avatar da aka bayar (avatarUrl ko avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Sannu! Ta yaya zan iya taimaka muku a yau?",
+    "1": "Sannu! Barka da zuwa! Me zan iya yi maka?",
+    "2": "Sannu dai! Don haka ina farin cikin magana da ku!",
+    "3": "Sannu! Ina nan don taimakawa. Me kuke bukata?",
+    "4": "Sannu! Yaya lafiya? Ta yaya zan iya zama da amfani?"
+  },
+  "waiting": {
+    "0": "Bari in yi tunani...",
+    "1": "Lokaci guda...",
+    "2": "Ana aiwatarwa...",
+    "3": "Dakika daya kawai...",
+    "4": "Ina duba muku hakan..."
+  }
+}

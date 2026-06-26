@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Thayipha umlayeto wakho...",
+      "listening": "Ngiyalalela..."
+    },
+    "enableSound": "Nika emandla Umsindvo",
+    "stt": {
+      "transcribing": "Kubhala phansi: ",
+      "micActive": "Imakrofoni iyasebenta...",
+      "heardError": "Ngiyacolisa, angizange ngikuve. Sicela uphindze uzame futsi.",
+      "micAccessError": "Ayikhoni kufinyelela emakhrofoni. Hlola timvume."
+    },
+    "speed": {
+      "idle": "Idle:",
+      "talk": "Inkhulumo:"
+    }
+  },
+  "avatar": {
+    "loading": "Kulayisha i-avatar...",
+    "title": {
+      "maximize": "Khulisa",
+      "minimize": "Nciphisa",
+      "close": "Vala",
+      "clickToMaximize": "Chafata kute ukhulise",
+      "clickToMinimize": "Chafata kute unciphise"
+    },
+    "error": {
+      "loadFailed": "Kwehlulekile kulayisha i-avatar: {{error}} ",
+      "playerNotLoaded": "Umdlali we-Ania akalayishwa",
+      "passwordRequired": "Iphasiwedi ledzingekako yefayela le-.ania lelibhaliwe",
+      "noSource": "Kute umtfombo we-avatar loniketiwe (i-Url ye-avatar noma i-avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Sawubona! Ngingakusita njani lamuhla?",
+    "1": "Sawubona! Kwemukela! Yini lengingakwentela yona?",
+    "2": "Sawubona lapho! Ngiyajabula kakhulu kukhuluma nawe!",
+    "3": "Sawubona! Ngilapha kute ngisite. Yini lokudzingako?",
+    "4": "Sawubona! Unjani? Ngingaba njani lusito?"
+  },
+  "waiting": {
+    "0": "Ake ngicabange...",
+    "1": "Umzuzu munye...",
+    "2": "Kucubungula...",
+    "3": "Umzuzwana nje...",
+    "4": "Ngikuhlolela loko..."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ketik ma pesanmu...",
+      "listening": "Manangihon..."
+    },
+    "enableSound": "Aktifhon ma Suara",
+    "stt": {
+      "transcribing": "Manurat: ",
+      "micActive": "Mikrofon aktif...",
+      "heardError": "Sattabi, dang boi hubege hamu. Please try again.",
+      "micAccessError": "Ndang boi be masuk tu mikrofon. Pareso ma izinna."
+    },
+    "speed": {
+      "idle": "Nganggur:",
+      "talk": "Jamita:"
+    }
+  },
+  "avatar": {
+    "loading": "Mamuat avatar...",
+    "title": {
+      "maximize": "Maksimalhon",
+      "minimize": "Meminimalkan",
+      "close": "Tutup",
+      "clickToMaximize": "Click to maximize",
+      "clickToMinimize": "Klik asa diminimalhon ."
+    },
+    "error": {
+      "loadFailed": "Gagal mamuat avatar: {{error}} . ",
+      "playerNotLoaded": "AniaPlayer not loaded",
+      "passwordRequired": "Dihaporluhon do sandi tu file .ania na dienkripsi .",
+      "noSource": "Dang adong sumber avatar na disediahon (Url avatar manang avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Horas! Songon dia do ahu boi mangurupi hamu sadarion?",
+    "1": "Horas! Horas ro! What can I do for you?",
+    "2": "Ale nadisan! So glad to talk to you!",
+    "3": "Horas! Au dison laho mangurupi. Aha do na porlu di hamu?",
+    "4": "Ale! Nungga songondia? How can I be useful?"
+  },
+  "waiting": {
+    "0": "Loas au marpikkir...",
+    "1": "Sada tingki...",
+    "2": "Pangolahan...",
+    "3": "Just a second...",
+    "4": "Hupareso do i di ho..."
+  }
+}

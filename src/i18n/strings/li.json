@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Typ eur boodsjap...",
+      "listening": "Luustere..."
+    },
+    "enableSound": "Geluid insjakele",
+    "stt": {
+      "transcribing": "Transcrire: ",
+      "micActive": "Microfoon actief...",
+      "heardError": "Sorry, ik koos dich neet heure. Probeer nog ummer.",
+      "micAccessError": "Neet touwgaank tot de microfoon. Controleer de rechte."
+    },
+    "speed": {
+      "idle": "Idle:",
+      "talk": "Gesprek:"
+    }
+  },
+  "avatar": {
+    "loading": "Avatar laden...",
+    "title": {
+      "maximize": "Maximisere",
+      "minimize": "Minimaliseer",
+      "close": "Sluite",
+      "clickToMaximize": "Klik um te maximalisere",
+      "clickToMinimize": "Klik um te minimalisere"
+    },
+    "error": {
+      "loadFailed": "Avatar neet gelaoje: {{error}} ",
+      "playerNotLoaded": "AniaPlayer neet gelaod",
+      "passwordRequired": "Wachwoord nuudig veur versleutelde .ania-bestand",
+      "noSource": "Geen avatarbron verstrek (avatarUrl of avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hallo! Wie kin ich dich vandaag helpe?",
+    "1": "Hallo! Welkom! Wat kin ich veur dich doon?",
+    "2": "Hoi! Ich bin zoe blie um mit uch te praote!",
+    "3": "Hallo! Ich bin hei um te helpe. Wat höbste nuudig?",
+    "4": "Hoi! Wie geit het? Wie kin ich nuttig zien?"
+  },
+  "waiting": {
+    "0": "Laot mich dinke...",
+    "1": "Ein momint...",
+    "2": "Verwèrking...",
+    "3": "Mer un seconde...",
+    "4": "Ich controleer dat veur uch..."
+  }
+}

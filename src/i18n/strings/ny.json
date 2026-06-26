@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Lembani uthenga wanu...",
+      "listening": "Kumvetsera..."
+    },
+    "enableSound": "Yambitsani Phokoso",
+    "stt": {
+      "transcribing": "Kulemba: ",
+      "micActive": "Maikolofoni ikugwira ntchito...",
+      "heardError": "Pepani, sindinamve. Chonde yesaninso.",
+      "micAccessError": "Takanika kupeza cholankhulira. Onani zilolezo."
+    },
+    "speed": {
+      "idle": "Zopanda ntchito:",
+      "talk": "Kulankhula:"
+    }
+  },
+  "avatar": {
+    "loading": "Kutsegula avatar...",
+    "title": {
+      "maximize": "Onetsani",
+      "minimize": "Chepetsani",
+      "close": "Tsekani",
+      "clickToMaximize": "Dinani kuti muwonjezere",
+      "clickToMinimize": "Dinani kuti muchepetse"
+    },
+    "error": {
+      "loadFailed": "Zalephera kutsitsa avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer sanakwezedwe",
+      "passwordRequired": "Mawu achinsinsi ofunikira pa fayilo yobisidwa ya .ania",
+      "noSource": "Palibe avatar yoperekedwa (avatarUrl kapena avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Moni! Ndingakuthandizeni bwanji lero?",
+    "1": "Moni! Takulandirani! Ndingakuchitireni chiyani?",
+    "2": "Muno kumeneko! Ndine wokondwa kuyankhula nanu!",
+    "3": "Moni! Ndabwera kudzathandiza. Mukufuna chiyani?",
+    "4": "Moni! Muli bwanji? Ndingakhale wothandiza bwanji?"
+  },
+  "waiting": {
+    "0": "Ndiloleni ndiganize...",
+    "1": "Mphindi imodzi...",
+    "2": "Kukonza...",
+    "3": "Sekondi imodzi...",
+    "4": "Ndikukufunirani izi..."
+  }
+}

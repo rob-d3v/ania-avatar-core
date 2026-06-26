@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Peyama xwe binivîse...",
+      "listening": "Guhdarîkirin..."
+    },
+    "enableSound": "Deng çalak bike",
+    "stt": {
+      "transcribing": "Veguheztin: ",
+      "micActive": "Mîkrofona çalak...",
+      "heardError": "Bibore, min nebihîst. Ji kerema xwe dîsa biceribîne.",
+      "micAccessError": "Nikare bigihîje mîkrofonê. Destûran kontrol bikin."
+    },
+    "speed": {
+      "idle": "Bêkar:",
+      "talk": "Nîqaş:"
+    }
+  },
+  "avatar": {
+    "loading": "Avatar tê barkirin...",
+    "title": {
+      "maximize": "Mezin bikin",
+      "minimize": "Kêmkirin",
+      "close": "Close",
+      "clickToMaximize": "Bikirtînin da ku zêde bikin",
+      "clickToMinimize": "Bikirtînin da ku kêm bikin"
+    },
+    "error": {
+      "loadFailed": "Barkirina avatar bi ser neket: {{error}} ",
+      "playerNotLoaded": "AniaPlayer nehat barkirin",
+      "passwordRequired": "Ji bo pelê .ania şîfrekirî şîfre hewce dike",
+      "noSource": "Çavkaniyek avatar nayê peyda kirin (avatarUrl an avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Ez îro çawa dikarim alîkariya te bikim?",
+    "1": "Slav! Bi xêr hatî! Ez dikarim ji bo we çi bikim?",
+    "2": "Silav! Ji ber ku ez bi we re dipeyivim pir kêfxweş im!",
+    "3": "Slav! Ez ji bo alîkariyê li vir im. Çi hewcedariya we heye?",
+    "4": "Merheba! Halê we çawa ye? Ez çawa dikarim bikêr bim?"
+  },
+  "waiting": {
+    "0": "Bihêle ez bifikirim...",
+    "1": "Demek...",
+    "2": "Pêvajo...",
+    "3": "Tenê saniyeyek...",
+    "4": "Ez wê ji bo we kontrol dikim ..."
+  }
+}

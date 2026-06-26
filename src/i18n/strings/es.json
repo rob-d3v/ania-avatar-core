@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Escribe tu mensaje...",
+      "listening": "Escuchando..."
+    },
+    "enableSound": "Habilitar sonido",
+    "stt": {
+      "transcribing": "Transcribiendo: ",
+      "micActive": "Micrófono activo...",
+      "heardError": "Lo siento, no pude oírte. Por favor inténtalo de nuevo.",
+      "micAccessError": "No se puede acceder al micrófono. Verificar permisos."
+    },
+    "speed": {
+      "idle": "Inactivo:",
+      "talk": "Charla:"
+    }
+  },
+  "avatar": {
+    "loading": "Cargando avatar...",
+    "title": {
+      "maximize": "maximizar",
+      "minimize": "minimizar",
+      "close": "Cerrar",
+      "clickToMaximize": "Haga clic para maximizar",
+      "clickToMinimize": "Haga clic para minimizar"
+    },
+    "error": {
+      "loadFailed": "No se pudo cargar el avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer no cargado",
+      "passwordRequired": "Se requiere contraseña para el archivo .ania cifrado",
+      "noSource": "No se proporciona ninguna fuente de avatar (avatarUrl o avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "¡Hola! ¿Cómo puedo ayudarte hoy?",
+    "1": "¡Hola! ¡Bienvenido! ¿Qué puedo hacer por ti?",
+    "2": "¡Hola! ¡Me alegra mucho hablar contigo!",
+    "3": "¡Hola! Estoy aquí para ayudar. ¿Qué necesitas?",
+    "4": "¡Hola! ¿Cómo estás? ¿Cómo puedo ser útil?"
+  },
+  "waiting": {
+    "0": "Déjame pensar...",
+    "1": "Un momento...",
+    "2": "Procesando...",
+    "3": "Sólo un segundo...",
+    "4": "Estoy comprobando eso por ti..."
+  }
+}

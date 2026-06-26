@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Wpisz swoja wiadōmość...",
+      "listening": "Ôsłuchajōm..."
+    },
+    "enableSound": "Włōncz źwiynk",
+    "stt": {
+      "transcribing": "Przepisowanie: ",
+      "micActive": "Mikrofōn je aktywny...",
+      "heardError": "Przepraszam, niy mōg ci usłyszeć. Proszōm sprōbować jeszcze raz.",
+      "micAccessError": "Niy można dostympu do mikrofōnu. Sprawdź przizwolynia."
+    },
+    "speed": {
+      "idle": "Bezczynny:",
+      "talk": "Godanie:"
+    }
+  },
+  "avatar": {
+    "loading": "Ładujōm awatar...",
+    "title": {
+      "maximize": "Maksymalizować",
+      "minimize": "Zminimalizować",
+      "close": "Zamknij",
+      "clickToMaximize": "Kliknij, coby zmaksymalizować",
+      "clickToMinimize": "Kliknij, coby zminimalizować"
+    },
+    "error": {
+      "loadFailed": "Niy udało sie załadować awatara: {{error}} ",
+      "playerNotLoaded": "AniaPlayer niy je załadowany",
+      "passwordRequired": "Wymogane hasło do zaszyfrowanego pliku .ania",
+      "noSource": "Brak podanego zdrzōdła awatara (Url awatara abo Dane awatara)"
+    }
+  },
+  "greetings": {
+    "0": "Cześć! Jak mogōm ci dzisiej pōmōc?",
+    "1": "Witej! Witej! Co mogōm ci zrobić?",
+    "2": "Witej! Tak cieszōm sie z tobom porozmawiać!",
+    "3": "Witej! Jōn sōm tu, coby pōmōc. Co ci potrzebne?",
+    "4": "Serwus! Jak sie mosz? Jak mogōm być przidajny?"
+  },
+  "waiting": {
+    "0": "Pozwōl mi pomyśleć...",
+    "1": "Jedna chwila...",
+    "2": "Przetworzanie...",
+    "3": "Ino sekunda...",
+    "4": "Sprawdzōm to dlo ciebie..."
+  }
+}

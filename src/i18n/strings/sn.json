@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Nyora meseji yako...",
+      "listening": "Kuteerera..."
+    },
+    "enableSound": "Enesa Inzwi",
+    "stt": {
+      "transcribing": "Kunyora: ",
+      "micActive": "Maikorofoni inoshanda...",
+      "heardError": "Ndine urombo, handina kukunzwa. Ndapota edza zvakare.",
+      "micAccessError": "Tatadza kuwana maikorofoni. Tarisa mvumo."
+    },
+    "speed": {
+      "idle": "Idle:",
+      "talk": "Hurukuro:"
+    }
+  },
+  "avatar": {
+    "loading": "Kurodha avatar...",
+    "title": {
+      "maximize": "Maximize",
+      "minimize": "Deredza",
+      "close": "Close",
+      "clickToMaximize": "Dzvanya kuti uwedzere",
+      "clickToMinimize": "Dzvanya kuti uderedze"
+    },
+    "error": {
+      "loadFailed": "Yatadza kurodha avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer haina kurodha",
+      "passwordRequired": "Password inodiwa pa encrypted .ania file",
+      "noSource": "Hapana avatar sosi yakapihwa (avatarUrl kana avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Ndingakubatsira sei nhasi?",
+    "1": "Mhoro! Mauya! Chii chandingakuitira?",
+    "2": "Mhoroi apo! Ndafara kutaura newe!",
+    "3": "Mhoro! Ndauya kuzobatsira. Unodei?",
+    "4": "Mhoro! Makadii? Ndingabatsira sei?"
+  },
+  "waiting": {
+    "0": "Rega ndifunge...",
+    "1": "Imwe nguva...",
+    "2": "Kugadzira...",
+    "3": "Sekondi chete...",
+    "4": "Ndiri kukutarisa kuti..."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Uka yatiyawi qillqt’aña...",
+      "listening": "Ist'añax..."
+    },
+    "enableSound": "Sonido ukar ch’amanchaña",
+    "stt": {
+      "transcribing": "Transcripción luraña: 1.1. ",
+      "micActive": "Micrófono ukax activo ukhamawa...",
+      "heardError": "Disculpa, janiw ist’irjamäkti. Ukhamaraki, mayampi yant’apxañani.",
+      "micAccessError": "Micrófono ukar mantañax janiw ch’amäkiti. Permisonaka uñakipt’aña."
+    },
+    "speed": {
+      "idle": "Ocioso: 1.1.",
+      "talk": "Arstʼäwi:"
+    }
+  },
+  "avatar": {
+    "loading": "Avatar ukax apkatatawa...",
+    "title": {
+      "maximize": "Maximizar ukax mä juk’a pachanakanwa",
+      "minimize": "Jisk’achaña",
+      "close": "Jist’antaña",
+      "clickToMaximize": "Ukax mä jach’a uñacht’äwiwa",
+      "clickToMinimize": "Ukax jisk’aptayañatakiw ch’iqt’añama"
+    },
+    "error": {
+      "loadFailed": "Avatar ukax janiw utjkiti: {{error}} . ",
+      "playerNotLoaded": "AniaPlayer ukax janiw utjkiti",
+      "passwordRequired": "Contraseña ukax .ania qillqatan encriptado ukatakiw wakisi",
+      "noSource": "Janiw kuna avatar phunchhawis utjkiti (avatarUrl jan ukax avatarData) ."
+    }
+  },
+  "greetings": {
+    "0": "¡Hi! ¿Kunjamsa jichhürunakan yanaptʼirista?",
+    "1": "Kamisaki! Aski jutäwi! ¿Kunsa nayajj jumatak luririsma?",
+    "2": "Kamisaki! ¡Ukham jumamp parltʼasajj wal kusista!",
+    "3": "Kamisaki! Nayax yanapt'añatakiw akanktxa. ¿Kunas jumatakix wakisi?",
+    "4": "Kamisaki! Kamisaraki? ¿Kunjamsa nayajj yanaptʼirista?"
+  },
+  "waiting": {
+    "0": "Nayax amuyt’apxäma...",
+    "1": "Mä juk’a pachax...",
+    "2": "Uka lurawixa...",
+    "3": "Mä segunda kutikiw...",
+    "4": "Nayax jumatakix uk uñakipt'askta..."
+  }
+}

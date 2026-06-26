@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ketikken pesanndu...",
+      "listening": "Megiken..."
+    },
+    "enableSound": "Aktifken Sora",
+    "stt": {
+      "transcribing": "Mentranskripsiken: ",
+      "micActive": "Mikrofon enggo aktif...",
+      "heardError": "Sentabi, la banci kubegi kam. Tolong cubakenndu mulihi.",
+      "micAccessError": "Labo banci iaksesna mikrofon. Periksalah izin-izin si lit."
+    },
+    "speed": {
+      "idle": "Nganggur:",
+      "talk": "Ceramah:"
+    }
+  },
+  "avatar": {
+    "loading": "Muat avatar...",
+    "title": {
+      "maximize": "Maksimalken",
+      "minimize": "Minimalken",
+      "close": "Tutup",
+      "clickToMaximize": "Klik guna memaksimalken .",
+      "clickToMinimize": "Klik guna meminimalken ."
+    },
+    "error": {
+      "loadFailed": "Gagal muat avatar: {{error}} . ",
+      "playerNotLoaded": "AniaPemain la i muat .",
+      "passwordRequired": "Kata sandi si iperluken guna file .ania si enggo i enkripsi .",
+      "noSource": "La lit sumber avatar si isediaken (Url avatar ntah pe Data avatar)"
+    }
+  },
+  "greetings": {
+    "0": "Hai! Uga banci kusampati kam sendah?",
+    "1": "Halo! Selamat datang! Kai kin banci kubahan man bandu?",
+    "2": "Uga! Emaka meriah kel ukurku ngerana ras kam!",
+    "3": "Halo! Aku i jenda guna nampati. Kai si iperlukenndu?",
+    "4": "Halo! Uga berita ndu? Uga carana gelah banci aku erguna?"
+  },
+  "waiting": {
+    "0": "Mari ku ukuri...",
+    "1": "Sada paksa...",
+    "2": "Pengolahen...",
+    "3": "Sada detik ngenca...",
+    "4": "Kuperiksa nge e man bandu..."
+  }
+}

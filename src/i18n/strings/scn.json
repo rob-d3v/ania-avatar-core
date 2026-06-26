@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Scrivi lu to messaggiu...",
+      "listening": "Ascultannu..."
+    },
+    "enableSound": "Attiva lu sonu",
+    "stt": {
+      "transcribing": "Trascrizzioni: ",
+      "micActive": "Micròfunu attivu...",
+      "heardError": "Scusa, non ti putìa sentiri. Pruva n'autra vota.",
+      "micAccessError": "Nun si po accèdiri ô micròfunu. Cuntrolla li pirmissi."
+    },
+    "speed": {
+      "idle": "Inattivu:",
+      "talk": "Parrari:"
+    }
+  },
+  "avatar": {
+    "loading": "Caricamentu di l'avatar...",
+    "title": {
+      "maximize": "Massimizzari",
+      "minimize": "Ridùciri ô minimu",
+      "close": "Chiudi",
+      "clickToMaximize": "Clicca pi massimizzari",
+      "clickToMinimize": "Clicca pi ridùciri ô minimu"
+    },
+    "error": {
+      "loadFailed": "Nun arriniscìu a carricari l'avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer nun caricatu",
+      "passwordRequired": "La password è nicissària pû file criptatu .ania",
+      "noSource": "Nun fu furnita nudda funti di l'avatar (Url di l'avatar o dati di l'avatar)"
+    }
+  },
+  "greetings": {
+    "0": "Saluti! Comu ti pozzu aiutari oggi?",
+    "1": "Salutamu! Bimminutu! Chi ti pozzu fari?",
+    "2": "Ou ḍḍocu! Accussì cuntentu di parrari cu tia!",
+    "3": "Salutamu! Sugnu ccà pi aiutari. Chi ti servi?",
+    "4": "Salutamu! Comu semu? Comu possu èssiri utili?"
+  },
+  "waiting": {
+    "0": "Lassami pinzari...",
+    "1": "Nu mumentu...",
+    "2": "Elaborazzioni...",
+    "3": "Basta nu secunnu...",
+    "4": "Chistu lu cuntrullu pi tia..."
+  }
+}

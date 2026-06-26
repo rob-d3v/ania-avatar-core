@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Idatzi zure mezua...",
+      "listening": "Entzuten..."
+    },
+    "enableSound": "Gaitu soinua",
+    "stt": {
+      "transcribing": "Transkripzioa: ",
+      "micActive": "Mikrofonoa aktibo...",
+      "heardError": "Barkatu, ezin zaitut entzun. Mesedez, saiatu berriro.",
+      "micAccessError": "Ezin da mikrofonora sartu. Egiaztatu baimenak."
+    },
+    "speed": {
+      "idle": "Inaktibo:",
+      "talk": "Hitzaldia:"
+    }
+  },
+  "avatar": {
+    "loading": "Avatarra kargatzen...",
+    "title": {
+      "maximize": "Maximizatu",
+      "minimize": "Minimizatu",
+      "close": "Itxi",
+      "clickToMaximize": "Egin klik maximizatzeko",
+      "clickToMinimize": "Egin klik minimizatzeko"
+    },
+    "error": {
+      "loadFailed": "Ezin izan da avatarra kargatu: {{error}} ",
+      "playerNotLoaded": "AniaPlayer ez da kargatu",
+      "passwordRequired": "Pasahitza behar da enkriptatutako .ania fitxategirako",
+      "noSource": "Ez da avatar iturririk eman (avatarUrl edo avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Kaixo! Nola lagundu dezaket gaur?",
+    "1": "Kaixo! Ongi etorri! Zer egin dezaket zuretzat?",
+    "2": "Kaixo! Pozten naiz zurekin hitz egiteaz!",
+    "3": "Kaixo! Hemen nago laguntzeko. Zer behar duzu?",
+    "4": "Kaixo! Zer moduz zaude? Nola izan naiteke erabilgarria?"
+  },
+  "waiting": {
+    "0": "Utzidazu pentsatzen...",
+    "1": "Momentu bat...",
+    "2": "Prozesatzen...",
+    "3": "Segundo bat besterik ez...",
+    "4": "Zuretzat egiaztatzen ari naiz..."
+  }
+}

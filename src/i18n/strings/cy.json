@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Teipiwch eich neges...",
+      "listening": "Wrth wrando..."
+    },
+    "enableSound": "Galluogi Sain",
+    "stt": {
+      "transcribing": "Trawsgrifio: ",
+      "micActive": "Meicroffon yn weithredol...",
+      "heardError": "Mae'n ddrwg gennym, methu clywed chi. Ceisiwch eto.",
+      "micAccessError": "Methu cyrchu meicroffon. Gwirio caniatadau."
+    },
+    "speed": {
+      "idle": "segur:",
+      "talk": "Sgwrs:"
+    }
+  },
+  "avatar": {
+    "loading": "Wrthi'n llwytho avatar...",
+    "title": {
+      "maximize": "Mwyhau",
+      "minimize": "Lleihewch",
+      "close": "Cau",
+      "clickToMaximize": "Cliciwch i wneud y mwyaf",
+      "clickToMinimize": "Cliciwch i leihau"
+    },
+    "error": {
+      "loadFailed": "Wedi methu llwytho avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer heb ei lwytho",
+      "passwordRequired": "Mae angen cyfrinair ar gyfer ffeil .ania wedi'i hamgryptio",
+      "noSource": "Ni ddarparwyd ffynhonnell avatar (avatarUrl neu avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Helo! Sut gallaf eich helpu heddiw?",
+    "1": "Helo! Croeso! Beth alla i ei wneud i chi?",
+    "2": "Helo yno! Mor falch o siarad â chi!",
+    "3": "Helo! Rydw i yma i helpu. Beth sydd ei angen arnoch chi?",
+    "4": "Helo! Sut wyt ti? Sut alla i fod yn ddefnyddiol?"
+  },
+  "waiting": {
+    "0": "Gadewch i mi feddwl...",
+    "1": "Un eiliad...",
+    "2": "Wrthi'n prosesu...",
+    "3": "Dim ond eiliad...",
+    "4": "Rwy'n gwirio hynny i chi ..."
+  }
+}

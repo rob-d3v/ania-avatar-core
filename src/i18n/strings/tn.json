@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Thaepa molaetsa wa gago...",
+      "listening": "Go reetsa..."
+    },
+    "enableSound": "Kgontsha Modumo",
+    "stt": {
+      "transcribing": "Go kwalolola: ",
+      "micActive": "Maekerofouno e a dira...",
+      "heardError": "Tshwarelo, ga ke a go utlwa. Tsweetswee leka gape.",
+      "micAccessError": "Ga e kgone go bona maekerofouno. Tlhola ditetlelelo."
+    },
+    "speed": {
+      "idle": "Idle:",
+      "talk": "Puo:"
+    }
+  },
+  "avatar": {
+    "loading": "Go laisa setshwantsho...",
+    "title": {
+      "maximize": "Godisang",
+      "minimize": "Fokotsa",
+      "close": "Tswala",
+      "clickToMaximize": "Tobetsa go godisa",
+      "clickToMinimize": "Tobetsa go fokotsa"
+    },
+    "error": {
+      "loadFailed": "E paletswe ke go laisa setshwantsho: {{error}} ",
+      "playerNotLoaded": "Setshamekisi sa Ania ga se a laisiwa",
+      "passwordRequired": "Nomoro ya sephiri e a tlhokega mo faeleng ya .ania e e tsenngwang khoutu",
+      "noSource": "Ga go na motswedi wa setshwantsho o o neetsweng (Url ya setshwantsho kgotsa Tshedimosetso ya setshwantsho)"
+    }
+  },
+  "greetings": {
+    "0": "Dumela! Nka go thusa jang gompieno?",
+    "1": "Dumelang! Amogelesega! Nka go direla eng?",
+    "2": "Dumelang! Ke itumelela go bua le wena!",
+    "3": "Dumelang! Ke fano go thusa. O tlhoka eng?",
+    "4": "Dumelang! Le kae? Nka nna mosola jang?"
+  },
+  "waiting": {
+    "0": "E re ke akanye...",
+    "1": "Motsotso o le mongwe...",
+    "2": "Go bereka...",
+    "3": "Motsotswana fela...",
+    "4": "Ke go tlhola seo..."
+  }
+}

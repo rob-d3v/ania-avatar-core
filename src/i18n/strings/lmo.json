@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Digita el tò messaj...",
+      "listening": "Ascoltar..."
+    },
+    "enableSound": "Abilita el son",
+    "stt": {
+      "transcribing": "Trascriziun: ",
+      "micActive": "Micròfon atif...",
+      "heardError": "Scusa, pudevi minga sentirte. Per piasé pruva ancamò.",
+      "micAccessError": "Impossibil acceder al microfono. Cuntrula i permess."
+    },
+    "speed": {
+      "idle": "Inattivo:",
+      "talk": "Parlà:"
+    }
+  },
+  "avatar": {
+    "loading": "Caricament del avatar...",
+    "title": {
+      "maximize": "Massimizar",
+      "minimize": "Minimizar",
+      "close": "Serra",
+      "clickToMaximize": "Clicca per massimizar",
+      "clickToMinimize": "Clicca per minimizar"
+    },
+    "error": {
+      "loadFailed": "L'è minga sta pusibel caricà l'avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer minga caricà",
+      "passwordRequired": "Password dumandada per el file .ania criptà",
+      "noSource": "Nissun funt d’avatar furnida (Url d’avatar o dati d’avatar)"
+    }
+  },
+  "greetings": {
+    "0": "Ciao! Cuma pœu vuttàt incœu?",
+    "1": "Uela! Benvegnud! Cossa pœdi far per ti?",
+    "2": "Uei! Cusì contento de parlà cun ti!",
+    "3": "Uela! Sun chi per vùtar. De che g’he bisugn?",
+    "4": "Uela! Comè steet? Cuma pœu vèss ütil?"
+  },
+  "waiting": {
+    "0": "Lassèm pensà...",
+    "1": "Un mument...",
+    "2": "Elaboraziun...",
+    "3": "Solo un segund...",
+    "4": "Sto controlland per ti..."
+  }
+}

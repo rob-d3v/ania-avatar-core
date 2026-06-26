@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Na cakuat kha ttial...",
+      "listening": "Ngaih..."
+    },
+    "enableSound": "Aw kha On",
+    "stt": {
+      "transcribing": "Ca ṭial: ",
+      "micActive": "Microphone a cawlcang...",
+      "heardError": "Ngaihthiam, na bia kan thei kho lo. Zaangfahnak tein rak i zuam tthan.",
+      "micAccessError": "Microphone hman khawh a si lo. Nawlpeknak hna kha zoh."
+    },
+    "speed": {
+      "idle": "Riantuan lo:",
+      "talk": "Biachim:"
+    }
+  },
+  "avatar": {
+    "loading": "Avatar a luh lio...",
+    "title": {
+      "maximize": "A tam bik tuah",
+      "minimize": "Tlawmter",
+      "close": "Khar",
+      "clickToMaximize": "A tam bik tuah awkah hmet",
+      "clickToMinimize": "Tlawmter awkah hmet"
+    },
+    "error": {
+      "loadFailed": "Avatar load tuah khawh a si lo: {{error}} ",
+      "playerNotLoaded": "AniaPlayer cu a lut lo",
+      "passwordRequired": "Encrypted .ania file caah password a herh",
+      "noSource": "Avatar hrampi pek a si lo (avatarUrl asiloah avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Nihin ah zeitindah kan bawmh khawh lai?",
+    "1": "Halo! Don! Zeidah kan tuah piak khawh lai?",
+    "2": "Halo! Nangmah he bia i ruah cu kaa lawm tuk!",
+    "3": "Halo! Bawmh awkah ka um. Zeidah na herh?",
+    "4": "Hi! Na dam maw? Zeitindah santlaihnak ka ngeih khawh lai?"
+  },
+  "waiting": {
+    "0": "Ka ruah tuah...",
+    "1": "Caan tlawmpal...",
+    "2": "Tuah...",
+    "3": "Second pakhat te lawng...",
+    "4": "Cucu nangmah caah ka zohfel..."
+  }
+}

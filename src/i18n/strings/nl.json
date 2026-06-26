@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Typ uw bericht...",
+      "listening": "Luisteren..."
+    },
+    "enableSound": "Schakel geluid in",
+    "stt": {
+      "transcribing": "Transcriberen: ",
+      "micActive": "Microfoon actief...",
+      "heardError": "Sorry, ik kon je niet horen. Probeer het opnieuw.",
+      "micAccessError": "Kan geen toegang krijgen tot de microfoon. Controleer machtigingen."
+    },
+    "speed": {
+      "idle": "Inactief:",
+      "talk": "Praten:"
+    }
+  },
+  "avatar": {
+    "loading": "Avatar laden...",
+    "title": {
+      "maximize": "Maximaliseer",
+      "minimize": "Minimaliseer",
+      "close": "Sluiten",
+      "clickToMaximize": "Klik om te maximaliseren",
+      "clickToMinimize": "Klik om te minimaliseren"
+    },
+    "error": {
+      "loadFailed": "Kan avatar niet laden: {{error}} ",
+      "playerNotLoaded": "AniaPlayer niet geladen",
+      "passwordRequired": "Wachtwoord vereist voor gecodeerd .ania-bestand",
+      "noSource": "Geen avatarbron opgegeven (avatarUrl of avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hallo! Hoe kan ik je vandaag helpen?",
+    "1": "Hallo! Welkom! Wat kan ik voor je doen?",
+    "2": "Hoi! Ik ben zo blij om met je te praten!",
+    "3": "Hallo! Ik ben hier om te helpen. Wat heb je nodig?",
+    "4": "Hoi! Hoe is het met je? Hoe kan ik nuttig zijn?"
+  },
+  "waiting": {
+    "0": "Laat me denken...",
+    "1": "Een ogenblik...",
+    "2": "Verwerken...",
+    "3": "Een ogenblikje...",
+    "4": "Ik controleer het voor je..."
+  }
+}

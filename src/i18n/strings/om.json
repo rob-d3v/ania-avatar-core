@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ergaa keessan barreessaa...",
+      "listening": "Dhaggeeffachaa..."
+    },
+    "enableSound": "Sagalee Dandeessisi",
+    "stt": {
+      "transcribing": "Barreessuu: 1.1. ",
+      "micActive": "Maaykiroofooniin hojiirra jiru...",
+      "heardError": "Dhiifama, si dhaga'uu hin dandeenye. Mee irra deebi'ii yaalaa.",
+      "micAccessError": "Maaykiroofoonii argachuu hin dandeenye. Hayyama ilaali."
+    },
+    "speed": {
+      "idle": "Hojii malee: .",
+      "talk": "Haasaa:"
+    }
+  },
+  "avatar": {
+    "loading": "Avatar fe'amaa jira...",
+    "title": {
+      "maximize": "Maximize gochuu",
+      "minimize": "Xiqqeessuu",
+      "close": "Cufi",
+      "clickToMaximize": "Guddisuuf cuqaasaa",
+      "clickToMinimize": "Xiqqeessuuf cuqaasaa"
+    },
+    "error": {
+      "loadFailed": "Avatar fe'uu hin dandeenye: {{error}} . ",
+      "playerNotLoaded": "AniaPlayer hin fe'amne",
+      "passwordRequired": "Jecha icciitii faayilii .ania icciitii ta'eef barbaachisa",
+      "noSource": "Maddi avatar hin kennamne (avatarUrl ykn avatarData) ."
+    }
+  },
+  "greetings": {
+    "0": "Hi! Har'a akkamittan isin gargaaruu danda'a?",
+    "1": "Akkam! Baga nagaan dhufte! Maal siif gochuu danda'a?",
+    "2": "Achi kan jirtu! Si haasofsiisuu kootti baay'een gammada!",
+    "3": "Akkam! Gargaaruuf as jira. Maal si barbaachisa?",
+    "4": "Akkam! Akkam jirta? Akkamittan faayidaa qabaachuu danda'a?"
+  },
+  "waiting": {
+    "0": "Mee akkan yaadutti...",
+    "1": "Yeroo tokko...",
+    "2": "Adeemsa hojii...",
+    "3": "Sekondii tokko qofa...",
+    "4": "Sana isiniif sakatta'aa jira..."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ngola molaetsa oa hau...",
+      "listening": "Ke mametse..."
+    },
+    "enableSound": "Ntsha Modumo",
+    "stt": {
+      "transcribing": "Ngola: ",
+      "micActive": "Maekerofounu ea sebetsa...",
+      "heardError": "Tšoarelo, ha kea u utloa. Ka kopo, leka hape.",
+      "micAccessError": "Ha e khone ho fihlella maekrofounu. Sheba litumello."
+    },
+    "speed": {
+      "idle": "E sa sebetse:",
+      "talk": "Puo:"
+    }
+  },
+  "avatar": {
+    "loading": "E kenya avatar...",
+    "title": {
+      "maximize": "Eketsa",
+      "minimize": "Fokotsa",
+      "close": "Koala",
+      "clickToMaximize": "Tobetsa ho holisa",
+      "clickToMinimize": "Tobetsa ho fokotsa"
+    },
+    "error": {
+      "loadFailed": "E hlolehile ho kenya avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer ha e kentsoe",
+      "passwordRequired": "Lentsoe la lekunutu lea hlokahala bakeng sa faele e kentsoeng ea .ania",
+      "noSource": "Ha ho mohloli o fanoeng (avatarUrl kapa avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Lumela! Nka o thusa jwang kajeno?",
+    "1": "Lumela! Rea u amohela! Nka u etsetsang?",
+    "2": "Ho joang! Ke thabela ho bua le uena!",
+    "3": "Lumela! Ke mona ho tla thusa. U hloka eng?",
+    "4": "Lumela! U phela joang? Nka ba molemo joang?"
+  },
+  "waiting": {
+    "0": "Ere ke nahane...",
+    "1": "Motsotso o le mong...",
+    "2": "E ntse e sebetsa...",
+    "3": "Motsotsoana feela...",
+    "4": "Ke u lekola seo..."
+  }
+}

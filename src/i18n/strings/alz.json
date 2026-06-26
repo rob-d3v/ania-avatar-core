@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Kyewo lembe peri...",
+      "listening": "Winjo..."
+    },
+    "enableSound": "Wek dwal",
+    "stt": {
+      "transcribing": "Goyo: ",
+      "micActive": "Microphone utiye ka tic...",
+      "heardError": "Tima kisa, awinjo ngo. Tem kendu.",
+      "micAccessError": "Icopo nwangu ngo microphone. Nen twero."
+    },
+    "speed": {
+      "idle": "Idle:",
+      "talk": "Wec:"
+    }
+  },
+  "avatar": {
+    "loading": "Ube ketho avatar...",
+    "title": {
+      "maximize": "Medu",
+      "minimize": "Dwok piny",
+      "close": "Cego",
+      "clickToMaximize": "Dii pi medu",
+      "clickToMinimize": "Dii pi jwigo piny"
+    },
+    "error": {
+      "loadFailed": "Utimo ngo avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer epe",
+      "passwordRequired": "Lanyuth mitere pi .ania file ma jugwoko",
+      "noSource": "Kabedo pa avatar moko epe (avatarUrl nyo avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Amothi! Acopo konyi nenedi tin?",
+    "1": "Maberi! Wofoyo bino! Ango ma acopo timo iri?",
+    "2": "Nenedi kuca! Cwinya yom ni wecu kudi!",
+    "3": "Maberi! Atiye kany pi konyo. Imito ango?",
+    "4": "Maberi! Itye nenedi? Acopo bedo ku kony nenedi?"
+  },
+  "waiting": {
+    "0": "Wek aparu...",
+    "1": "Saa moko...",
+    "2": "Tiyu...",
+    "3": "Sekond kende...",
+    "4": "Abe ngiyo eni piri..."
+  }
+}

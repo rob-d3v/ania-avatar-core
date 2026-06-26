@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Sonika nsangu na nge...",
+      "listening": "Kuwidikila..."
+    },
+    "enableSound": "Kangula Makelele",
+    "stt": {
+      "transcribing": "Kusonika: ",
+      "micActive": "Micro ke sala...",
+      "heardError": "Lolula mono, mono lendaka kuwa nge ve. Mulemvo meka diaka.",
+      "micAccessError": "Kukonda kukuka na kukota na mikro. Tala nswa."
+    },
+    "speed": {
+      "idle": "Kukonda kisalu:",
+      "talk": "Diskure:"
+    }
+  },
+  "avatar": {
+    "loading": "Kutula kifwanisu...",
+    "title": {
+      "maximize": "Kukumisa mingi",
+      "minimize": "Kukulumusa",
+      "close": "Kanga",
+      "clickToMaximize": "Fina sambu na kuyedisa",
+      "clickToMinimize": "Fina sambu na kukulumusa"
+    },
+    "error": {
+      "loadFailed": "Kukonda kutula kifwanisu: {{error}} ",
+      "playerNotLoaded": "Aniajoueur me fuluka ve",
+      "passwordRequired": "Mot de passe kele mfunu sambu na fichier .ania ya kukangama",
+      "noSource": "Bo me pesa ve kisina ya kifwani (Url ya kifwani to bansangu ya kifwani)"
+    }
+  },
+  "greetings": {
+    "0": "Mbote! Inki mutindu mono lenda sadisa nge bubu yai?",
+    "1": "Mbote! Kukwisa ya mbote! Inki mono lenda sala sambu na nge?",
+    "2": "Mbote na beno! Kiese mingi na kusolula ti nge!",
+    "3": "Mbote! Mu ke awa samu na kusadisa. Inki nge kele na yo mfunu?",
+    "4": "Mbote! Ebwe? Inki mutindu mono lenda vanda mfunu?"
+  },
+  "waiting": {
+    "0": "Bika mono yindula...",
+    "1": "Ntangu mosi...",
+    "2": "Kuyidika...",
+    "3": "Kaka sekondi mosi...",
+    "4": "Mono ke tala yo sambu na nge..."
+  }
+}

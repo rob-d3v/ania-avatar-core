@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Tlola umlayezwakho...",
+      "listening": "Ukulalela..."
+    },
+    "enableSound": "Vumela umdumo",
+    "stt": {
+      "transcribing": "Ukutlola: ",
+      "micActive": "Imakrofoni isebenza...",
+      "heardError": "Uxolo, azange ngikuzwe. Sibawa ulinge godu.",
+      "micAccessError": "Akukghoni ukufikelela imakrofoni. Hlola iimvume."
+    },
+    "speed": {
+      "idle": "Ungenzi lutho:",
+      "talk": "Ikulumo:"
+    }
+  },
+  "avatar": {
+    "loading": "Ukulayisha i-avatar...",
+    "title": {
+      "maximize": "Khulisa",
+      "minimize": "Nciphisa",
+      "close": "Vala",
+      "clickToMaximize": "Tlika ukuze ukhulise",
+      "clickToMinimize": "Tlika ukunciphisa"
+    },
+    "error": {
+      "loadFailed": "Kwehlulekile ukulayisha i-avatar: {{error}} ",
+      "playerNotLoaded": "I-AniaPlayer ayilayitjhwa",
+      "passwordRequired": "Iphasiwedi iyatlhogeka efayeleni le-.ania elifihliweko",
+      "noSource": "Akukho mthombo we-avatar onikelwe (i-avatarUrl nofana i-avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Sawubona! Ngingakusiza njani namhlanjesi?",
+    "1": "Lotjha! Siyakwamukela! Ngingakwenzelani?",
+    "2": "Lotjha! Ngithabile ukukhuluma nawe!",
+    "3": "Lotjha! Ngilapha ukuzokusiza. Khuyini oyitlhogako?",
+    "4": "Lotjha! Unjani? Ngingaba lisizo njani?"
+  },
+  "waiting": {
+    "0": "Akhe ngicabange...",
+    "1": "Umzuzu owodwa...",
+    "2": "Ukucubungula...",
+    "3": "Umzuzwana nje...",
+    "4": "Ngiyakuhlolela lokho..."
+  }
+}

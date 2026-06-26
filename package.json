@@ -1,0 +1,64 @@
+{
+  "name": "ania-avatar-core",
+  "version": "1.0.0",
+  "description": "Framework-agnostic TypeScript engine for the Ania animated-avatar player. Mounts an avatar onto a <canvas>/container and drives lip-sync, actions, commands, plugins, TTS/STT/wake-word. Powers Vue/Angular/Svelte/Web-Component wrappers.",
+  "type": "module",
+  "license": "MIT",
+  "author": "rob-d3v",
+  "repository": "github:rob-d3v/ania-avatar-core",
+  "homepage": "https://github.com/rob-d3v/ania-avatar-core#readme",
+  "bugs": "https://github.com/rob-d3v/ania-avatar-core/issues",
+  "keywords": [
+    "ania",
+    "avatar",
+    "vtuber",
+    "lip-sync",
+    "tts",
+    "stt",
+    "wake-word",
+    "canvas",
+    "framework-agnostic",
+    "typescript"
+  ],
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/index.global.js",
+  "jsdelivr": "./dist/index.global.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "gen:strings": "node scripts/gen-strings-index.mjs",
+    "prebuild": "node scripts/gen-strings-index.mjs",
+    "build": "node scripts/gen-strings-index.mjs && tsup",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist"
+  },
+  "peerDependencies": {
+    "onnxruntime-web": "*",
+    "piper-tts-web": "*"
+  },
+  "peerDependenciesMeta": {
+    "onnxruntime-web": {
+      "optional": true
+    },
+    "piper-tts-web": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  }
+}

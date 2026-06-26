@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Xabaringizni yozing...",
+      "listening": "Tinglanmoqda..."
+    },
+    "enableSound": "Ovozni yoqish",
+    "stt": {
+      "transcribing": "Transkripsiya: ",
+      "micActive": "Mikrofon faol...",
+      "heardError": "Kechirasiz, sizni eshitmadim. Iltimos, qayta urinib koʻring.",
+      "micAccessError": "Mikrofonga kirish imkonsiz. Ruxsatlarni tekshiring."
+    },
+    "speed": {
+      "idle": "Bo'sh:",
+      "talk": "Muloqot:"
+    }
+  },
+  "avatar": {
+    "loading": "Avatar yuklanmoqda...",
+    "title": {
+      "maximize": "Maksimallashtirish",
+      "minimize": "Minimallashtirish",
+      "close": "Yopish",
+      "clickToMaximize": "Kattalashtirish uchun bosing",
+      "clickToMinimize": "Kichraytirish uchun bosing"
+    },
+    "error": {
+      "loadFailed": "Avatarni yuklab boʻlmadi: {{error}} ",
+      "playerNotLoaded": "AniaPlayer yuklanmagan",
+      "passwordRequired": "Shifrlangan .ania fayli uchun parol talab qilinadi",
+      "noSource": "Hech qanday avatar manbai berilmagan (avatarUrl yoki avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Salom! Bugun sizga qanday yordam bera olaman?",
+    "1": "Salom! Xush kelibsiz! Sizga qanday yordam berishim mukin?",
+    "2": "Salom! Siz bilan gaplashganimdan xursandman!",
+    "3": "Salom! Men yordam berish uchun keldim. Sizga nima kerak?",
+    "4": "Salom! Qalaysiz? Qanday qilib foydali bo'lishim mumkin?"
+  },
+  "waiting": {
+    "0": "O'ylab ko'raylik...",
+    "1": "Bir lahza...",
+    "2": "Qayta ishlanmoqda...",
+    "3": "Bir soniya...",
+    "4": "Men buni siz uchun tekshiryapman ..."
+  }
+}

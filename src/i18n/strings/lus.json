@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "I message kha type la...",
+      "listening": "Ngaithlatu..."
+    },
+    "enableSound": "Sound tih kha enable rawh",
+    "stt": {
+      "transcribing": "Thuziak (Transcribing) tih hi: ",
+      "micActive": "Microphone active a nih chuan...",
+      "heardError": "Ngaidam rawh, ka hre thei lo. Khawngaihin han lo try leh teh.",
+      "micAccessError": "Microphone a lut thei lo. Permissions te chu enfiah rawh."
+    },
+    "speed": {
+      "idle": "Idle-ah chuan:",
+      "talk": "Thusawi:"
+    }
+  },
+  "avatar": {
+    "loading": "Avatar load mek a ni...",
+    "title": {
+      "maximize": "Maximize rawh",
+      "minimize": "Minimize rawh",
+      "close": "Khar rawh",
+      "clickToMaximize": "Maximize turin click la",
+      "clickToMinimize": "Click la, minimize rawh"
+    },
+    "error": {
+      "loadFailed": "Avatar load theih loh: {{error}} ",
+      "playerNotLoaded": "AniaPlayer a load lo",
+      "passwordRequired": "Encrypted .ania file atan chuan password a ngai",
+      "noSource": "Avatar source pek a ni lo (avatarUrl emaw avatarData emaw)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Vawiin hian engtin nge ka puih theih ang che?",
+    "1": "Chibai! Chibai! Engtin nge ka tihsak theih ang che?",
+    "2": "Chibai le! Ka biak theih che hi ka lawm tak zet!",
+    "3": "Chibai! Ka tanpui turin ka lo kal a ni. Eng nge i mamawh?",
+    "4": "Chibai! I dam em? Engtin nge ka tangkai theih ang?"
+  },
+  "waiting": {
+    "0": "Ka ngaihtuah ang...",
+    "1": "Hun khat chu...",
+    "2": "Processing a ni...",
+    "3": "Second khat chauh...",
+    "4": "Chu chu ka check sak che a ni..."
+  }
+}

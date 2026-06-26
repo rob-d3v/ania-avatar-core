@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Tuu tayn pexeet xraype...",
+      "listening": "Heere..."
+    },
+    "enableSound": "Klang aktiviire",
+    "stt": {
+      "transcribing": "Transkriptsioon: ",
+      "micActive": "Mikrofoon aktief...",
+      "heardError": "Sorry, khont tich nët heere. Tuu khanst noch mool proope.",
+      "micAccessError": "Mikrofoon khan net tsuu khome. Kontroliire ti erlaupnis."
+    },
+    "speed": {
+      "idle": "Leetich:",
+      "talk": "Reet:"
+    }
+  },
+  "avatar": {
+    "loading": "Avatar am laate...",
+    "title": {
+      "maximize": "Maximiiseere",
+      "minimize": "Minimiiseere",
+      "close": "Tsum",
+      "clickToMaximize": "Klik fer se maximiire",
+      "clickToMinimize": "Klik fer se minimiiseere"
+    },
+    "error": {
+      "loadFailed": "Tas avatar is net kelaat: {{error}} ",
+      "playerNotLoaded": "AniaPlayer is nët geladen",
+      "passwordRequired": "Passwort ferlangt fer ti ferxtëkelte .ania-file",
+      "noSource": "Keen Avatar-Quelle (AvatarUrl oder AvatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hallo! Wii khan ich tich hayt hëlfe?",
+    "1": "Halo! Wilkhome! Was khan ich fer aych mache?",
+    "2": "Oi! Soo froo tas ich mit aych xpreche khan!",
+    "3": "Halo! Ich sin hier fer se helfe. Was prauchst tuu?",
+    "4": "Oi! Wii keets tich? Wii khan ich nutslich sin?"
+  },
+  "waiting": {
+    "0": "Los mich tënke...",
+    "1": "Een momënt...",
+    "2": "Ferarbeitung...",
+    "3": "Ploos een sekund...",
+    "4": "Ich kontroliire tas fer tich..."
+  }
+}

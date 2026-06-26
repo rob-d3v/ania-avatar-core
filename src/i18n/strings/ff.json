@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Winndu mesaas maa...",
+      "listening": "Heɗtaade..."
+    },
+    "enableSound": "Softin Sonngo",
+    "stt": {
+      "transcribing": "Binndol: ",
+      "micActive": "Mikro ina golloo...",
+      "heardError": "Yaafo mi, mi waawaa nande ma. Tiiɗno enndu kadi.",
+      "micAccessError": "Waawaa heɓde mikroo. Ƴeewto jamirooje."
+    },
+    "speed": {
+      "idle": "Idle:",
+      "talk": "Haala:"
+    }
+  },
+  "avatar": {
+    "loading": "Lowde nate...",
+    "title": {
+      "maximize": "Maksima",
+      "minimize": "Ustu",
+      "close": "Uddit",
+      "clickToMaximize": "Ɓoɗɗu ngam ɓeydude",
+      "clickToMinimize": "Ɓoɗɗu ngam ustude"
+    },
+    "error": {
+      "loadFailed": "Waawaa loowde avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer oo jolnaaka",
+      "passwordRequired": "Konngol kuutorteengol ngam fiilde .ania sifirnde",
+      "noSource": "Alaa iwdi avatar rokkaa (Url avatar walla Data avatar)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Hol no mbaawirmi wallude ma hannde?",
+    "1": "Sanu! Jabbama! Hol ko mbaawmi wacfde ma?",
+    "2": "Mi hofni! So weltaare haaldude e maa!",
+    "3": "Sanu! Miɗo ɗoo ngam wallude. Hol ko njiɗɗaa?",
+    "4": "Sanu! Noy? Hol no mbaawirmi wonde nafoore?"
+  },
+  "waiting": {
+    "0": "Mi miijo...",
+    "1": "Wakkati gooto...",
+    "2": "Gollirde...",
+    "3": "Sekonnde tan...",
+    "4": "Miɗo ƴeewtoo ɗum ngam maa..."
+  }
+}

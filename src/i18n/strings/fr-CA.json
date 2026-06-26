@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Tapez votre message...",
+      "listening": "À l'écoute..."
+    },
+    "enableSound": "Activer le son",
+    "stt": {
+      "transcribing": "Transcription : ",
+      "micActive": "Micro actif....",
+      "heardError": "Désolé, je ne t'ai pas entendu. Veuillez réessayer.",
+      "micAccessError": "Impossible d'accéder au microphone. Vérifiez les autorisations."
+    },
+    "speed": {
+      "idle": "Inactif :",
+      "talk": "Parler :"
+    }
+  },
+  "avatar": {
+    "loading": "Chargement de l'avatar...",
+    "title": {
+      "maximize": "Maximiser",
+      "minimize": "Réduire",
+      "close": "Fermer",
+      "clickToMaximize": "Cliquez pour agrandir",
+      "clickToMinimize": "Cliquez pour minimiser"
+    },
+    "error": {
+      "loadFailed": "Échec du chargement de l'avatar : {{error}} ",
+      "playerNotLoaded": "AniaPlayer n'est pas chargé",
+      "passwordRequired": "Mot de passe requis pour le fichier .ania crypté",
+      "noSource": "Aucune source d'avatar fournie (avatarUrl ou avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Salut ! Comment puis-je vous aider aujourd'hui ?",
+    "1": "Salut! Accueillir! Que puis-je faire pour vous ?",
+    "2": "Salut! Je suis tellement content de te parler !",
+    "3": "Salut! Je suis là pour vous aider. De quoi avez-vous besoin?",
+    "4": "Salut! Comment ça va? Comment puis-je être utile ?"
+  },
+  "waiting": {
+    "0": "Laisse-moi réfléchir...",
+    "1": "Un instant...",
+    "2": "Traitement...",
+    "3": "Juste une seconde...",
+    "4": "Je vérifie ça pour toi..."
+  }
+}

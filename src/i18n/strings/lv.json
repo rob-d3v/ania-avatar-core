@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ierakstiet savu ziņojumu...",
+      "listening": "Klausos..."
+    },
+    "enableSound": "Iespējot skaņu",
+    "stt": {
+      "transcribing": "Transkribēšana: ",
+      "micActive": "Mikrofons aktīvs...",
+      "heardError": "Atvainojiet, nevarēju jūs dzirdēt. Lūdzu, mēģiniet vēlreiz.",
+      "micAccessError": "Nevar piekļūt mikrofonam. Pārbaudiet atļaujas."
+    },
+    "speed": {
+      "idle": "Dīkstāve:",
+      "talk": "Runājiet:"
+    }
+  },
+  "avatar": {
+    "loading": "Notiek iemiesojuma ielāde...",
+    "title": {
+      "maximize": "Maksimizēt",
+      "minimize": "Minimizēt",
+      "close": "Aizvērt",
+      "clickToMaximize": "Noklikšķiniet, lai palielinātu",
+      "clickToMinimize": "Noklikšķiniet, lai samazinātu"
+    },
+    "error": {
+      "loadFailed": "Neizdevās ielādēt iemiesojumu: {{error}} ",
+      "playerNotLoaded": "AniaPlayer nav ielādēts",
+      "passwordRequired": "Šifrētam .ania failam nepieciešama parole",
+      "noSource": "Nav norādīts iemiesojuma avots (avatarUrl vai avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Sveiki! Kā es varu jums palīdzēt šodien?",
+    "1": "Sveiki! Laipni lūdzam! Ko es varu darīt jūsu labā?",
+    "2": "Sveiki! Tik priecīgs ar jums runāt!",
+    "3": "Sveiki! Esmu šeit, lai palīdzētu. Ko tev vajag?",
+    "4": "Sveiki! kā tev iet? Kā es varu būt noderīgs?"
+  },
+  "waiting": {
+    "0": "Ļaujiet man padomāt...",
+    "1": "Viens mirklis...",
+    "2": "Notiek apstrāde...",
+    "3": "Tikai sekundi...",
+    "4": "Es to pārbaudu jūsu vietā..."
+  }
+}

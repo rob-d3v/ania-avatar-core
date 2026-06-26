@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Napište svou zprávu...",
+      "listening": "Poslouchám..."
+    },
+    "enableSound": "Povolit zvuk",
+    "stt": {
+      "transcribing": "přepis: ",
+      "micActive": "Mikrofon aktivní...",
+      "heardError": "Promiň, neslyšel jsem tě. Zkuste to prosím znovu.",
+      "micAccessError": "Nelze získat přístup k mikrofonu. Zkontrolujte oprávnění."
+    },
+    "speed": {
+      "idle": "Nečinný:",
+      "talk": "mluvit:"
+    }
+  },
+  "avatar": {
+    "loading": "Načítání avatara...",
+    "title": {
+      "maximize": "Maximalizovat",
+      "minimize": "Minimalizovat",
+      "close": "Zavřít",
+      "clickToMaximize": "Kliknutím maximalizujete",
+      "clickToMinimize": "Kliknutím minimalizujete"
+    },
+    "error": {
+      "loadFailed": "Nepodařilo se načíst avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer není načten",
+      "passwordRequired": "Pro zašifrovaný soubor .ania je vyžadováno heslo",
+      "noSource": "Nebyl poskytnut žádný zdroj avatara (avatarUrl nebo avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Ahoj! Jak vám dnes mohu pomoci?",
+    "1": "Ahoj! Vítejte! co pro vás mohu udělat?",
+    "2": "Dobrý den! Jsem rád, že s vámi mohu mluvit!",
+    "3": "Ahoj! Jsem tady, abych vám pomohl. co potřebuješ",
+    "4": "Ahoj! Jak se máte? Jak mohu být užitečný?"
+  },
+  "waiting": {
+    "0": "Nech mě přemýšlet...",
+    "1": "Moment...",
+    "2": "Zpracovává se...",
+    "3": "Jen vteřinku...",
+    "4": "Ověřuji ti to..."
+  }
+}

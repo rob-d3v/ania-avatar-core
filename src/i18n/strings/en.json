@@ -1,0 +1,35 @@
+{
+  "chat.input.placeholder": "Type your message...",
+  "chat.input.listening": "Listening...",
+  "chat.enableSound": "Enable Sound",
+  "chat.stt.transcribing": "Transcribing: ",
+  "chat.stt.micActive": "Microphone active...",
+  "chat.stt.heardError": "Sorry, couldn't hear you. Please try again.",
+  "chat.stt.micAccessError": "Unable to access microphone. Check permissions.",
+  "chat.speed.idle": "Idle:",
+  "chat.speed.talk": "Talk:",
+  "avatar.loading": "Loading avatar...",
+  "avatar.title.maximize": "Maximize",
+  "avatar.title.minimize": "Minimize",
+  "avatar.title.close": "Close",
+  "avatar.title.clickToMaximize": "Click to maximize",
+  "avatar.title.clickToMinimize": "Click to minimize",
+  "avatar.error.loadFailed": "Failed to load avatar: {{error}}",
+  "avatar.error.playerNotLoaded": "AniaPlayer not loaded",
+  "avatar.error.passwordRequired": "Password required for encrypted .ania file",
+  "avatar.error.noSource": "No avatar source provided (avatarUrl or avatarData)",
+  "greetings": {
+    "0": "Hi! How can I help you today?",
+    "1": "Hello! Welcome! What can I do for you?",
+    "2": "Hi there! So glad to talk to you!",
+    "3": "Hello! I'm here to help. What do you need?",
+    "4": "Hi! How are you? How can I be useful?"
+  },
+  "waiting": {
+    "0": "Let me think...",
+    "1": "One moment...",
+    "2": "Processing...",
+    "3": "Just a second...",
+    "4": "I'm checking that for you..."
+  }
+}

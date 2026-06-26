@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Andika ubutumwa bwawe ...",
+      "listening": "Kumva ..."
+    },
+    "enableSound": "Gushoboza Ijwi",
+    "stt": {
+      "transcribing": "Kwandukura: ",
+      "micActive": "Microphone ikora ...",
+      "heardError": "Ihangane, ntushobora kukumva. Nyamuneka gerageza.",
+      "micAccessError": "Ntushobora kubona mikoro. Reba uruhushya."
+    },
+    "speed": {
+      "idle": "Ubusa:",
+      "talk": "Ikiganiro:"
+    }
+  },
+  "avatar": {
+    "loading": "Gutwara avatar ...",
+    "title": {
+      "maximize": "Mugure",
+      "minimize": "Gabanya",
+      "close": "Funga",
+      "clickToMaximize": "Kanda kugirango ubone byinshi",
+      "clickToMinimize": "Kanda kugirango ugabanye"
+    },
+    "error": {
+      "loadFailed": "Kunanirwa gukuramo avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer ntabwo yikorewe",
+      "passwordRequired": "Ijambobanga risabwa kubanga .ania dosiye",
+      "noSource": "Nta soko ya avatar yatanzwe (avatarUrl cyangwa avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Muraho! Nigute nshobora kugufasha uyu munsi?",
+    "1": "Mwaramutse! Murakaza neza! Nakugirira nte?",
+    "2": "Muraho! Nishimiye cyane kuvugana nawe!",
+    "3": "Mwaramutse! Ndi hano gufasha. Ukeneye iki?",
+    "4": "Muraho! Mumeze mute? Nigute nshobora kuba ingirakamaro?"
+  },
+  "waiting": {
+    "0": "Reka ntekereze ...",
+    "1": "Umwanya umwe ...",
+    "2": "Gutunganya ...",
+    "3": "Isegonda gusa ...",
+    "4": "Ndimo kugenzura ibyo kubwawe ..."
+  }
+}

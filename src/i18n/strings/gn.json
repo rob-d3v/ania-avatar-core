@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ehai ne marandu...",
+      "listening": "Ohendúvo..."
+    },
+    "enableSound": "Emboguata Sonido rehegua",
+    "stt": {
+      "transcribing": "Ojetranscripción: 1.1. ",
+      "micActive": "Micrófono activo...",
+      "heardError": "Perdón, ndaikatúikuri rohendu. Eñeha’ã jey.",
+      "micAccessError": "Ndaikatúi ojeike micrófono-pe. Ehecháke umi permiso."
+    },
+    "speed": {
+      "idle": "Ocioso: 1.1.",
+      "talk": "Ñe’ẽasa:"
+    }
+  },
+  "avatar": {
+    "loading": "Ojekarga hína avatar...",
+    "title": {
+      "maximize": "Oñemomba’eguasuvévo",
+      "minimize": "Oñemboguejy michĩmi",
+      "close": "Oñemboty",
+      "clickToMaximize": "Emboguejy embotuichave hag̃ua",
+      "clickToMinimize": "Emboguejy emboguejy hag̃ua"
+    },
+    "error": {
+      "loadFailed": "Ndoikói ojekarga haguã avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer ndojekargái",
+      "passwordRequired": "Ñe’ẽñemi oñeikotevẽva .ania vore oñembohekopyrévape g̃uarã",
+      "noSource": "Ndaipóri avatar ypykue oñeme’ẽva (avatarUrl térã avatarData) ."
+    }
+  },
+  "greetings": {
+    "0": "Hi! Mbaʼéichapa ikatu roipytyvõ ko árape?",
+    "1": "Mba'éichapa! Tapeg̃uahẽporãite! Mbaʼépa ikatu ajapo nderehehápe?",
+    "2": "Maitei! ¡Avyʼaiterei añeʼẽ haguére nendive!",
+    "3": "Mba'éichapa! Che aime ko'ápe aipytyvõ haguã. Mbaʼépa reikotevẽ?",
+    "4": "Mba'éichapa! Mba'éichapa reime? Mbaʼéichapa ikatu chepytyvõ?"
+  },
+  "waiting": {
+    "0": "Tapensamína...",
+    "1": "Peteĩ momento...",
+    "2": "Procesamiento rehegua...",
+    "3": "Peteĩ segundonte...",
+    "4": "Che ahecha hína upéva ndéve g̃uarã..."
+  }
+}

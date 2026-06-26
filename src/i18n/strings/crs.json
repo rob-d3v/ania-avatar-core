@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "tip ou mesaz...",
+      "listening": "pe ekoute..."
+    },
+    "enableSound": "permet son",
+    "stt": {
+      "transcribing": "Transkripsyon: ",
+      "micActive": "Mikro i aktiv...",
+      "heardError": "dezole, mon pa'n kapab tann ou. silvouple esey ankor.",
+      "micAccessError": "pa kapab ganny akse avek mikro. Tyek bann permisyon."
+    },
+    "speed": {
+      "idle": "inaktif:",
+      "talk": "Koze:"
+    }
+  },
+  "avatar": {
+    "loading": "pe load avatar...",
+    "title": {
+      "maximize": "maksimize",
+      "minimize": "minimiz",
+      "close": "Fermen",
+      "clickToMaximize": "Klik pou maksimiz",
+      "clickToMinimize": "Klik pou minimiz"
+    },
+    "error": {
+      "loadFailed": "pa'n reisi load avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer pa'n ganny load",
+      "passwordRequired": "Modpas i neseser pou en dosye .ania enkripte",
+      "noSource": "napa sours avatar ki'n ganny donnen (avatarUrl oubyen avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Bonzour! ki mannyer mon kapab ed ou ozordi?",
+    "1": "Alo! Byenveni! Ki mon kapab fer pour ou?",
+    "2": "Alo! mon vreman kontan pou koz avek ou!",
+    "3": "Alo! Mon la pou ede. Ki ou bezwen?",
+    "4": "Alo! Konman ou sava? ki mannyer mon kapab itil?"
+  },
+  "waiting": {
+    "0": "les mwan mazinen...",
+    "1": "en moman...",
+    "2": "Pe prosese...",
+    "3": "zis en segonn...",
+    "4": "mon pe tyek sa pou ou..."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Lemba mulumbe wako...",
+      "listening": "Kuswiilizya..."
+    },
+    "enableSound": "Bikka Muzuzumo",
+    "stt": {
+      "transcribing": "Kulemba: ",
+      "micActive": "Maikkulofooni ilikubeleka...",
+      "heardError": "ndausa, teensi ndakakumvwa. Kosola alimwi.",
+      "micAccessError": "Tachikonzyi kunjila mumaikkulofooni. Langa zyeelelo."
+    },
+    "speed": {
+      "idle": "Kakwiina kuchita:",
+      "talk": "Makani:"
+    }
+  },
+  "avatar": {
+    "loading": "Kubikka avatar...",
+    "title": {
+      "maximize": "Kuyungizya",
+      "minimize": "Kucesya",
+      "close": "Jala",
+      "clickToMaximize": "Dina kuti uyungizye",
+      "clickToMinimize": "Dina kuti uchiche"
+    },
+    "error": {
+      "loadFailed": "Kwakachilwa kubikka avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer tiiyakabikkwa pe",
+      "passwordRequired": "Ipasiwedi ilayandika kufailo lya .ania lilembedwe",
+      "noSource": "Taakwe nkobakajana zifwanikiso (avatarUrl naa avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Wapona! Ino inga ndakugwasya biyeni sunu?",
+    "1": "Mbiyeni! Watambulwa! Ino ndilakuchitilaanzi?",
+    "2": "Wapona oko! Ndabotelwa kwaambuula ayebo!",
+    "3": "Mbiyeni! Ndili aano kugwasya. Ninzi nchoyanda?",
+    "4": "Wapona! Ulibiyeni? Ino inga ndagwasya biyeni?"
+  },
+  "waiting": {
+    "0": "Ndileke ndiyeeye...",
+    "1": "Chimwi chiindi...",
+    "2": "Kubamba...",
+    "3": "Muchindi chifwiifwi...",
+    "4": "Ndili mukukulanga eecho kuli nduwe..."
+  }
+}

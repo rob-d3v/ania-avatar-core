@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Tẹ ifiranṣẹ rẹ sii ...",
+      "listening": "Nfeti..."
+    },
+    "enableSound": "Mu Ohun ṣiṣẹ",
+    "stt": {
+      "transcribing": "Ṣatunkọ: ",
+      "micActive": "Gbohungbohun ti nṣiṣe lọwọ...",
+      "heardError": "Ma binu, ko le gbọ rẹ. Jọwọ gbiyanju lẹẹkansi.",
+      "micAccessError": "Ko le wọle si gbohungbohun. Ṣayẹwo awọn igbanilaaye."
+    },
+    "speed": {
+      "idle": "Laiṣiṣẹ:",
+      "talk": "Ọrọ sisọ:"
+    }
+  },
+  "avatar": {
+    "loading": "Nkojọpọ avatar...",
+    "title": {
+      "maximize": "O pọju",
+      "minimize": "Gbe sẹgbẹ",
+      "close": "Sunmọ",
+      "clickToMaximize": "Tẹ lati mu iwọn",
+      "clickToMinimize": "Tẹ lati dinku"
+    },
+    "error": {
+      "loadFailed": "Kuna lati kojọpọ avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer ko kojọpọ",
+      "passwordRequired": "Ọrọigbaniwọle beere fun fifi ẹnọ kọ nkan faili .ania",
+      "noSource": "Ko si orisun avatar ti a pese (avatarUrl tabi avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Bawo ni MO ṣe le ran ọ lọwọ loni?",
+    "1": "Pẹlẹ o! Kaabo! Kini mo le ṣe fun ọ?",
+    "2": "Bawo ni nibe yen o! Inu mi dun lati ba ọ sọrọ!",
+    "3": "Pẹlẹ o! Mo wa nibi lati ṣe iranlọwọ. Kini o nilo?",
+    "4": "Hi! Bawo ni o se wa? Bawo ni MO ṣe le wulo?"
+  },
+  "waiting": {
+    "0": "Jẹ ki n ronu...",
+    "1": "Ni iṣẹju kan...",
+    "2": "Nṣiṣẹ...",
+    "3": "O kan iṣẹju kan...",
+    "4": "Mo n ṣayẹwo iyẹn fun ọ..."
+  }
+}

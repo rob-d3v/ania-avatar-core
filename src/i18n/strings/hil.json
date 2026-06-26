@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "I-type ang imo mensahe...",
+      "listening": "Nagapamati..."
+    },
+    "enableSound": "I-enable ang Sound",
+    "stt": {
+      "transcribing": "Pag-transcribe: ",
+      "micActive": "Aktibo ang mikropono...",
+      "heardError": "Pasensya na, indi ko ikaw mabatian. Palihog tilawi liwat.",
+      "micAccessError": "Indi maka-access sa mikropono. Tan-awa ang mga pagtugot."
+    },
+    "speed": {
+      "idle": "Idle:",
+      "talk": "Pamulongpulong:"
+    }
+  },
+  "avatar": {
+    "loading": "Naga-load sang avatar...",
+    "title": {
+      "maximize": "Padakuon",
+      "minimize": "Pagamay",
+      "close": "Magsira",
+      "clickToMaximize": "I-klik para ma-maximize",
+      "clickToMinimize": "I-klik para mabuhinan"
+    },
+    "error": {
+      "loadFailed": "Napaslawan sa pag-load sang avatar: {{error}} ",
+      "playerNotLoaded": "Ang AniaPlayer wala ma-load",
+      "passwordRequired": "Kinahanglan ang password para sa naka-encrypt nga .ania file",
+      "noSource": "Wala sing ginhatag nga ginhalinan sang avatar (avatarUrl ukon avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Paano ko ikaw mabuligan subong nga adlaw?",
+    "1": "Kamusta! Gina-abiabi! Ano ang mahimo ko para sa imo?",
+    "2": "Kamusta ka! Nalipay gid ako nga makaistorya sa imo!",
+    "3": "Kamusta! Ari ako para magbulig. Ano ang kinahanglan mo?",
+    "4": "Kamusta! Kamusta ikaw? Paano ako mangin mapuslanon?"
+  },
+  "waiting": {
+    "0": "Tuguti ako nga maghunahuna...",
+    "1": "Isa ka tion...",
+    "2": "Nagaproseso...",
+    "3": "Isa lang ka segundo...",
+    "4": "Ginausisa ko ina para sa imo..."
+  }
+}

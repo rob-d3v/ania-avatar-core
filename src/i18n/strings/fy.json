@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Typ jo berjocht...",
+      "listening": "Harkje..."
+    },
+    "enableSound": "Lûd ynskeakelje",
+    "stt": {
+      "transcribing": "Transkripsje: ",
+      "micActive": "Mikrofoan aktyf...",
+      "heardError": "Sorry, koe dy net hearre. Besykje it nochris.",
+      "micAccessError": "Gjin tagong ta mikrofoan. Kontrolearje tagongsrjochten."
+    },
+    "speed": {
+      "idle": "Idle:",
+      "talk": "Oerlis:"
+    }
+  },
+  "avatar": {
+    "loading": "Avatar laden...",
+    "title": {
+      "maximize": "Maksimalisearje",
+      "minimize": "Minimalisearje",
+      "close": "Slút",
+      "clickToMaximize": "Klikje om te maksimalisearjen",
+      "clickToMinimize": "Klikje om te minimalisearjen"
+    },
+    "error": {
+      "loadFailed": "It laden fan avatar mislearre: {{error}} ",
+      "playerNotLoaded": "AniaPlayer net laden",
+      "passwordRequired": "Wachtwurd nedich foar fersifere .ania-bestân",
+      "noSource": "Gjin avatarboarne levere (avatarUrl of avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Hoe kin ik jo hjoed helpe?",
+    "1": "Hallo! Wolkom! Wat kin ik foar dy dwaan?",
+    "2": "Hoi! Sa bliid mei dy te praten!",
+    "3": "Hallo! Ik bin hjir om te helpen. Wat hawwe jo nedich?",
+    "4": "Hoi! Hoe giet it mei dy? Hoe kin ik nuttich wêze?"
+  },
+  "waiting": {
+    "0": "Lit my tinke...",
+    "1": "Ien momint...",
+    "2": "It ferwurkjen...",
+    "3": "Noch in sekonde ...",
+    "4": "Ik kontrolearje dat foar jo ..."
+  }
+}

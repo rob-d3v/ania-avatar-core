@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Hakerek ita-boot nia mensajen...",
+      "listening": "Rona hela..."
+    },
+    "enableSound": "Habilita lian",
+    "stt": {
+      "transcribing": "Transkrisaun: ",
+      "micActive": "Mikrofone ativu...",
+      "heardError": "Deskulpa, labele rona ita-boot. Favor ida koko fali.",
+      "micAccessError": "Labele asesu ba mikrofone. Verifika lisensa sira."
+    },
+    "speed": {
+      "idle": "Ocioso:",
+      "talk": "Diskursu:"
+    }
+  },
+  "avatar": {
+    "loading": "Karregamentu hela avatar...",
+    "title": {
+      "maximize": "Maksimiza",
+      "minimize": "Minimiza",
+      "close": "Taka",
+      "clickToMaximize": "Klik atu maximiza",
+      "clickToMinimize": "Klik atu minimiza"
+    },
+    "error": {
+      "loadFailed": "La konsege karrega avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer la karrega",
+      "passwordRequired": "Presiza liafuan-xave ba arkivu .ania ne'ebé enkriptadu",
+      "noSource": "Laiha fonte avatar ne'ebé fornese (avatarUrl ka avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Olá! Oinsá ha'u bele ajuda ita-boot ohin?",
+    "1": "Óla! Benvindo! Saida maka ha'u bele halo ba ita-boot?",
+    "2": "Ola! Kontente tebes atu ko'alia ho ita-boot!",
+    "3": "Óla! Ha'u iha ne'e atu ajuda. Ita presiza saida?",
+    "4": "Óla! Di'ak ka lae? Oinsá ha'u bele sai útil?"
+  },
+  "waiting": {
+    "0": "Husik ha'u hanoin...",
+    "1": "Momentu ida...",
+    "2": "Prosesamentu...",
+    "3": "Segundu ida de'it...",
+    "4": "Ha'u verifika hela ida-ne'e ba ita-boot..."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "I-type so mensahe mo...",
+      "listening": "Mandedengel..."
+    },
+    "enableSound": "I-enable so Sound",
+    "stt": {
+      "transcribing": "Man-transcribe: ",
+      "micActive": "Aktibo so mikropono...",
+      "heardError": "Pasensya la, ag ta ka narengel. Ipangasin salien lamet.",
+      "micAccessError": "Ag makaloob ed mikropono. I-tsek iray permiso."
+    },
+    "speed": {
+      "idle": "Anggapoy gagawaen:",
+      "talk": "Paliwawa:"
+    }
+  },
+  "avatar": {
+    "loading": "Loading avatar...",
+    "title": {
+      "maximize": "Palaknaben",
+      "minimize": "Paabebaen",
+      "close": "Saraan",
+      "clickToMaximize": "Pindoten pian napalaknab",
+      "clickToMinimize": "Pindoten pian nabawasan"
+    },
+    "error": {
+      "loadFailed": "Ag aka-load so avatar: {{error}} ",
+      "playerNotLoaded": "Ag-aka-load so AniaPlayer",
+      "passwordRequired": "Kaukolan so password parad aka-encrypt ya .ania file",
+      "noSource": "Anggapoy niiter ya nanlapuan na avatar (avatarUrl o avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Panon ta kan natulongan natan?",
+    "1": "Hello! Naabrasa kayo! Antoy nagawaan ko parad sika?",
+    "2": "Kumusta kayo! Malikeliket ak ya makapitongtong ed sika!",
+    "3": "Hello! Wadya ak pian ontulong. Antoy kaukolan mo?",
+    "4": "Hi! Kumusta ka? Panon ak ya magmaliw ya mausar?"
+  },
+  "waiting": {
+    "0": "Isipen ko pa...",
+    "1": "Sakey a bekta...",
+    "2": "Manproseso...",
+    "3": "Sakey segundo labat...",
+    "4": "I-check ko itan parad sika..."
+  }
+}

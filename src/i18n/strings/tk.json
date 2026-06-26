@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Habaryňyzy ýazyň ...",
+      "listening": "Diňlemek ..."
+    },
+    "enableSound": "Ses açmak",
+    "stt": {
+      "transcribing": "Transkripsiýa: ",
+      "micActive": "Mikrofon işjeň ...",
+      "heardError": "Bagyşlaň, sizi diňläp bilmedim Gaýtadan synanyşmagyňyzy haýyş edýäris.",
+      "micAccessError": "Mikrofona girip bolmaýar Rugsatlary barlaň."
+    },
+    "speed": {
+      "idle": "Boş:",
+      "talk": "Gepleşik:"
+    }
+  },
+  "avatar": {
+    "loading": "Awatar ýüklenýär ...",
+    "title": {
+      "maximize": "Ulaltmak",
+      "minimize": "Minimallaşdyryň",
+      "close": ".Akyn",
+      "clickToMaximize": "Ulaltmak üçin basyň",
+      "clickToMinimize": "Minimallaşdyrmak üçin basyň"
+    },
+    "error": {
+      "loadFailed": "Awatary ýükläp bilmedi: {{error}} ",
+      "playerNotLoaded": "AniaPlayer ýüklenmedi",
+      "passwordRequired": "Şifrlenen .ania faýly üçin parol gerek",
+      "noSource": "Awatar çeşmesi berilmedi (avatarUrl ýa-da avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Salam! Bu gün size nädip kömek edip bilerin?",
+    "1": "Salam! Hoş geldiňiz! Men saňa näme edip bilerin?",
+    "2": "Salam! Siziň bilen gürleşmäge şat!",
+    "3": "Salam! Men kömek etmek üçin geldim. Size näme gerek?",
+    "4": "Salam! ?Agdaýlaryňyz nähili? Nädip peýdaly bolup bilerin?"
+  },
+  "waiting": {
+    "0": "Pikir edip göreýin ...",
+    "1": "Bir pursat ...",
+    "2": "Gaýtadan işlemek ...",
+    "3": "Diňe bir sekunt ...",
+    "4": "Men muny siziň üçin barlaýaryn ..."
+  }
+}

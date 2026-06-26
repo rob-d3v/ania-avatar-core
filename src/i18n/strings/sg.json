@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Sû tokua ti mo...",
+      "listening": "Ti mä..."
+    },
+    "enableSound": "Zia son",
+    "stt": {
+      "transcribing": "Ti sû pekoni: ",
+      "micActive": "Micro ni ayeke sara kua...",
+      "heardError": "Pardon, mbi lingbi ti mä mo pëpe. Pardon, kiri mo tara ni.",
+      "micAccessError": "A lingbi ti wara micro. Bâ apermission ni."
+    },
+    "speed": {
+      "idle": "Idle:",
+      "talk": "Diskur:"
+    }
+  },
+  "avatar": {
+    "loading": "A yeke zia avatar...",
+    "title": {
+      "maximize": "Maximisé",
+      "minimize": "Minimiser",
+      "close": "Fermé",
+      "clickToMaximize": "Cliqué na ndö ti maximiser .",
+      "clickToMinimize": "Cliqué na ndö ti minimiser ."
+    },
+    "error": {
+      "loadFailed": "A yeke wara na yâ ti avatar ni: {{error}} ",
+      "playerNotLoaded": "AniaJoueur a yeke charge ni pepe",
+      "passwordRequired": "A hunda ti zia mot de passe na yâ ti fichier .ania so a crypté ni .",
+      "noSource": "A mû pëpe mbeni lingu ti avatar (Url ti avatar wala asango ti avatar)"
+    }
+  },
+  "greetings": {
+    "0": "Bonjour! Mo lingbi ti mû maboko na mo laso tongana nyen?",
+    "1": "Mbi bara ala! Nzoni gangon! Nyen la mbi lingbi ti sara ndali ti mo?",
+    "2": "Bara ala ka! So mbi yeke na ngia ti sara lisoro na mo!",
+    "3": "Mbi bara ala! Mbi yeke ge ti mû maboko. Nyen la mo yeke na bezoin ni?",
+    "4": "Mbi bara ala! Tongana nyen? Tongana nyen la mo lingbi ti sara kua na ni?"
+  },
+  "waiting": {
+    "0": "Zia mbi pensé...",
+    "1": "Mbeni ngoi...",
+    "2": "Sarango kua...",
+    "3": "Gi mbeni seconde...",
+    "4": "Mbi yeke bâ ni ndali ti mo..."
+  }
+}

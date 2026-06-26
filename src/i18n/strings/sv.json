@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Skriv ditt meddelande...",
+      "listening": "Lyssnar..."
+    },
+    "enableSound": "Aktivera ljud",
+    "stt": {
+      "transcribing": "Transkribera: ",
+      "micActive": "Mikrofonen är aktiv...",
+      "heardError": "Förlåt, jag kunde inte höra dig. Försök igen.",
+      "micAccessError": "Det går inte att komma åt mikrofonen. Kontrollera behörigheter."
+    },
+    "speed": {
+      "idle": "Tomgång:",
+      "talk": "Prata:"
+    }
+  },
+  "avatar": {
+    "loading": "Laddar avatar...",
+    "title": {
+      "maximize": "Maximera",
+      "minimize": "Minimera",
+      "close": "Stäng",
+      "clickToMaximize": "Klicka för att maximera",
+      "clickToMinimize": "Klicka för att minimera"
+    },
+    "error": {
+      "loadFailed": "Det gick inte att ladda avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer har inte laddats",
+      "passwordRequired": "Lösenord krävs för krypterad .ania-fil",
+      "noSource": "Ingen avatarkälla tillhandahålls (avatarUrl eller avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hej! Hur kan jag hjälpa dig idag?",
+    "1": "Hej! Välkomna! Vad kan jag göra för dig?",
+    "2": "Hej där! Så glad att få prata med dig!",
+    "3": "Hej! Jag är här för att hjälpa till. Vad behöver du?",
+    "4": "Hej! Hur mår du? Hur kan jag vara användbar?"
+  },
+  "waiting": {
+    "0": "Låt mig tänka...",
+    "1": "Ett ögonblick...",
+    "2": "Bearbetar...",
+    "3": "Bara en sekund...",
+    "4": "Jag kollar det åt dig..."
+  }
+}

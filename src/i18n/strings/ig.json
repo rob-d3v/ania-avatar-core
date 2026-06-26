@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Pịnye ozi gị...",
+      "listening": "Na-ege ntị..."
+    },
+    "enableSound": "Kwado ụda",
+    "stt": {
+      "transcribing": "Na-edegharị: ",
+      "micActive": "Igwe okwu na-arụ ọrụ...",
+      "heardError": "Ndo, enweghị ike ịnụ gị. Biko nwaa ọzọ.",
+      "micAccessError": "Enweghị ike ịnweta igwe okwu. Lelee ikike."
+    },
+    "speed": {
+      "idle": "Akwụsịghị ọrụ:",
+      "talk": "Kwuo okwu:"
+    }
+  },
+  "avatar": {
+    "loading": "Na-ebu avatar...",
+    "title": {
+      "maximize": "Bulie elu",
+      "minimize": "Wedata",
+      "close": "Mechie",
+      "clickToMaximize": "Pịa ka iwelie elu",
+      "clickToMinimize": "Pịa ka ibelata"
+    },
+    "error": {
+      "loadFailed": "Ịbunye avatar agaghị eme: {{error}} ",
+      "playerNotLoaded": "Ejurughi AniaPlayer",
+      "passwordRequired": "Okwuntughe achọrọ maka faịlụ .ania ezoro ezo",
+      "noSource": "Enweghị isi iyi avatar enyere (avatarUrl ma ọ bụ avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Ndewo! Kedu ka m ga-esi nyere gị aka taa?",
+    "1": "Nnọọ! Nnọọ! Kedu ihe m ga-emere gị?",
+    "2": "Ndewo ebe ahụ! Obi dị m ụtọ ịgwa gị okwu!",
+    "3": "Nnọọ! Abịara m ebe a iji nyere aka. Kedu ihe ị chọrọ?",
+    "4": "Ndewo! Kedu ka ị mere? Kedu ka m ga-esi baa uru?"
+  },
+  "waiting": {
+    "0": "Ka m chee...",
+    "1": "Otu oge...",
+    "2": "Na-ahazi...",
+    "3": "Naanị otu sekọnd...",
+    "4": "Ana m elele nke ahụ maka gị..."
+  }
+}

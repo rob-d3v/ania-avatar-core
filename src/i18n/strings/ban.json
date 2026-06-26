@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ketik pabesen Sametoné...",
+      "listening": "Mirengang..."
+    },
+    "enableSound": "Aktipang Suara",
+    "stt": {
+      "transcribing": "Transkripsi: ",
+      "micActive": "Mikropon aktif...",
+      "heardError": "Ampura, nénten prasida mirengang Sameton. Indayang malih.",
+      "micAccessError": "Nénten prasida ngaksés mikropon. Priksa ijin"
+    },
+    "speed": {
+      "idle": "Nganggur:",
+      "talk": "Bebaosan:"
+    }
+  },
+  "avatar": {
+    "loading": "Ngunggahang avatar...",
+    "title": {
+      "maximize": "Maksimalkan",
+      "minimize": "Kirangin",
+      "close": "Tutup",
+      "clickToMaximize": "Klik anggén maksimal",
+      "clickToMinimize": "Klik anggén ngirangin"
+    },
+    "error": {
+      "loadFailed": "Gagal ngunggahang avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer nénten kamuat",
+      "passwordRequired": "Sandi sané kaperluang anggén berkas .ania sané kaenkripsi",
+      "noSource": "Nénten wénten sumber avatar sané kasediaang (Url avatar utawi Data avatar)"
+    }
+  },
+  "greetings": {
+    "0": "Hai! Sapunapi antuk tiang nulungin ragane ring rahinane mangkin?",
+    "1": "Om Swastiastu! Rahajeng rauh! Napike sane prasida laksanayang tiang pabuat semeton?",
+    "2": "Hai! Dados seneng mabebaosan sareng semeton!",
+    "3": "Om Swastiastu! Tiang iriki jagi nulungin. Napi sane kabuatang?",
+    "4": "Om Swastiastu! Punapi gatra? Sapunapiang titiang mangda prasida mawiguna?"
+  },
+  "waiting": {
+    "0": "Ngiring titiang mapikayun...",
+    "1": "Asiki galah...",
+    "2": "Ngolah...",
+    "3": "Wantah ajebos...",
+    "4": "Tiang nureksain punika anggén Sameton..."
+  }
+}

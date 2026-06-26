@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ketik pesan lu...",
+      "listening": "Dengerin..."
+    },
+    "enableSound": "Aktifin suara",
+    "stt": {
+      "transcribing": "Menranskripsi: ",
+      "micActive": "Mikrofon aktif...",
+      "heardError": "Maaf, kagak bisa denger lu. Tolong coba lagi.",
+      "micAccessError": "Gak bisa akses mikrofon. Cek izin."
+    },
+    "speed": {
+      "idle": "Nganggur:",
+      "talk": "Ngomong:"
+    }
+  },
+  "avatar": {
+    "loading": "Lagi muat avatar...",
+    "title": {
+      "maximize": "Maksimalkan",
+      "minimize": "Minimalisir",
+      "close": "Tutup",
+      "clickToMaximize": "Klik buat maksimalin",
+      "clickToMinimize": "Klik buat ngecilin"
+    },
+    "error": {
+      "loadFailed": "Gagal muat avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer kagak dimuat",
+      "passwordRequired": "Kata sandi dibutuhin buat file .ania yang dienkripsi",
+      "noSource": "Gak ada sumber avatar yang disediain (avatarUrl atau avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hai! Gimane caranya gue bisa bantu lu hari ini?",
+    "1": "Halo! Selamet dateng! Apa yang bisa gue lakuin buat lo?",
+    "2": "Hai! Seneng banget bisa ngobrol sama lu!",
+    "3": "Halo! Gue disini buat bantuin. Lu butuh apaan?",
+    "4": "Woy! Gimane kabarnye? Gimana caranya gue bisa berguna?"
+  },
+  "waiting": {
+    "0": "Biar gue pikir...",
+    "1": "Satu saat...",
+    "2": "Ngolah...",
+    "3": "Cuma sebentar...",
+    "4": "Gue lagi ngecek itu buat lu..."
+  }
+}

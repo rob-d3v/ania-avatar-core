@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ketik pesannu...",
+      "listening": "Nalangngere..."
+    },
+    "enableSound": "Enable Sound",
+    "stt": {
+      "transcribing": "Antulisiki: ",
+      "micActive": "Microphone active...",
+      "heardError": "Maaf, tena nakkulle kulangngere. Please try again.",
+      "micAccessError": "Tena nakkulle antama ri mikrofon. Check permissions."
+    },
+    "speed": {
+      "idle": "Tena anjama:",
+      "talk": "A'bicara:"
+    }
+  },
+  "avatar": {
+    "loading": "Loading avatar...",
+    "title": {
+      "maximize": "Maksimalkan",
+      "minimize": "Kurangi",
+      "close": "tutupi",
+      "clickToMaximize": "Click to maximize",
+      "clickToMinimize": "Klik untu' ampa'kurangi"
+    },
+    "error": {
+      "loadFailed": "Tena nakkulle antama avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer tena na ni muat",
+      "passwordRequired": "Kata sandi niparalluangi untuk file .ania yang terenkripsi",
+      "noSource": "Tena sumber avatar nipassareang (avatarUrl atau avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Antekamma bateku ambantuko anne alloa?",
+    "1": "Halo! Salama battu! What can I do for you?",
+    "2": "Woy anjorengnga! Sanna' rannuna a'bicara siagang ikatte!",
+    "3": "Halo! I'm here to help. Apa nuparalluangi?",
+    "4": "Hai! Apa kareba? Antekamma bateku akkulle a'matu-matu?"
+  },
+  "waiting": {
+    "0": "Let me think...",
+    "1": "Se're wattu...",
+    "2": "Amproses...",
+    "3": "Se're detikji...",
+    "4": "Inakke ansalidiki anjo untuk ikatte..."
+  }
+}

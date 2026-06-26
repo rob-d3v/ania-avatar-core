@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Skirbi bo mensahe...",
+      "listening": "Skuchando..."
+    },
+    "enableSound": "Habilitá Zonido",
+    "stt": {
+      "transcribing": "Transkripshon: ",
+      "micActive": "Mikrofon aktivo...",
+      "heardError": "Diskulpa, no por a tende bo. Por fabor purba atrobe.",
+      "micAccessError": "No por haña akseso na mikrofon. Kontrolá pèrmitnan."
+    },
+    "speed": {
+      "idle": "Inaktivo:",
+      "talk": "Charla:"
+    }
+  },
+  "avatar": {
+    "loading": "Ta kargando avatar...",
+    "title": {
+      "maximize": "Maksimisá",
+      "minimize": "Minimisá",
+      "close": "Sera",
+      "clickToMaximize": "Klik pa maksimisá",
+      "clickToMinimize": "Klik pa minimalisá"
+    },
+    "error": {
+      "loadFailed": "No a logra karga avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer no a wòrdu kargá",
+      "passwordRequired": "Kontraseña nesesario pa un archivo .ania enkriptá",
+      "noSource": "No tin fuente di avatar suministrá (avatarUrl òf avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Alo! Kon mi por yuda bo awe?",
+    "1": "Halo! Bon bini! Kiko mi por hasi pa bo?",
+    "2": "Hei konta! Mi ta kontentu di papia ku bo!",
+    "3": "Halo! Mi ta aki pa yuda. Kiko bo mester?",
+    "4": "Hei! Kon ta ku bo? Kon mi por ta útil?"
+  },
+  "waiting": {
+    "0": "Laga mi pensa...",
+    "1": "Un momentu...",
+    "2": "Prosesamentu...",
+    "3": "Djis un ratu...",
+    "4": "Mi ta kontrolá esei pa bo..."
+  }
+}

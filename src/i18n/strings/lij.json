@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Digita o teu messaggio...",
+      "listening": "Ascoltâ..."
+    },
+    "enableSound": "Attiva o son",
+    "stt": {
+      "transcribing": "Trascriçion: ",
+      "micActive": "Micròfono attivo...",
+      "heardError": "Scusa, no son stæto bon de sentite. Pe favô, provâ torna.",
+      "micAccessError": "No l'é poscibile açede a-o microfòn. Controllâ e autorizzaçioin."
+    },
+    "speed": {
+      "idle": "Inattivo:",
+      "talk": "Discorso:"
+    }
+  },
+  "avatar": {
+    "loading": "Carregando l'avatar...",
+    "title": {
+      "maximize": "Mascimizzâ",
+      "minimize": "Minimizzâ",
+      "close": "Serrâ",
+      "clickToMaximize": "Clicca pe mascimizzâ",
+      "clickToMinimize": "Clicca pe redue a-o minimo"
+    },
+    "error": {
+      "loadFailed": "No l'é stæto poscibile carregâ l'avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer no carregou",
+      "passwordRequired": "A password a l'é neçessäia pe-o file .ania criptou",
+      "noSource": "Nisciuña vivagna d'avatar fornia (Url d'avatar ò Dæti d'avatar)"
+    }
+  },
+  "greetings": {
+    "0": "Ciao! Comm'o peu ëse che ti pòsso aggiuttâ ancheu?",
+    "1": "Ciao! Benvegnuo! Cossa posso fâ pe ti?",
+    "2": "Ehilà! Tanto contento de parlâ con ti!",
+    "3": "Ciao! Son chì pe aggiuttâ. Cossa gh'é de beseugno?",
+    "4": "Ciao! Comme ti stæ? Comm'o peu ëse utile?"
+  },
+  "waiting": {
+    "0": "Lasciame pensâ...",
+    "1": "Un momento...",
+    "2": "Elaboraçion...",
+    "3": "Solo un segondo...",
+    "4": "Sto controllando quello pe ti..."
+  }
+}

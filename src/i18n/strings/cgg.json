@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Tamu obutumwa bwawe...",
+      "listening": "Okuhurikiza..."
+    },
+    "enableSound": "Taho Amaraka",
+    "stt": {
+      "transcribing": "Okuhandiika: ",
+      "micActive": "Amazindaaro gariho...",
+      "heardError": "Nsasira, tindabaasize kukuhurira. Hakyiri ogyezeho ogundi murundi.",
+      "micAccessError": "Titurikubaasa kutunga akazindaaro. Reeba orusa."
+    },
+    "speed": {
+      "idle": "Obutakora:",
+      "talk": "Okugamba:"
+    }
+  },
+  "avatar": {
+    "loading": "Okutaho ekishushani...",
+    "title": {
+      "maximize": "Okwongyera",
+      "minimize": "Kyendeeza",
+      "close": "Kwinga",
+      "clickToMaximize": "Nyiga kutunguura",
+      "clickToMinimize": "Nyiga kukyendeeza"
+    },
+    "error": {
+      "loadFailed": "Kiremirwe kutaho ekishushani: {{error}} ",
+      "playerNotLoaded": "AniaPlayer terikuteebwaho",
+      "passwordRequired": "Password neeyetengyesa ahabwa fairo ya .ania esherekirwe",
+      "noSource": "Tihariho entandikwa y'ekishushani erikuheebwa (ekishushaniUrl narishi ekishushaniData)"
+    }
+  },
+  "greetings": {
+    "0": "Haro! Nimbaasa kukuhwera nta erizooba?",
+    "1": "Haro! Kurikayo! Nkakukorera ki?",
+    "2": "Ori ota okwe! Ninshemererwa munonga kugamba naiwe!",
+    "3": "Haro! Ndi aha kuyamba. Noyetenga ki?",
+    "4": "Haro! Oragambaki? Nimbaasa kuba nta ow’omugasho?"
+  },
+  "waiting": {
+    "0": "Reka ntekateeke...",
+    "1": "Akaanya kamwe...",
+    "2": "Okukora...",
+    "3": "Akasekondi kakye...",
+    "4": "Ekyo ninkikyebera ahabwawe..."
+  }
+}

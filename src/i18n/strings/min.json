@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Ketik pasan Sanak...",
+      "listening": "Mandangakan..."
+    },
+    "enableSound": "Aktifkan Suaro",
+    "stt": {
+      "transcribing": "Mantranskripsikan: ",
+      "micActive": "Mikrofon aktif...",
+      "heardError": "Maaf, indak bisa mandanga. Tolong cubo baliak.",
+      "micAccessError": "Indak dapek maakses mikrofon. Pareso izinnyo."
+    },
+    "speed": {
+      "idle": "Nganggur:",
+      "talk": "Bicaro:"
+    }
+  },
+  "avatar": {
+    "loading": "Mamuek gambar...",
+    "title": {
+      "maximize": "Maksimalkan",
+      "minimize": "Minimalisir",
+      "close": "Tutuik",
+      "clickToMaximize": "Klik untuak mamaksimalkan",
+      "clickToMinimize": "Klik untuak maminimalikan"
+    },
+    "error": {
+      "loadFailed": "Gagal mamuek avatar: {{error}} ",
+      "playerNotLoaded": "AniaPamain indak dimuek",
+      "passwordRequired": "Kato sandi diparalukan untuak berkas .ania nan dienkripsi",
+      "noSource": "Indak ado sumber avatar nan disadiokan (Url avatar atauData avatar)"
+    }
+  },
+  "greetings": {
+    "0": "Hai! Baa caronyo ambo bisa mambantu sanak hari ko?",
+    "1": "Halo! Salamaik datang! Apo nan bisa ambo lakukan untuak sanak?",
+    "2": "Halo nan di sinan! Jadi sanang mangecek jo sanak!",
+    "3": "Halo! Ambo di siko untuak mambantu. Apo nan paralu?",
+    "4": "Oi! Baa kaba angku? Baa caronyo ambo bisa baguno?"
+  },
+  "waiting": {
+    "0": "Bia ambo bapikia...",
+    "1": "Sakatiko...",
+    "2": "Pangolahan...",
+    "3": "Sadetik sajo...",
+    "4": "Ambo mamareso itu untuak sanak..."
+  }
+}

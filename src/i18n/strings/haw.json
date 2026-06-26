@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Kākau i kāu memo...",
+      "listening": "Ke hoʻolohe nei..."
+    },
+    "enableSound": "E ho'ā i ke kani",
+    "stt": {
+      "transcribing": "Ke unuhi nei: ",
+      "micActive": "Microphone hoʻoikaika...",
+      "heardError": "E kala mai, ʻaʻole hiki ke lohe iā ʻoe. E ʻoluʻolu e hoʻāʻo hou.",
+      "micAccessError": "ʻAʻole hiki ke komo i ka microphone. E nānā i nā ʻae."
+    },
+    "speed": {
+      "idle": "hana ʻole:",
+      "talk": "Kūkākūkā:"
+    }
+  },
+  "avatar": {
+    "loading": "Ke hoʻouka nei i ka avatar...",
+    "title": {
+      "maximize": "Hoʻonui",
+      "minimize": "Hoemi",
+      "close": "Pani",
+      "clickToMaximize": "Kaomi e hoʻonui",
+      "clickToMinimize": "Kaomi e hōʻemi"
+    },
+    "error": {
+      "loadFailed": "ʻAʻole hiki ke hoʻouka i ka avatar: {{error}} ",
+      "playerNotLoaded": "ʻAʻole i hoʻouka ʻia ʻo AniaPlayer",
+      "passwordRequired": "Pono ka ʻōlelo huna no ka faila .ania i hoʻopili ʻia",
+      "noSource": "ʻAʻohe kumu avatar i hāʻawi ʻia (avatarUrl a i ʻole avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Aloha! Pehea e hiki ai iaʻu ke kōkua iā ʻoe i kēia lā?",
+    "1": "Aloha! Welina! He aha kaʻu e hana ai iā ʻoe?",
+    "2": "Aloha! Hauʻoli e kamaʻilio pū me ʻoe!",
+    "3": "Aloha! Aia wau e kōkua. He aha kāu mea e pono ai?",
+    "4": "Hui! Pehea ʻoe? Pehea wau e pono ai?"
+  },
+  "waiting": {
+    "0": "E noʻonoʻo wau ...",
+    "1": "Hoʻokahi manawa...",
+    "2": "Ke hana nei...",
+    "3": "Kekona wale nō...",
+    "4": "Ke nānā nei au iā ʻoe..."
+  }
+}

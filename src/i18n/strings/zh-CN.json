@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "输入您的消息...",
+      "listening": "听..."
+    },
+    "enableSound": "启用声音",
+    "stt": {
+      "transcribing": "抄写： ",
+      "micActive": "麦克风处于活动状态...",
+      "heardError": "抱歉，听不到你的声音。请再试一次。",
+      "micAccessError": "无法访问麦克风。检查权限。"
+    },
+    "speed": {
+      "idle": "空闲：",
+      "talk": "谈话："
+    }
+  },
+  "avatar": {
+    "loading": "正在加载头像...",
+    "title": {
+      "maximize": "最大化",
+      "minimize": "最小化",
+      "close": "关闭",
+      "clickToMaximize": "单击以最大化",
+      "clickToMinimize": "单击以最小化"
+    },
+    "error": {
+      "loadFailed": "头像加载失败：{{error}} ",
+      "playerNotLoaded": "AniaPlayer 未加载",
+      "passwordRequired": "加密的 .ania 文件需要密码",
+      "noSource": "未提供头像来源（avatarUrl 或 avatarData）"
+    }
+  },
+  "greetings": {
+    "0": "嗨！今天我能为您提供什么帮助？",
+    "1": "你好！欢迎！我能为你做什么？",
+    "2": "你好呀！很高兴与你交谈！",
+    "3": "你好！我是来帮忙的。你需要什么？",
+    "4": "你好！你好吗？我怎样才能变得有用？"
+  },
+  "waiting": {
+    "0": "让我想想...",
+    "1": "一会儿...",
+    "2": "处理中...",
+    "3": "只需一秒钟...",
+    "4": "我正在为你检查..."
+  }
+}

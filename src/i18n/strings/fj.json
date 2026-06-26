@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Taipataka na nomu itukutuku...",
+      "listening": "Vakarorogo..."
+    },
+    "enableSound": "Vakatara na rorogo",
+    "stt": {
+      "transcribing": "Vakadewataki: ",
+      "micActive": "Sa bula tiko na maikrofoni...",
+      "heardError": "Veivosoti, sega ni rawa ni rogoci iko. Kerekere mo tovolea tale.",
+      "micAccessError": "E sega ni rawa ni curu ki na maikrofoni. Raica na veivakadonui."
+    },
+    "speed": {
+      "idle": "Sega ni cakacaka:",
+      "talk": "Veivosaki:"
+    }
+  },
+  "avatar": {
+    "loading": "Vakavodoki tiko na ivakatakarakara...",
+    "title": {
+      "maximize": "Vakalevutaka",
+      "minimize": "Vakalailaitaka",
+      "close": "Voleka",
+      "clickToMaximize": "Kiliki me vakalevutaki",
+      "clickToMinimize": "Kiliki me vakalailaitaka"
+    },
+    "error": {
+      "loadFailed": "Sega ni rawa ni vakavodoki na iyaloyalo: {{error}} ",
+      "playerNotLoaded": "Aniaplayer sega ni vakavodoki",
+      "passwordRequired": "Na vosanicuru e gadrevi me baleta na faile ni .ania vakacurumi",
+      "noSource": "E sega ni dua na ivurevure ni avatar vakarautaki (avatarUrl se avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Bula vinaka! Au na vukei iko vakacava nikua?",
+    "1": "Bula! Kidavaki! Na cava au rawa ni cakava vei iko?",
+    "2": "Bula vinaka! Sa marau vakalevu meu veitalanoa kei iko!",
+    "3": "Bula! Au sa tiko eke meu veivuke. Na cava o gadreva?",
+    "4": "Bula vinaka! O vakacava tiko? Au na yaga vakacava?"
+  },
+  "waiting": {
+    "0": "Meu vakasamataka mada...",
+    "1": "Dua na gauna...",
+    "2": "Vakarautaki...",
+    "3": "Dua ga na sekodi...",
+    "4": "Au sa dikeva tiko vei iko..."
+  }
+}

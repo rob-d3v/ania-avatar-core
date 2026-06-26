@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "Skriv din besked...",
+      "listening": "Lytter..."
+    },
+    "enableSound": "Aktiver lyd",
+    "stt": {
+      "transcribing": "Transskribering: ",
+      "micActive": "Mikrofon aktiv...",
+      "heardError": "Undskyld, jeg kunne ikke høre dig. Prøv venligst igen.",
+      "micAccessError": "Kan ikke få adgang til mikrofonen. Tjek tilladelser."
+    },
+    "speed": {
+      "idle": "Inaktiv:",
+      "talk": "Snak:"
+    }
+  },
+  "avatar": {
+    "loading": "Indlæser avatar...",
+    "title": {
+      "maximize": "Maksimer",
+      "minimize": "Minimer",
+      "close": "Luk",
+      "clickToMaximize": "Klik for at maksimere",
+      "clickToMinimize": "Klik for at minimere"
+    },
+    "error": {
+      "loadFailed": "Kunne ikke indlæse avatar: {{error}} ",
+      "playerNotLoaded": "AniaPlayer ikke indlæst",
+      "passwordRequired": "Adgangskode påkrævet til krypteret .ania-fil",
+      "noSource": "Ingen avatarkilde angivet (avatarUrl eller avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hej! Hvordan kan jeg hjælpe dig i dag?",
+    "1": "Hej! Velkomst! Hvad kan jeg gøre for dig?",
+    "2": "Hej! Så glad for at tale med dig!",
+    "3": "Hej! Jeg er her for at hjælpe. Hvad har du brug for?",
+    "4": "Hej! Hvordan har du det? Hvordan kan jeg være nyttig?"
+  },
+  "waiting": {
+    "0": "Lad mig tænke...",
+    "1": "Et øjeblik...",
+    "2": "Behandler...",
+    "3": "Bare et sekund...",
+    "4": "Jeg tjekker det for dig..."
+  }
+}

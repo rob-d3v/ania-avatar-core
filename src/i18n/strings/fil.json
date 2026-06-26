@@ -1,0 +1,49 @@
+{
+  "chat": {
+    "input": {
+      "placeholder": "I-type ang iyong mensahe...",
+      "listening": "Nakikinig..."
+    },
+    "enableSound": "Paganahin ang Tunog",
+    "stt": {
+      "transcribing": "Pagsasalin: ",
+      "micActive": "Aktibo ang mikropono...",
+      "heardError": "Paumanhin, hindi kita marinig. Pakisubukang muli.",
+      "micAccessError": "Hindi ma-access ang mikropono. Suriin ang mga pahintulot."
+    },
+    "speed": {
+      "idle": "Idle:",
+      "talk": "Talk:"
+    }
+  },
+  "avatar": {
+    "loading": "Nilo-load ang avatar...",
+    "title": {
+      "maximize": "I-maximize",
+      "minimize": "I-minimize",
+      "close": "Isara",
+      "clickToMaximize": "I-click upang i-maximize",
+      "clickToMinimize": "I-click para i-minimize"
+    },
+    "error": {
+      "loadFailed": "Nabigong i-load ang avatar: {{error}} ",
+      "playerNotLoaded": "Hindi na-load ang AniaPlayer",
+      "passwordRequired": "Kinakailangan ang password para sa naka-encrypt na .ania file",
+      "noSource": "Walang ibinigay na mapagkukunan ng avatar (avatarUrl o avatarData)"
+    }
+  },
+  "greetings": {
+    "0": "Hi! Paano kita matutulungan ngayon?",
+    "1": "Hello! Maligayang pagdating! Ano ang maaari kong gawin para sa iyo?",
+    "2": "Kumusta! Kaya natutuwa akong kausapin ka!",
+    "3": "Hello! Nandito ako para tumulong. Ano ang kailangan mo?",
+    "4": "Hi! kamusta ka na? Paano ako magiging kapaki-pakinabang?"
+  },
+  "waiting": {
+    "0": "Hayaan mong isipin ko...",
+    "1": "Isang sandali...",
+    "2": "Pinoproseso...",
+    "3": "Sandali lang...",
+    "4": "Sinusuri ko iyon para sa iyo..."
+  }
+}
