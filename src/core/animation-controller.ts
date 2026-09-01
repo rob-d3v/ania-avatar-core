@@ -3,12 +3,46 @@
 // Drives idle/talk frame cycling plus:
 //   - an actions system (play a frame sub-range at a speed/direction, optionally
 //     from a random start position, then resume idle/talk)
-//   - advanced openness-driven lip-sync (intensity / responsiveness / sustain /
-//     wiggle + an openness->frame map)
+//   - audio-driven lip-sync: a voicing-gated DSP feeds an envelope, and the
+//     envelope modulates the SPEED of a +-1 sweep across the talk range
 //
-// Framework-free. Ported from the Chrome extension's
-// `lib/core/animation-controller.ts`.
+// Framework-free.
+//
+// ---------------------------------------------------------------------------
+// WHAT CHANGED, AND WHY
+// ---------------------------------------------------------------------------
+// This controller used to do two things wrong, both of which are fixed here.
+//
+// 1. It paced playback at a hardcoded `1000 / 30` divided by an arbitrary
+//    `talkSpeed`. Consumer apps pass values like 5.3, which asks for ~159 fps
+//    from footage that was shot at 24. Playback is now derived from the
+//    footage's REAL frame rate and held inside a clamp — see
+//    `../utils/frame-rate`.
+//
+// 2. It picked the mouth frame by reading an openness value off the analyser
+//    and selecting the talk-range frame whose AUTHORED openness was nearest it.
+//    Consecutive rendered frames could be 25 apart: the mouth teleported around
+//    the range chasing a number, with no relation to the rhythm of the speech.
+//    The desktop player instead sweeps the talk range one frame per tick and
+//    lets the envelope shorten the per-frame DELAY — a faster sweep through
+//    what is already an open-close mouth cycle is simply a busier mouth. See
+//    `../lip-sync/animator`.
+//
+// The maths lives in `../lip-sync/` and `../utils/frame-rate`, shared with
+// `ania-avatar-react`, and is covered by assertions under plain `node`
+// (`examples/test-lip-*.mjs`, `examples/test-frame-rate.mjs`).
 
+import { LipSyncDsp } from '../lip-sync/dsp';
+import type { LipSyncDspOptions } from '../lip-sync/dsp';
+import { LipAnimator, findClosedFrame } from '../lip-sync/animator';
+import type { LipAnimatorBranch } from '../lip-sync/animator';
+import {
+  FPS_FALLBACK,
+  FramePacer,
+  frameIntervalMs,
+  normalizeFpsClamp,
+} from '../utils/frame-rate';
+import type { FpsClampWindow } from '../utils/frame-rate';
 import type {
   ActionConfig,
   AnimationControllerConfig,
@@ -24,15 +58,59 @@ interface ActiveAction {
   speed: number;
 }
 
+/** Extra options for {@link AnimationController.configureLipsSync}. */
+export interface LipSyncExtraOptions {
+  /** 1..4.5 loud/quiet sweep-speed ratio. Default 2.237. */
+  maxSweepBoost?: number;
+  /** Overrides for the voicing-gate DSP. */
+  dsp?: LipSyncDspOptions;
+}
+
+/** ms over which a synthetic articulation pulse decays to nothing. */
+const SYNTHETIC_DECAY_MS = 180;
+
+/** Upper bound on a single dt. A backgrounded tab hands us seconds. */
+const MAX_DT_MS = 100;
+
+const clamp = (v: number, lo: number, hi: number): number => Math.max(lo, Math.min(hi, v));
+
+const num = (v: unknown, d: number): number =>
+  typeof v === 'number' && Number.isFinite(v) ? v : d;
+
+const nowMs = (): number =>
+  typeof performance !== 'undefined' && typeof performance.now === 'function'
+    ? performance.now()
+    : Date.now();
+
+/** The per-tick audio reading, as assembled from whichever hooks are wired. */
+interface LipsSignals {
+  rms: number;
+  openness?: number;
+}
+
 export class AnimationController {
   private config: AnimationControllerConfig;
+  private frameCount: number;
   private currentFrameIndex: number;
   private idleSpeed: number;
   private talkSpeed: number;
-  private lastFrameTime = 0;
-  private frameInterval = 1000 / 30; // target 30fps playback
   private direction = 1; // 1 = forward, -1 = reverse
   public isTalking = false;
+
+  // ----- Frame pacing -----
+  //
+  // `idleBaseMs` / `talkBaseMs` are already fps-correct millisecond intervals:
+  // `createAniaPlayer` folds the resolved native rate and any speed multiplier
+  // into them before construction. The speed sliders below are therefore
+  // NEUTRAL (1) on that path, and only move if a host calls setIdleSpeed /
+  // setTalkSpeed / setSpeeds later — at which point `getFrameDuration()`
+  // re-derives and re-clamps, so a live slider cannot walk back out of the
+  // window.
+  private idleBaseMs: number;
+  private talkBaseMs: number;
+  private nativeFps: number;
+  private fpsClamp: FpsClampWindow | null;
+  private pacer = new FramePacer();
 
   // ----- Actions -----
   private actions = new Map<string, ActionConfig>();
@@ -46,30 +124,64 @@ export class AnimationController {
 
   // ----- Lip sync -----
   private lipSyncEnabled = false;
-  private lipSyncIntensity = 0.6;
-  private lipSyncResponsiveness = 0.5;
-  private lipSyncSustainStyle: LipSyncSustainStyle = 'wiggle';
-  private lipSyncWiggleSpeed = 2;
   private opennessMap: number[] | null = null;
-  private envelope = 0; // smoothed openness 0..1
-  private wigglePhase = 0;
-  /** Supplied by the audio path each frame; returns instantaneous openness 0..1. */
+  private dsp: LipSyncDsp | null = null;
+  private animator: LipAnimator | null = null;
+  private envelope = 0; // mirror of the animator's envelope, for getLipSyncEnvelope()
+  private lipsLastPoll: number | null = null;
+  private syntheticValue = 0;
+  private syntheticAt = 0;
+
+  /**
+   * Instantaneous openness 0..1, supplied by the audio path each frame.
+   *
+   * Kept as the primary hook for backwards compatibility: when nothing richer
+   * is wired, this value drives BOTH the voicing gate and the mouth opening.
+   */
   public getOpennessFn: (() => number) | null = null;
+  /**
+   * RMS of the current audio window, 0..1. Preferred over `getOpennessFn` for
+   * the voicing gate — the gate's 0.020 threshold is calibrated in RMS units,
+   * and a peak-amplitude reading runs 2-3x the RMS for speech.
+   */
+  public getRmsFn: (() => number) | null = null;
+  /** Peak time-domain amplitude 0..1. Used only if no RMS hook is wired. */
+  public getAmplitudeFn: (() => number) | null = null;
+  /**
+   * A spectral openness estimate 0..1. When present it drives HOW FAR the mouth
+   * opens, through its own AGC channel; the gate still keys off the RMS.
+   */
+  public getSpectralOpennessFn: (() => number) | null = null;
 
   constructor(config: AnimationControllerConfig, frameCount: number) {
     this.config = config;
+    this.frameCount = Math.max(0, Math.floor(num(frameCount, 0)));
     this.currentFrameIndex = config.current_frame_index || 0;
 
     this.idleSpeed = config.idle_speed_slider_value || 1;
     this.talkSpeed = config.talk_speed_slider_value || 1;
 
+    // What the footage actually IS, and the window playback is held to.
+    // Absent (a host constructing the controller directly) => the assumed rate
+    // and the default 24-30 fps window, which is still far better than the old
+    // hardcoded 30 / arbitrary-multiplier.
+    this.nativeFps = num(config.ania_native_fps, FPS_FALLBACK);
+    this.fpsClamp =
+      config.ania_fps_clamp === undefined
+        ? normalizeFpsClamp(undefined)
+        : normalizeFpsClamp(config.ania_fps_clamp);
+
+    const nativeMs = 1000 / (this.nativeFps > 0 ? this.nativeFps : FPS_FALLBACK);
+    this.idleBaseMs = num(config.idle_frame_duration, nativeMs);
+    this.talkBaseMs = num(config.talk_cycle_duration, nativeMs);
+
     if (this.config.idle_range_low === undefined) this.config.idle_range_low = 0;
     if (this.config.idle_range_high === undefined)
-      this.config.idle_range_high = Math.floor(frameCount / 2);
+      this.config.idle_range_high = Math.floor(this.frameCount / 2);
     if (this.config.talk_range_low === undefined)
-      this.config.talk_range_low = Math.floor(frameCount / 2);
+      this.config.talk_range_low = Math.floor(this.frameCount / 2);
     if (this.config.talk_range_high === undefined)
-      this.config.talk_range_high = Math.max(0, frameCount - 1);
+      this.config.talk_range_high = Math.max(0, this.frameCount - 1);
 
     this.jumpToRandomStartPosition(false);
   }
@@ -100,25 +212,68 @@ export class AnimationController {
   setTalkingState(talking: boolean): void {
     if (this.isTalking !== talking) {
       this.isTalking = talking;
-      if (!talking) this.envelope = 0;
+      // Reset every filter on the idle->talking edge. State left over from the
+      // previous utterance — a peak still sitting at 1.0, a sustain counter
+      // still latched — makes the first syllable of the next one animate wrong.
+      this.dsp?.reset();
+      this.animator?.reset();
+      this.envelope = 0;
+      this.lipsLastPoll = null;
+      this.syntheticValue = 0;
+      this.syntheticAt = 0;
+      // The idle and talk ranges are paced from different intervals, so the
+      // accumulator has to re-anchor rather than carry a stale due time over.
+      this.pacer.reanchor();
       // Don't reposition mid-action; the action owns the frame cursor.
       if (!this.activeAction) this.jumpToRandomStartPosition(talking);
     }
   }
 
+  // ===== Speed =====
+
+  /**
+   * The per-frame interval, in ms, for the current mode.
+   *
+   * The base is already fps-correct; the speed slider is a multiplier relative
+   * to the footage's native rate, and the clamp bounds the result. That is what
+   * makes a legacy `talkSpeed={5.3}` a no-op instead of a request for 159 fps.
+   */
+  getFrameDuration(): number {
+    const base = this.isTalking ? this.talkBaseMs : this.idleBaseMs;
+    const speed = this.isTalking ? this.talkSpeed : this.idleSpeed;
+    return frameIntervalMs({
+      nativeFps: base > 0 ? 1000 / base : this.nativeFps,
+      speed,
+      clamp: this.fpsClamp,
+    });
+  }
+
   setSpeeds(idleSpeed?: number, talkSpeed?: number): void {
     if (typeof idleSpeed === 'number' && idleSpeed > 0) this.idleSpeed = idleSpeed;
     if (typeof talkSpeed === 'number' && talkSpeed > 0) this.talkSpeed = talkSpeed;
+    this.pacer.reanchor();
   }
 
-  /** Set the idle animation speed multiplier. */
+  /** Set the idle animation speed multiplier (relative to the native rate). */
   setIdleSpeed(speed: number): void {
     if (speed > 0) this.idleSpeed = speed;
+    this.pacer.reanchor();
   }
 
-  /** Set the talk animation speed multiplier. */
+  /** Set the talk animation speed multiplier (relative to the native rate). */
   setTalkSpeed(speed: number): void {
     if (speed > 0) this.talkSpeed = speed;
+    this.pacer.reanchor();
+  }
+
+  /** The fps window playback is currently held to, or `null` when unclamped. */
+  getFpsClamp(): FpsClampWindow | null {
+    return this.fpsClamp;
+  }
+
+  /** The footage's resolved frame rate. */
+  getNativeFps(): number {
+    return this.nativeFps;
   }
 
   // ===== Actions =====
@@ -165,6 +320,7 @@ export class AnimationController {
       speed: config.speed && config.speed > 0 ? config.speed : 1,
     };
     this.currentFrameIndex = frame;
+    this.pacer.reanchor();
     this.onActionStartCallback?.(actionId);
     return true;
   }
@@ -177,6 +333,7 @@ export class AnimationController {
     if (!this.activeAction) return;
     const id = this.activeAction.config.id;
     this.activeAction = null;
+    this.pacer.reanchor();
     this.jumpToRandomStartPosition(this.isTalking);
     if (force) this.onActionCancelCallback?.(id);
     else this.onActionCompleteCallback?.(id);
@@ -189,8 +346,18 @@ export class AnimationController {
   // ===== Lip sync =====
 
   /**
-   * Configure the advanced lip-sync. `opennessMap` maps a talk-range frame
-   * offset to an openness value 0..1 (built via {@link buildOpennessMap}).
+   * Configure the audio-driven lip-sync. `opennessMap` maps a talk-range frame
+   * offset to an openness value 0..1 (built via `buildOpennessMap`).
+   *
+   * NOTE the 7th parameter. The first six are a POSITIONAL contract with every
+   * already-published wrapper (vue / svelte / angular / web-component) and with
+   * host apps calling through `AniaPlayerInstance.configureLipsSync`, so they
+   * can never be reordered. An optional trailing object is the only safe way to
+   * extend it: an old caller omits it and still works.
+   *
+   * The openness map is now consulted in exactly ONE place — locating the
+   * closed-mouth frame during silence. While speech is happening the frame
+   * comes from the sweep, not from a lookup.
    */
   configureLipsSync(
     enabled: boolean,
@@ -198,15 +365,33 @@ export class AnimationController {
     responsiveness = 0.5,
     opennessMap: number[] | null = null,
     sustainStyle: LipSyncSustainStyle = 'wiggle',
-    wiggleSpeed = 2
+    wiggleSpeed = 2,
+    options: LipSyncExtraOptions = {}
   ): void {
+    const opts = options || {};
+    const tuning = {
+      intensity: clamp(num(intensity, 0.6), 0, 1),
+      responsiveness: clamp(num(responsiveness, 0.5), 0.05, 1),
+      sustainStyle: (sustainStyle === 'hold' ? 'hold' : 'wiggle') as LipSyncSustainStyle,
+      wiggleSpeed: clamp(num(wiggleSpeed, 2), 1, 6),
+      maxSweepBoost: clamp(num(opts.maxSweepBoost, 2.237), 1, 4.5),
+    };
+
     this.lipSyncEnabled = enabled;
-    this.lipSyncIntensity = Math.max(0, Math.min(1, intensity));
-    this.lipSyncResponsiveness = Math.max(0.05, Math.min(1, responsiveness));
-    this.lipSyncSustainStyle = sustainStyle;
-    this.lipSyncWiggleSpeed = Math.max(1, Math.min(6, wiggleSpeed));
     this.opennessMap = opennessMap && opennessMap.length > 0 ? opennessMap : null;
-    if (!enabled) this.envelope = 0;
+
+    if (!this.dsp) this.dsp = new LipSyncDsp(opts.dsp || {});
+    if (!this.animator) this.animator = new LipAnimator(tuning);
+    else this.animator.configure(tuning);
+
+    this.envelope = 0;
+    this.lipsLastPoll = null;
+    this.syntheticValue = 0;
+    this.syntheticAt = 0;
+    if (!enabled) {
+      this.dsp.reset();
+      this.animator.reset();
+    }
   }
 
   isLipSyncEnabled(): boolean {
@@ -217,47 +402,143 @@ export class AnimationController {
     return this.envelope;
   }
 
+  /** Which frame branch ran last: sustain | silence | voiced. For debug probes. */
+  getLipSyncBranch(): LipAnimatorBranch | null {
+    return this.animator ? this.animator.lastBranch() : null;
+  }
+
   /**
-   * Pick the talk-range frame whose mapped openness is closest to the target.
-   * Falls back to linear interpolation across the talk range when no map.
+   * Feed one synthetic articulation pulse.
+   *
+   * The browser SpeechSynthesis path produces no waveform at all, so there is
+   * nothing to analyse. Its `onboundary` event does fire once per word though,
+   * and pushing a pulse per word through the SAME envelope and branch machinery
+   * gives real per-syllable articulation instead of a binary talk/idle flap.
+   * The pulse decays over `SYNTHETIC_DECAY_MS` so it reads as one syllable
+   * rather than as a step change.
    */
-  private frameForOpenness(openness: number): number {
-    const low = this.config.talk_range_low!;
-    const high = this.config.talk_range_high!;
-    if (high <= low) return low;
+  pushSyntheticOpenness(value = 1): void {
+    this.syntheticValue = clamp(num(value, 1), 0, 1);
+    this.syntheticAt = nowMs();
+  }
 
-    if (this.opennessMap && this.opennessMap.length > 0) {
-      let bestIdx = 0;
-      let bestDiff = Infinity;
-      for (let i = 0; i < this.opennessMap.length; i++) {
-        const diff = Math.abs(this.opennessMap[i] - openness);
-        if (diff < bestDiff) {
-          bestDiff = diff;
-          bestIdx = i;
-        }
-      }
-      return Math.max(low, Math.min(high, low + bestIdx));
+  /**
+   * Force the mouth shut immediately.
+   *
+   * Called when playback is cancelled or the chunk queue is drained. Without it
+   * the avatar holds whatever talk frame it was on until the next audio block —
+   * which, having been cancelled, never arrives. The desktop hit exactly this
+   * and fixed it the same way. It is the one sanctioned jump cut.
+   */
+  forceLipsClosed(): void {
+    this.envelope = 0;
+    this.syntheticValue = 0;
+    this.syntheticAt = 0;
+    this.lipsLastPoll = null;
+    this.pacer.reanchor();
+    if (!this.animator || !this.dsp) return;
+    this.dsp.reset();
+    this.animator.reset();
+
+    const { low, high } = this.talkRange();
+    if (high > low) {
+      const rel = findClosedFrame(
+        this.opennessMap,
+        this.currentFrameIndex - low,
+        this.opennessMap ? this.opennessMap.length : 0
+      );
+      this.currentFrameIndex = clamp(low + rel, low, high);
     }
+  }
 
-    // No map: linear — louder => later (more-open) frame in the talk range.
-    return Math.round(low + openness * (high - low));
+  /** The talk range, floored and bounded by the real frame count. */
+  private talkRange(): { low: number; high: number } {
+    const low = Math.floor(num(this.config.talk_range_low, 0));
+    const declaredHigh = Math.floor(num(this.config.talk_range_high, this.frameCount - 1));
+    const high = this.frameCount > 0 ? Math.min(declaredHigh, this.frameCount - 1) : declaredHigh;
+    return { low, high };
+  }
+
+  /**
+   * The raw signals for this tick, as `{rms, openness}`.
+   *
+   * Returns null ONLY when no audio source is wired at all. A source that is
+   * present but silent must report 0, never null: the silence branch depends on
+   * being FED zeros. Returning null there was the old behaviour, and it fell
+   * through to the blind frame cycler — which is precisely why the mouth kept
+   * flapping after the audio had already stopped.
+   */
+  private lipsSignals(now: number): LipsSignals | null {
+    let rms: number | null = null;
+    let openness: number | null = null;
+    if (this.getRmsFn) rms = this.getRmsFn();
+    if (this.getSpectralOpennessFn) openness = this.getSpectralOpennessFn();
+    if (rms == null && this.getAmplitudeFn) rms = this.getAmplitudeFn();
+    if (rms == null && this.getOpennessFn) rms = this.getOpennessFn();
+    if (rms == null && openness != null) rms = openness;
+
+    if (rms == null) {
+      // No analyser wired. Fall back to the synthetic pulse train, which is the
+      // browser-TTS path.
+      if (this.syntheticAt) {
+        const age = now - this.syntheticAt;
+        if (age >= 0 && age < SYNTHETIC_DECAY_MS) {
+          const decayed = this.syntheticValue * (1 - age / SYNTHETIC_DECAY_MS);
+          return { rms: decayed, openness: decayed };
+        }
+        return { rms: 0, openness: 0 };
+      }
+      return null;
+    }
+    return {
+      rms: typeof rms === 'number' && Number.isFinite(rms) ? clamp(rms, 0, 1) : 0,
+      openness:
+        typeof openness === 'number' && Number.isFinite(openness)
+          ? clamp(openness, 0, 1)
+          : undefined,
+    };
   }
 
   // ===== Per-frame tick =====
 
   /**
    * Advance the animation. Returns the frame index to render, or -1 if it's
-   * not yet time to update (throttled by speed). Call from a rAF loop with the
-   * timestamp.
+   * not yet time to update. Call from a rAF loop with the timestamp.
+   *
+   * The DSP and the envelope advance on EVERY call, independent of whether a
+   * frame is due. That is what keeps the envelope fresh at the instant the
+   * frame gate opens: gating the analysis at the frame rate as well would alias
+   * the audio against the animation and reintroduce exactly the drift this
+   * rewrite exists to remove.
    */
   getNextFrame(timestamp: number): number {
+    const now = typeof timestamp === 'number' && Number.isFinite(timestamp) ? timestamp : nowMs();
+
+    // A hidden tab stops issuing rAF callbacks, so the first dt after it comes
+    // back would be however long the user was away. Freeze instead, and drop
+    // the timestamp so the next poll starts from zero rather than decaying
+    // every filter to its floor in a single step.
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+      this.lipsLastPoll = null;
+      this.pacer.reanchor(); // re-anchor on return, no catch-up burst
+      return -1;
+    }
+
+    const dt = this.lipsLastPoll === null ? 0 : Math.min(MAX_DT_MS, now - this.lipsLastPoll);
+    this.lipsLastPoll = now;
+
+    // Pacing is only engaged when a clamp is in force. A host that opted out
+    // with `fpsClamp: false` keeps the original "reset to now" gate.
+    const paced = this.fpsClamp !== null;
+
     // --- Active action takes priority ---
     if (this.activeAction) {
-      const adjustedInterval = this.frameInterval / this.activeAction.speed;
-      if (timestamp - this.lastFrameTime < adjustedInterval) return -1;
-      this.lastFrameTime = timestamp;
-
       const a = this.activeAction;
+      // Studio files carry an fps-correct idle interval; the per-action speed
+      // scales it, mirroring the desktop's action player.
+      const interval = this.idleBaseMs / a.speed;
+      if (!this.pacer.advanceDue(now, interval, paced)) return -1;
+
       a.frame += a.direction;
       if (a.frame > a.high || a.frame < a.low) {
         this.cancelAction(false);
@@ -267,33 +548,33 @@ export class AnimationController {
       return Math.floor(a.frame);
     }
 
-    // --- Advanced lip-sync (only while talking) ---
-    if (this.lipSyncEnabled && this.isTalking && this.getOpennessFn) {
-      const adjustedInterval = this.frameInterval / this.talkSpeed;
-      if (timestamp - this.lastFrameTime < adjustedInterval) return -1;
-      this.lastFrameTime = timestamp;
+    // --- Audio-driven lip-sync (only while talking, needs an audio hook) ---
+    if (this.lipSyncEnabled && this.isTalking && this.animator && this.dsp) {
+      const sig = this.lipsSignals(now);
+      if (sig) {
+        const r = this.dsp.poll(dt, sig.rms, sig.openness);
+        this.animator.poll(dt, r.gateOpen ? r.openness : 0);
+        this.envelope = this.animator.getEnvelope();
 
-      const raw = Math.max(0, Math.min(1, this.getOpennessFn()));
-      const boosted = Math.min(1, raw * (1 + this.lipSyncIntensity));
-      this.envelope += (boosted - this.envelope) * this.lipSyncResponsiveness;
+        // The base interval is already fps-clamped; the envelope modulates
+        // WITHIN a bounded multiplier above it, so a loud passage sweeps up to
+        // maxSweepBoost times faster without escaping the clamp altogether.
+        const talkBase = this.getFrameDuration() * this.animator.intervalScale();
+        if (!this.pacer.advanceDue(now, talkBase, paced)) return -1;
 
-      let openness = this.envelope;
-      if (this.lipSyncSustainStyle === 'wiggle' && this.envelope > 0.15) {
-        this.wigglePhase += 0.15 * this.lipSyncWiggleSpeed;
-        const wiggle = Math.sin(this.wigglePhase) * 0.15 * this.envelope;
-        openness = Math.max(0, Math.min(1, this.envelope + wiggle));
+        const { low, high } = this.talkRange();
+        this.currentFrameIndex = this.animator.step({
+          currentFrame: this.currentFrameIndex,
+          talkLow: low,
+          talkHigh: high,
+          opennessMap: this.opennessMap,
+        });
+        return Math.floor(this.currentFrameIndex);
       }
-
-      const frame = this.frameForOpenness(openness);
-      this.currentFrameIndex = frame;
-      return Math.floor(frame);
     }
 
     // --- Standard idle/talk cycling ---
-    const speed = this.isTalking ? this.talkSpeed : this.idleSpeed;
-    const adjustedInterval = this.frameInterval / speed;
-    if (timestamp - this.lastFrameTime < adjustedInterval) return -1;
-    this.lastFrameTime = timestamp;
+    if (!this.pacer.advanceDue(now, this.getFrameDuration(), paced)) return -1;
 
     const range = this.isTalking
       ? { low: this.config.talk_range_low!, high: this.config.talk_range_high! }

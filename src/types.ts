@@ -5,6 +5,8 @@
 // libraries (Vue/Angular/Svelte/Web-Component) build against these.
 // ===========================================================================
 
+import type { FpsClampOption } from './utils/frame-rate';
+
 // ----- Providers -----
 
 /** Cloud/keyless TTS providers handled by the built-in tts-api service. */
@@ -76,6 +78,28 @@ export interface AnimationControllerConfig {
   talk_start_positions?: number[];
   reverse_idle_selected?: boolean;
   reverse_talk_selected?: boolean;
+
+  // ----- Frame pacing -----
+  //
+  // The controller used to hardcode 30 fps and divide it by an arbitrary speed
+  // multiplier, so a host passing `talkSpeed: 5.3` asked for ~159 fps. These
+  // four fields replace that guess with the footage's real rate plus an
+  // explicit window, and are the same names `ania-avatar-react` writes.
+
+  /** Milliseconds per idle frame. Defaults to `1000 / ania_native_fps`. */
+  idle_frame_duration?: number;
+  /** Milliseconds per talk frame. Defaults to `1000 / ania_native_fps`. */
+  talk_cycle_duration?: number;
+  /**
+   * The footage's own frame rate, from the `.ania`'s `video.fps`. Absent falls
+   * back to `FPS_FALLBACK` (25), which sits inside the default window.
+   */
+  ania_native_fps?: number;
+  /**
+   * The window playback is held to: omitted/`true` for the default 24-30,
+   * `false` to opt out of clamping, or a custom `{ min, max }`.
+   */
+  ania_fps_clamp?: FpsClampOption;
 }
 
 // ----- Actions -----

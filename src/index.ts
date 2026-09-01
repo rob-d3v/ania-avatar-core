@@ -23,6 +23,37 @@ export type { LipSyncAnalyserOptions } from './audio/lip-sync-analyser';
 export { SpeechRecognizer } from './audio/speech-recognition';
 export type { SpeechRecognitionOptions } from './audio/speech-recognition';
 
+// ----- Lip-sync maths -----
+//
+// The DSP and the frame animator that turn an audio envelope into mouth
+// movement. Exported so the wrappers — and the tests in `examples/` — can
+// exercise them directly; the controller uses them internally either way.
+export { LipSyncDsp, LipAnimator, findClosedFrame } from './lip-sync';
+export type {
+  LipSyncDspOptions,
+  LipSyncDspReading,
+  LipAnimatorOptions,
+  LipAnimatorStepArgs,
+  LipAnimatorBranch,
+} from './lip-sync';
+
+// ----- Frame pacing -----
+export {
+  FPS_CLAMP_DEFAULT,
+  FPS_FALLBACK,
+  normalizeFpsClamp,
+  resolveNativeFps,
+  frameIntervalMs,
+  fpsFromIntervalMs,
+  FramePacer,
+} from './utils/frame-rate';
+export type {
+  FpsClampWindow,
+  FpsClampOption,
+  NativeFps,
+  FrameIntervalArgs,
+} from './utils/frame-rate';
+
 // ----- Commands -----
 export {
   executeCommand,

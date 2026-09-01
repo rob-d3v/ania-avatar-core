@@ -1,12 +1,454 @@
+/**
+ * LipSyncDsp — EMA smoothing + decaying-peak AGC + voicing gate.
+ *
+ * This is a port of the DESKTOP player's TTS path
+ * (`ania_player/plugins/voice_assistant/voice_bridge.py`, `on_tts_chunk` +
+ * `_detect_speech`). The desktop is fed one audio block every ~30 ms, so every
+ * constant there is expressed PER BLOCK. The web has no such luxury: we are
+ * polled from `requestAnimationFrame`, which is 60 Hz on most machines, 120 Hz
+ * on a high-refresh laptop, and 0 Hz in a background tab.
+ *
+ * Hard-coding the per-block constants would therefore make the avatar behave
+ * differently on a 120 Hz display than on a 60 Hz one — a bug that is nearly
+ * impossible to reproduce in the field, because the reporter's hardware is the
+ * variable. So every constant below is re-derived from `dt` on each call:
+ *
+ *   EMA   `s = 0.6a + 0.4s` per 30 ms  ->  retention 0.4 per 30 ms
+ *                                          half-life = 30*ln(0.5)/ln(0.4)  = 22.7 ms
+ *   AGC   `peak *= 0.995`     per 30 ms  ->  half-life = 30*ln(0.5)/ln(0.995) = 4149 ms
+ *   gate open   `> 1 block`  @30 ms  ->  60 ms
+ *   gate close  `> 5 blocks` @30 ms  ->  180 ms
+ *
+ * Nothing in this file reads a clock or a random number: `dtMs` is injected by
+ * the caller. That is the whole reason this module is testable under plain
+ * `node` (see `examples/test-lip-dsp.mjs`).
+ */
+/** Tuning knobs for {@link LipSyncDsp}. Every one has a desktop-derived default. */
+interface LipSyncDspOptions {
+    /** RMS above which the source counts as voiced. Default 0.020 (~ -34 dBFS). */
+    amplitudeThreshold?: number;
+    /** Time above the threshold before the gate opens. Default 60 ms. */
+    gateOpenMs?: number;
+    /** Time below the threshold before the gate closes. Default 180 ms. */
+    gateCloseMs?: number;
+    /** Floor under the AGC peak. Default 0.05. */
+    peakFloor?: number;
+    /** Reference window the EMA retention was measured over. Default 30 ms. */
+    emaHalfLifeRefMs?: number;
+    /** Reference window the peak decay was measured over. Default 30 ms. */
+    peakDecayRefMs?: number;
+}
+/** One DSP reading, as returned by {@link LipSyncDsp.poll}. */
+interface LipSyncDspReading {
+    /** AGC-normalised loudness, 0..1. */
+    amplitude: number;
+    /** Mouth openness, 0..1 — spectral when available, `amplitude * 1.1` otherwise. */
+    openness: number;
+    /** Whether the voicing gate is currently open. */
+    gateOpen: boolean;
+    /** The raw EMA of the input, before normalisation. */
+    smoothed: number;
+    /** The decaying AGC reference peak. */
+    peak: number;
+}
+declare class LipSyncDsp {
+    /** RMS above which the source counts as voiced (~ -34 dBFS in float [-1,1]). */
+    amplitudeThreshold: number;
+    /** Time above the threshold before the gate opens. Desktop: 1 block @30 ms. */
+    gateOpenMs: number;
+    /** Time below the threshold before the gate closes. Desktop: 5 blocks @30 ms. */
+    gateCloseMs: number;
+    /**
+     * Floor under the AGC peak. Without it, a near-silent source divides by a
+     * near-zero peak and every faint breath normalises to a fully open mouth.
+     */
+    peakFloor: number;
+    emaHalfLifeRefMs: number;
+    peakDecayRefMs: number;
+    /** EMA of the raw RMS. */
+    smoothed: number;
+    /** EMA of the optional externally supplied openness (spectral path). */
+    opennessSmoothed: number;
+    /** Decaying peak used as the AGC reference for `smoothed`. */
+    peak: number;
+    /** Same, for the optional spectral openness channel. */
+    opennessPeak: number;
+    amplitude: number;
+    openness: number;
+    gateOpen: boolean;
+    openMs: number;
+    closeMs: number;
+    constructor(options?: LipSyncDspOptions);
+    /**
+     * Zero every temporal accumulator. Call on the idle->talking edge: state left
+     * over from the PREVIOUS utterance (a peak still sitting at 1.0, a gate still
+     * counting down) makes the first syllable of the new one animate wrong.
+     */
+    reset(): void;
+    isGateOpen(): boolean;
+    /**
+     * Advance the DSP by `dtMs` of wall clock with a new raw reading.
+     *
+     * @param dtMs   elapsed ms since the previous poll (clamped internally)
+     * @param rawRms RMS of the current audio, in [0,1]. Non-finite -> 0.
+     * @param rawOpenness optional richer openness estimate.
+     *
+     *   The desktop's TTS path uses the cheap `amplitude * 1.1` proxy — voiced
+     *   segments are usually the loud ones, and a per-block FFT would just burn
+     *   CPU. Its MIC path uses `0.7*amp**0.6 + 0.3*lowFreqRatio*amp`, which needs
+     *   spectral data. On the web the analyser already exists, so the host can
+     *   hand us that richer value here. When `rawOpenness` is a finite number it
+     *   is smoothed and AGC-normalised through its OWN channel (same constants)
+     *   and replaces the proxy. The gate always keys off `rawRms`, never off
+     *   `rawOpenness` — the gate's 0.020 threshold is calibrated in RMS units and
+     *   means nothing on a 0..1 openness curve.
+     */
+    poll(dtMs: number, rawRms: number, rawOpenness?: number | null): LipSyncDspReading;
+}
+
+/**
+ * LipAnimator — envelope, sustain detection, branch selection and the
+ * ping-pong frame sweep. Port of the desktop player's
+ * `AnimationController._update_talk_animation_lips_sync`
+ * (`ania_player/animation_controller.py:347-461`).
+ *
+ * ---------------------------------------------------------------------------
+ * THE ONE THING TO UNDERSTAND BEFORE CHANGING ANYTHING HERE
+ * ---------------------------------------------------------------------------
+ * The desktop does NOT look the frame up from the openness map while speech is
+ * happening. That is what this engine used to do (`frameForOpenness`: openness
+ * -> nearest matching frame) and it is the reason the mouth read as random
+ * rather than synchronised.
+ *
+ * What the desktop actually does is sweep the frame index +-1 back and forth
+ * across the talk range, and let the audio envelope SHORTEN THE PER-FRAME
+ * DELAY. Louder speech sweeps faster, so the mouth flaps faster. This works
+ * because the talk range of the source footage *is itself* an open-close mouth
+ * cycle — the footage already contains the articulation; all we control is how
+ * fast we walk through it.
+ *
+ * So: `step()` decides WHICH frame, `intervalScale()` decides HOW FAST, and the
+ * openness map is consulted in exactly one place — finding the closed-mouth
+ * frame to park on during silence.
+ *
+ * ---------------------------------------------------------------------------
+ * Time, not ticks
+ * ---------------------------------------------------------------------------
+ * Every desktop constant here is per-tick at 16.67 ms (its 60 Hz animation
+ * loop). We are polled from `requestAnimationFrame`: 60 Hz usually, 120 Hz on a
+ * high-refresh display, 0 Hz in a background tab. So each constant is
+ * re-derived from `dt`:
+ *
+ *   attack/release alpha   `a_dt = 1 - (1-a)**(dt/16.667)`
+ *   sustain counter        `+= dt/16.667` (cap 30) / `-= 3*dt/16.667` (floor 0)
+ *   sustain history        12 samples @16.67 ms -> a 200 ms time window
+ *   wiggle phase           1/20 cycle @16.67 ms -> a 333.3 ms period
+ *
+ * No clock and no RNG are read in this file; `dtMs` is injected. That is what
+ * makes it testable under plain `node` (`examples/test-lip-animator.mjs`).
+ */
+
+/**
+ * Relative index of the most closed-mouth frame in the openness map.
+ *
+ * Port of the desktop's `_find_best_frame_for_openness(0.0)`
+ * (`animation_controller.py:318-335`):
+ *
+ *   score(i) = |map[i] - 0| + |i - currentRel| * proximityWeight
+ *   proximityWeight = 0.1 / max(1, mapLen - 1)
+ *
+ * The proximity term is a TIEBREAK, deliberately weighted so that the whole map
+ * width is worth 0.1 openness units — it can never beat a genuinely more closed
+ * frame, but among equally closed candidates the nearest one wins. Without it
+ * the mouth teleports across the loop every time silence starts, because most
+ * talk ranges contain the closed pose several times.
+ *
+ * @param opennessMap per-frame openness, index 0 == talkLow
+ * @param currentRel current frame relative to talkLow
+ * @param mapLen number of usable entries in the map
+ * @returns relative index (the caller adds talkLow)
+ */
+declare const findClosedFrame: (opennessMap: number[] | null | undefined, currentRel: number, mapLen: number) => number;
+/** Which branch the last {@link LipAnimator.step} took. */
+type LipAnimatorBranch = 'sustain' | 'silence' | 'voiced';
+/** Live-reconfigurable tuning for {@link LipAnimator}. */
+interface LipAnimatorOptions {
+    /** 0..1 openness boost. Default 0.6. */
+    intensity?: number;
+    /** 0.05..1 envelope responsiveness (higher = snappier). Default 0.5. */
+    responsiveness?: number;
+    /** What a held vowel does. Default 'wiggle'. */
+    sustainStyle?: LipSyncSustainStyle;
+    /** 1..6 wiggle amplitude in frames. Default 2. */
+    wiggleSpeed?: number;
+    /** 1..4.5 loud/quiet sweep-speed ratio. Default 2.237. */
+    maxSweepBoost?: number;
+    /** Envelope below which the mouth is treated as shut. Default 0.06. */
+    silenceThreshold?: number;
+    /** How long the gate must stay shut before the snap budget arms. Default 250 ms. */
+    snapAfterMs?: number;
+    /** Frames per tick the close budget allows at minimum. Default 3. */
+    maxSnapStep?: number;
+    /** How long the mouth may take to shut once the close budget arms. Default 200 ms. */
+    closeMs?: number;
+}
+/** Arguments to {@link LipAnimator.step}. */
+interface LipAnimatorStepArgs {
+    currentFrame?: number;
+    talkLow?: number;
+    talkHigh?: number;
+    opennessMap?: number[] | null;
+}
+interface HistorySample {
+    t: number;
+    v: number;
+}
+declare class LipAnimator {
+    intensity: number;
+    responsiveness: number;
+    sustainStyle: LipSyncSustainStyle;
+    wiggleSpeed: number;
+    maxSweepBoost: number;
+    silenceThreshold: number;
+    snapAfterMs: number;
+    maxSnapStep: number;
+    closeMs: number;
+    /** EMA of the host's poll interval, used to turn `closeMs` into a step. */
+    tickMs: number;
+    envelope: number;
+    wigglePhase: number;
+    history: HistorySample[];
+    historyTime: number;
+    sustainCounter: number;
+    inSustain: boolean;
+    anchor: number | null;
+    direction: number;
+    gateClosedMs: number;
+    branch: LipAnimatorBranch;
+    constructor(options?: LipAnimatorOptions);
+    /**
+     * Live reconfiguration — the host can change `lipSyncIntensity` and friends
+     * at runtime, and nothing here depends on the previous values, so there is no
+     * need to tear the animator down and lose the envelope mid-sentence.
+     */
+    configure(options?: LipAnimatorOptions): this;
+    /**
+     * Idle->talking edge. Everything temporal has to go, or the first syllable of
+     * the new utterance is animated with the tail of the previous one: a hot
+     * envelope opens the mouth before any audio, and a hot sustain counter parks
+     * it on a stale anchor.
+     */
+    reset(): void;
+    getEnvelope(): number;
+    /** 'sustain' | 'silence' | 'voiced' — the branch the last `step()` took. */
+    lastBranch(): LipAnimatorBranch;
+    /**
+     * Advance the temporal state by `dtMs` with a new raw openness reading.
+     *
+     * Call this on EVERY rAF, independent of the frame gate. The frame gate only
+     * decides when the picture is allowed to advance; if the envelope were only
+     * updated when a frame is emitted it would be sampled at the very rate it is
+     * supposed to be controlling, and the whole loop would alias.
+     *
+     * @param dtMs elapsed ms since the previous poll (clamped internally)
+     * @param rawOpenness 0..1 openness. Non-finite -> 0 (silence).
+     */
+    poll(dtMs: number, rawOpenness: number): number;
+    /**
+     * Multiplier applied to the base (already fps-clamped) frame interval.
+     *
+     * This is the desktop's `return base_delay * speed_factor` one-for-one. The
+     * desktop hard-floors the factor at 0.2, but at the production intensity 0.79
+     * its own minimum is `1 - 0.79*0.7*1` = 0.447, so that floor is never
+     * reached. Replacing it with `1/maxSweepBoost` is therefore a literal no-op
+     * at production settings and only diverges above `intensity > 0.816` — while
+     * giving the host a single, honest knob for the loud/quiet sweep RATIO, which
+     * is the thing the eye actually reads as "in sync".
+     */
+    intervalScale(): number;
+    /**
+     * Pick the next frame index. Three mutually exclusive branches.
+     *
+     * Every branch moves the frame by at most +-1, with the single exception of
+     * branch B under the snap budget (at most +-3). There is never a jump cut:
+     * the source footage is a continuous mouth cycle, and skipping frames in it
+     * looks like a dropped frame, not like speech.
+     *
+     * @returns the new absolute frame index
+     */
+    step({ currentFrame, talkLow, talkHigh, opennessMap }?: LipAnimatorStepArgs): number;
+    /** Clamp a candidate frame to at most +-1 away from where we are now. */
+    private _limitStep;
+}
+
+/**
+ * Frame-rate resolution and clamping.
+ *
+ * THE BUG THIS EXISTS TO FIX
+ *
+ * The animation controller computed its per-frame delay as
+ *
+ *     frameInterval = (1000 / 30) / speedSliderValue
+ *
+ * with nothing normalising or bounding the result. The speed slider is a bare
+ * multiplier against a duration that has no relation to the footage, so its
+ * meaning depends entirely on the host. Nearly every consumer app hardcodes
+ * `idleSpeed={6.4} talkSpeed={5.3}`, which against that hardcoded 30 fps is
+ *
+ *     33.3 / 5.3 = 6.3 ms  ->  159 fps
+ *
+ * while `diario-de-obra` passes 2.8 and lands at 84 fps. Same engine, same
+ * component, wildly different playback. That is the "some avatars are slow,
+ * others are way too fast" report.
+ *
+ * THE FIX
+ *
+ * Stop treating the slider as an absolute divisor. Resolve what the footage's
+ * REAL frame rate is, treat the slider as a multiplier relative to that, and
+ * clamp the result into a sane window (24-30 fps by default). The legacy 6.4 /
+ * 5.3 / 2.8 values then all collapse onto the clamp and become no-ops, so the
+ * apps that pass them need no edits.
+ *
+ * Hosts that genuinely want something else opt out explicitly with `fpsClamp`.
+ *
+ * This module is pure and imports nothing but a type, so
+ * `examples/test-frame-rate.mjs` can exercise it under plain `node`.
+ */
+
+/** A playback window, in frames per second. */
+interface FpsClampWindow {
+    min: number;
+    max: number;
+}
+/**
+ * The `fpsClamp` option as a host may write it: `undefined`/`true` for the
+ * default window, `false` to disable clamping, or a custom `{min, max}`.
+ */
+type FpsClampOption = boolean | FpsClampWindow | null | undefined;
+/** The window playback is held to unless the host opts out. */
+declare const FPS_CLAMP_DEFAULT: FpsClampWindow;
+/**
+ * Assumed frame rate when the `.ania` declares none.
+ *
+ * 25 sits inside the default window, so an undeclared file plays at its assumed
+ * rate rather than being dragged to a boundary. Old files predate the studio
+ * writing `video.fps` at all, and there are plenty of them in the wild.
+ */
+declare const FPS_FALLBACK = 25;
+/** What {@link resolveNativeFps} decided, and which signal decided it. */
+interface NativeFps {
+    fps: number;
+    /** `video.fps` | `config.idleFrameDuration` | `frames/duration` | `fallback`. */
+    source: 'video.fps' | 'config.idleFrameDuration' | 'frames/duration' | 'fallback';
+}
+/**
+ * Normalise the `fpsClamp` option into a `{min, max}` window, or `null` for
+ * "off".
+ *
+ * Accepts: `undefined`/`true` -> the default window; `false` -> no clamping at
+ * all (full legacy behaviour); `{min, max}` -> a custom window.
+ *
+ * An invalid custom window falls back to the default rather than throwing: this
+ * runs on the load path of every host app, and a bad option should degrade to
+ * correct playback, not to a blank avatar.
+ */
+declare const normalizeFpsClamp: (fpsClamp?: FpsClampOption) => FpsClampWindow | null;
+/**
+ * Work out the true frame rate of the avatar's footage.
+ *
+ * `source` names which signal won, for logging — when playback looks wrong, the
+ * first question is always "what did it think the fps was, and why".
+ */
+declare const resolveNativeFps: (avatarData?: AniaAvatarData | null) => NativeFps;
+/** Arguments to {@link frameIntervalMs}. */
+interface FrameIntervalArgs {
+    /** From {@link resolveNativeFps}. */
+    nativeFps?: number;
+    /** Host/file speed multiplier relative to the native rate. */
+    speed?: number;
+    /** A second, global scalar (e.g. a runtime playback-speed control). */
+    playbackSpeed?: number;
+    /** From {@link normalizeFpsClamp}; `null` disables clamping. */
+    clamp?: FpsClampWindow | null;
+}
+/**
+ * The per-frame interval, in ms, that the controller should actually use.
+ *
+ * `speed` is a multiplier relative to the footage's native rate: 1 means "play
+ * it as shot". The clamp then bounds the result, which is what neutralises the
+ * legacy absolute values.
+ */
+declare const frameIntervalMs: ({ nativeFps, speed, playbackSpeed, clamp, }?: FrameIntervalArgs) => number;
+/** Convenience for logs and tests: the effective fps of an interval. */
+declare const fpsFromIntervalMs: (intervalMs: number) => number;
+/**
+ * Frame pacing accumulator.
+ *
+ * NOT part of `frame-rate.js` upstream — there it lives inline in the runtime
+ * extension as `AnimationController.prototype._advanceDue`
+ * (`player-runtime/src/ext/index.js`). It is lifted into this module verbatim,
+ * as a class, for exactly one reason: it is the fix for a numerically-measured
+ * bug and it deserves the same plain-`node` test coverage as everything else
+ * here. The algorithm is unchanged.
+ *
+ * THE BUG
+ *
+ * The old gate was `if (now - lastFrameTime < interval) return -1;` followed by
+ * `lastFrameTime = now`. Because `now` is when the poll happened rather than
+ * when the frame was DUE, every frame is pushed out to the next poll boundary
+ * and the leftover is discarded. The effective rate is therefore always at or
+ * below target, by an amount that depends on how the poll rate and the interval
+ * beat against each other:
+ *
+ *   poll 30 Hz, interval 41.67 ms  -> 2 polls per frame -> 15.0 fps
+ *   poll 60 Hz, interval 41.67 ms  -> 3 polls per frame -> 20.0 fps
+ *   poll 120 Hz, interval 41.67 ms -> 5 polls per frame -> 24.0 fps
+ *
+ * That was invisible before, because the interval used to be ~6 ms (the 159 fps
+ * bug): shorter than any poll period, so every poll advanced a frame and
+ * playback simply ran at the display's refresh rate. Clamping the interval to a
+ * real 24-30 fps is what exposed it.
+ *
+ * Carrying the remainder in an accumulator makes the AVERAGE rate correct
+ * regardless of poll phase.
+ */
+declare class FramePacer {
+    /** When the next frame is due, on the caller's clock. `null` = unanchored. */
+    due: number | null;
+    /** The last poll at which a frame was emitted. Legacy-path bookkeeping. */
+    lastFrameTime: number;
+    /**
+     * Is a frame due? Advances the accumulator by exactly one interval when it
+     * is.
+     *
+     * `paced` false keeps the original "reset to now" behaviour, so a host that
+     * opted out of the fps clamp sees no change at all.
+     */
+    advanceDue(now: number, interval: number, paced: boolean): boolean;
+    /** Drop the anchor so the next poll starts a fresh cadence. */
+    reanchor(): void;
+}
+
+/** Extra options for {@link AnimationController.configureLipsSync}. */
+interface LipSyncExtraOptions {
+    /** 1..4.5 loud/quiet sweep-speed ratio. Default 2.237. */
+    maxSweepBoost?: number;
+    /** Overrides for the voicing-gate DSP. */
+    dsp?: LipSyncDspOptions;
+}
 declare class AnimationController {
     private config;
+    private frameCount;
     private currentFrameIndex;
     private idleSpeed;
     private talkSpeed;
-    private lastFrameTime;
-    private frameInterval;
     private direction;
     isTalking: boolean;
+    private idleBaseMs;
+    private talkBaseMs;
+    private nativeFps;
+    private fpsClamp;
+    private pacer;
     private actions;
     private activeAction;
     /** Fired when an action starts. */
@@ -16,23 +458,53 @@ declare class AnimationController {
     /** Fired when an action is force-cancelled. */
     onActionCancelCallback: ((id: string) => void) | null;
     private lipSyncEnabled;
-    private lipSyncIntensity;
-    private lipSyncResponsiveness;
-    private lipSyncSustainStyle;
-    private lipSyncWiggleSpeed;
     private opennessMap;
+    private dsp;
+    private animator;
     private envelope;
-    private wigglePhase;
-    /** Supplied by the audio path each frame; returns instantaneous openness 0..1. */
+    private lipsLastPoll;
+    private syntheticValue;
+    private syntheticAt;
+    /**
+     * Instantaneous openness 0..1, supplied by the audio path each frame.
+     *
+     * Kept as the primary hook for backwards compatibility: when nothing richer
+     * is wired, this value drives BOTH the voicing gate and the mouth opening.
+     */
     getOpennessFn: (() => number) | null;
+    /**
+     * RMS of the current audio window, 0..1. Preferred over `getOpennessFn` for
+     * the voicing gate — the gate's 0.020 threshold is calibrated in RMS units,
+     * and a peak-amplitude reading runs 2-3x the RMS for speech.
+     */
+    getRmsFn: (() => number) | null;
+    /** Peak time-domain amplitude 0..1. Used only if no RMS hook is wired. */
+    getAmplitudeFn: (() => number) | null;
+    /**
+     * A spectral openness estimate 0..1. When present it drives HOW FAR the mouth
+     * opens, through its own AGC channel; the gate still keys off the RMS.
+     */
+    getSpectralOpennessFn: (() => number) | null;
     constructor(config: AnimationControllerConfig, frameCount: number);
     private jumpToRandomStartPosition;
     setTalkingState(talking: boolean): void;
+    /**
+     * The per-frame interval, in ms, for the current mode.
+     *
+     * The base is already fps-correct; the speed slider is a multiplier relative
+     * to the footage's native rate, and the clamp bounds the result. That is what
+     * makes a legacy `talkSpeed={5.3}` a no-op instead of a request for 159 fps.
+     */
+    getFrameDuration(): number;
     setSpeeds(idleSpeed?: number, talkSpeed?: number): void;
-    /** Set the idle animation speed multiplier. */
+    /** Set the idle animation speed multiplier (relative to the native rate). */
     setIdleSpeed(speed: number): void;
-    /** Set the talk animation speed multiplier. */
+    /** Set the talk animation speed multiplier (relative to the native rate). */
     setTalkSpeed(speed: number): void;
+    /** The fps window playback is currently held to, or `null` when unclamped. */
+    getFpsClamp(): FpsClampWindow | null;
+    /** The footage's resolved frame rate. */
+    getNativeFps(): number;
     /** Register the available actions (replaces any prior set). */
     configureActions(actions: ActionConfig[] | undefined): void;
     getActions(): ActionConfig[];
@@ -46,21 +518,65 @@ declare class AnimationController {
     cancelAction(force?: boolean): void;
     isActionPlaying(): boolean;
     /**
-     * Configure the advanced lip-sync. `opennessMap` maps a talk-range frame
-     * offset to an openness value 0..1 (built via {@link buildOpennessMap}).
+     * Configure the audio-driven lip-sync. `opennessMap` maps a talk-range frame
+     * offset to an openness value 0..1 (built via `buildOpennessMap`).
+     *
+     * NOTE the 7th parameter. The first six are a POSITIONAL contract with every
+     * already-published wrapper (vue / svelte / angular / web-component) and with
+     * host apps calling through `AniaPlayerInstance.configureLipsSync`, so they
+     * can never be reordered. An optional trailing object is the only safe way to
+     * extend it: an old caller omits it and still works.
+     *
+     * The openness map is now consulted in exactly ONE place — locating the
+     * closed-mouth frame during silence. While speech is happening the frame
+     * comes from the sweep, not from a lookup.
      */
-    configureLipsSync(enabled: boolean, intensity?: number, responsiveness?: number, opennessMap?: number[] | null, sustainStyle?: LipSyncSustainStyle, wiggleSpeed?: number): void;
+    configureLipsSync(enabled: boolean, intensity?: number, responsiveness?: number, opennessMap?: number[] | null, sustainStyle?: LipSyncSustainStyle, wiggleSpeed?: number, options?: LipSyncExtraOptions): void;
     isLipSyncEnabled(): boolean;
     getLipSyncEnvelope(): number;
+    /** Which frame branch ran last: sustain | silence | voiced. For debug probes. */
+    getLipSyncBranch(): LipAnimatorBranch | null;
     /**
-     * Pick the talk-range frame whose mapped openness is closest to the target.
-     * Falls back to linear interpolation across the talk range when no map.
+     * Feed one synthetic articulation pulse.
+     *
+     * The browser SpeechSynthesis path produces no waveform at all, so there is
+     * nothing to analyse. Its `onboundary` event does fire once per word though,
+     * and pushing a pulse per word through the SAME envelope and branch machinery
+     * gives real per-syllable articulation instead of a binary talk/idle flap.
+     * The pulse decays over `SYNTHETIC_DECAY_MS` so it reads as one syllable
+     * rather than as a step change.
      */
-    private frameForOpenness;
+    pushSyntheticOpenness(value?: number): void;
+    /**
+     * Force the mouth shut immediately.
+     *
+     * Called when playback is cancelled or the chunk queue is drained. Without it
+     * the avatar holds whatever talk frame it was on until the next audio block —
+     * which, having been cancelled, never arrives. The desktop hit exactly this
+     * and fixed it the same way. It is the one sanctioned jump cut.
+     */
+    forceLipsClosed(): void;
+    /** The talk range, floored and bounded by the real frame count. */
+    private talkRange;
+    /**
+     * The raw signals for this tick, as `{rms, openness}`.
+     *
+     * Returns null ONLY when no audio source is wired at all. A source that is
+     * present but silent must report 0, never null: the silence branch depends on
+     * being FED zeros. Returning null there was the old behaviour, and it fell
+     * through to the blind frame cycler — which is precisely why the mouth kept
+     * flapping after the audio had already stopped.
+     */
+    private lipsSignals;
     /**
      * Advance the animation. Returns the frame index to render, or -1 if it's
-     * not yet time to update (throttled by speed). Call from a rAF loop with the
-     * timestamp.
+     * not yet time to update. Call from a rAF loop with the timestamp.
+     *
+     * The DSP and the envelope advance on EVERY call, independent of whether a
+     * frame is due. That is what keeps the envelope fresh at the instant the
+     * frame gate opens: gating the analysis at the frame rate as well would alias
+     * the audio against the animation and reintroduce exactly the drift this
+     * rewrite exists to remove.
      */
     getNextFrame(timestamp: number): number;
 }
@@ -125,6 +641,20 @@ interface AnimationControllerConfig {
     talk_start_positions?: number[];
     reverse_idle_selected?: boolean;
     reverse_talk_selected?: boolean;
+    /** Milliseconds per idle frame. Defaults to `1000 / ania_native_fps`. */
+    idle_frame_duration?: number;
+    /** Milliseconds per talk frame. Defaults to `1000 / ania_native_fps`. */
+    talk_cycle_duration?: number;
+    /**
+     * The footage's own frame rate, from the `.ania`'s `video.fps`. Absent falls
+     * back to `FPS_FALLBACK` (25), which sits inside the default window.
+     */
+    ania_native_fps?: number;
+    /**
+     * The window playback is held to: omitted/`true` for the default 24-30,
+     * `false` to opt out of clamping, or a custom `{ min, max }`.
+     */
+    ania_fps_clamp?: FpsClampOption;
 }
 /**
  * A named clip that plays a sub-range of the avatar's frames at a given
@@ -808,4 +1338,4 @@ declare function getStringList(key: string, locale?: string, opts?: {
 /** Build a translator bound to one locale + optional override table. */
 declare function createTranslator(locale?: string, override?: MessagesOverride): Translator;
 
-export { type ActionAudioHandle, type ActionConfig, type ActionInfo, type AniaAnimationData, type AniaAvatarData, AniaPlayer, type AniaPlayerInstance, type AniaPlayerRenderOptions, AnimationController, type AnimationControllerConfig, AvatarCache, BUILTIN_PLUGINS, COMMAND_LIST, type CacheStats, type CommandContext, type CommandDescriptor, type CommandResult, DEFAULT_LOCALE, Emitter, FALLBACK_LOCALE, type I18nVars, LipSyncAnalyser, type LipSyncAnalyserOptions, type LipSyncConfig, type LipSyncServerConfig, type LipSyncSustainStyle, type LoadSource, type MessagesOverride, type OptimalSpeeds, PLUGIN_KINDS, type ParsedHotkey, type PiperInitOptions, type PiperStatus, type PlayerEventMap, type PlayerEventName, type PlayerOptions, type PlayerPosition, type Plugin, type PluginContext, type PluginKind, PluginRegistry, type PluginRegistryLike, type PluginSettingField, type STTEngine, type STTProvider, STT_PROVIDER_TO_PLUGIN, type SpeechRecognitionOptions, SpeechRecognizer, type TTSConfig, type TTSEngine, type TTSProvider, type TTSResult, TTS_PROVIDER_TO_PLUGIN, type Translator, WakeWordEngine, type WakeWordEngineLike, type WakeWordStartConfig, actionAudioPlugin, availableLocales, buildControllerConfig, buildOpennessMap, calcSpeeds, calculateOptimalSpeeds, checkPiperStatus, clearAvatarCache, createAniaPlayer, createTranslator, decryptAniaFile, deleteCachedAvatar, disposePiper, executeCommand, fetchActionsConfig, fetchLipSyncConfig, getCacheStats, getCachedAvatar, getDefaultRegistry, getPiperStatus, getString, getStringList, getWakeWordEngine, hasLocale, initPiper, installPostMessageControl, isWakeWordSupported, matchesHotkey, parseCommandLine, parseHotkey, piperSynthesize, playActionAudio, preloadPiper, professionalTTSRequest, registerBuiltins, setCachedAvatar, sttBrowserPlugin, sttGooglePlugin, ttsAzurePlugin, ttsBrowserPlugin, ttsElevenLabsPlugin, ttsGooglePlugin, ttsPiperPlugin, ttsTiktokPlugin, validatePlugin, wakeWordPlugin };
+export { type ActionAudioHandle, type ActionConfig, type ActionInfo, type AniaAnimationData, type AniaAvatarData, AniaPlayer, type AniaPlayerInstance, type AniaPlayerRenderOptions, AnimationController, type AnimationControllerConfig, AvatarCache, BUILTIN_PLUGINS, COMMAND_LIST, type CacheStats, type CommandContext, type CommandDescriptor, type CommandResult, DEFAULT_LOCALE, Emitter, FALLBACK_LOCALE, FPS_CLAMP_DEFAULT, FPS_FALLBACK, type FpsClampOption, type FpsClampWindow, type FrameIntervalArgs, FramePacer, type I18nVars, LipAnimator, type LipAnimatorBranch, type LipAnimatorOptions, type LipAnimatorStepArgs, LipSyncAnalyser, type LipSyncAnalyserOptions, type LipSyncConfig, LipSyncDsp, type LipSyncDspOptions, type LipSyncDspReading, type LipSyncServerConfig, type LipSyncSustainStyle, type LoadSource, type MessagesOverride, type NativeFps, type OptimalSpeeds, PLUGIN_KINDS, type ParsedHotkey, type PiperInitOptions, type PiperStatus, type PlayerEventMap, type PlayerEventName, type PlayerOptions, type PlayerPosition, type Plugin, type PluginContext, type PluginKind, PluginRegistry, type PluginRegistryLike, type PluginSettingField, type STTEngine, type STTProvider, STT_PROVIDER_TO_PLUGIN, type SpeechRecognitionOptions, SpeechRecognizer, type TTSConfig, type TTSEngine, type TTSProvider, type TTSResult, TTS_PROVIDER_TO_PLUGIN, type Translator, WakeWordEngine, type WakeWordEngineLike, type WakeWordStartConfig, actionAudioPlugin, availableLocales, buildControllerConfig, buildOpennessMap, calcSpeeds, calculateOptimalSpeeds, checkPiperStatus, clearAvatarCache, createAniaPlayer, createTranslator, decryptAniaFile, deleteCachedAvatar, disposePiper, executeCommand, fetchActionsConfig, fetchLipSyncConfig, findClosedFrame, fpsFromIntervalMs, frameIntervalMs, getCacheStats, getCachedAvatar, getDefaultRegistry, getPiperStatus, getString, getStringList, getWakeWordEngine, hasLocale, initPiper, installPostMessageControl, isWakeWordSupported, matchesHotkey, normalizeFpsClamp, parseCommandLine, parseHotkey, piperSynthesize, playActionAudio, preloadPiper, professionalTTSRequest, registerBuiltins, resolveNativeFps, setCachedAvatar, sttBrowserPlugin, sttGooglePlugin, ttsAzurePlugin, ttsBrowserPlugin, ttsElevenLabsPlugin, ttsGooglePlugin, ttsPiperPlugin, ttsTiktokPlugin, validatePlugin, wakeWordPlugin };
