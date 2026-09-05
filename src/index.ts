@@ -128,6 +128,30 @@ export {
   MatcherError,
   DEFAULT_MATCHER_OPTIONS,
   MotionMatcher,
+  // ----- index builders: poses.json / motion_graph.json / coverage.json, client-side
+  GRAY,
+  ALPHA,
+  EDGE,
+  W_GRAY,
+  W_ALPHA,
+  W_EDGE,
+  SIG_LEN,
+  pyRound,
+  boxResizeRgba,
+  signature,
+  allPairsSq,
+  buildGraphFromDistances,
+  buildMotionGraph,
+  SCHEMA_POSES,
+  SCHEMA_COVERAGE,
+  DIM_VALID_DEFAULT,
+  TARGET_BINS,
+  GAP_PRESET,
+  PRESETS,
+  sequencesFromRanges,
+  frameSeq,
+  buildPosesIndex,
+  buildCoverage,
 } from './motion-matcher';
 export type {
   FlatLandmarks,
@@ -139,6 +163,12 @@ export type {
   MotionGraph,
   MocapIndex,
   PoseDescriptorMessage,
+  FramePixels,
+  MotionGraphOptions,
+  Sequence,
+  CoverageGap,
+  Coverage,
+  PosesIndexOptions,
 } from './motion-matcher';
 
 // ----- Commands -----

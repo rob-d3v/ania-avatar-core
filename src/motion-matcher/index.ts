@@ -86,3 +86,34 @@ export type {
   MocapIndex,
   PoseDescriptorMessage,
 } from './matcher';
+
+export {
+  GRAY,
+  ALPHA,
+  EDGE,
+  W_GRAY,
+  W_ALPHA,
+  W_EDGE,
+  SIG_LEN,
+  pyRound,
+  boxResizeRgba,
+  signature,
+  allPairsSq,
+  buildGraphFromDistances,
+  buildMotionGraph,
+} from './graph-builder';
+export type { FramePixels, MotionGraphOptions } from './graph-builder';
+
+export {
+  SCHEMA_POSES,
+  SCHEMA_COVERAGE,
+  DIM_VALID_DEFAULT,
+  TARGET_BINS,
+  GAP_PRESET,
+  PRESETS,
+  sequencesFromRanges,
+  frameSeq,
+  buildPosesIndex,
+  buildCoverage,
+} from './coverage-builder';
+export type { Sequence, CoverageGap, Coverage, PosesIndexOptions } from './coverage-builder';

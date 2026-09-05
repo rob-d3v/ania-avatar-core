@@ -728,6 +728,160 @@ declare class MotionMatcher {
     poseError(x: ArrayLike<number>, mask: number, frame: number): number;
 }
 
+declare const GRAY = 32;
+declare const ALPHA = 32;
+declare const EDGE = 16;
+declare const W_GRAY = 0.5;
+declare const W_ALPHA = 0.3;
+declare const W_EDGE = 0.2;
+declare const SIG_LEN: number;
+/** One frame's pixels. `ImageData` satisfies this shape as-is. */
+interface FramePixels {
+    /** RGBA bytes, row-major, 4 per pixel. `ImageData.data` fits here. */
+    data?: Uint8ClampedArray | Uint8Array | number[];
+    /** Alias accepted for callers that name the buffer `rgba`. */
+    rgba?: Uint8ClampedArray | Uint8Array | number[];
+    width: number;
+    height: number;
+}
+interface MotionGraphOptions {
+    /** Sequence id per frame (from `frameSeq`). Default: every frame in sequence 0. */
+    frameSeq?: ArrayLike<number>;
+    /** kNN edges per frame. Default 8. */
+    k?: number;
+    /** kNN edges above this normalised cost are dropped. Default 6. */
+    edgeCostMax?: number;
+    /** Costs are clipped here. Default 20. */
+    costClip?: number;
+    /** Force the rest frame; `null`/omitted derives it from motion energy. */
+    restFrame?: number | null;
+    /** Successor cost above this splits the sequence (a cut). Default 6. */
+    cutThreshold?: number;
+    /** 1 = single-frame distance, 2 = two-frame window (default). */
+    window?: number;
+    /** Copied into the output when given (the Python indexer adds it separately). */
+    contentHash?: string;
+    /** Called every `progressEvery` frames while signatures are computed. */
+    onProgress?: (done: number, total: number) => void;
+    progressEvery?: number;
+}
+/**
+ * Python's `round(x, nd)`: round-half-to-EVEN on the exact binary value, then
+ * back to the nearest double. `Math.round(x * 100) / 100` is not the same
+ * function (it rounds halves up and re-introduces float error), and `toFixed`
+ * rounds halves away from zero. Values such as 0.0625 -> 0.062 (not 0.063)
+ * are exactly representable and do occur.
+ */
+declare function pyRound(x: number, nd: number): number;
+/**
+ * Pillow's `Image.resize(..., Image.Resampling.BOX)` for an 8-bit RGBA image,
+ * reproduced byte for byte: premultiply (RGBA -> RGBa), horizontal pass,
+ * vertical pass, unpremultiply (RGBa -> RGBA). Identical sizes short-circuit to
+ * a copy exactly like Pillow does — which is why a 32x32 source survives the
+ * premultiply round trip untouched.
+ */
+declare function boxResizeRgba(src: Uint8ClampedArray | Uint8Array | number[], srcW: number, srcH: number, outW: number, outH: number): Uint8ClampedArray;
+/**
+ * Visual signature of one RGBA frame -> float32[SIG_LEN]. Every arithmetic step
+ * is float32 (Math.fround) because numpy runs this whole pipeline in float32.
+ */
+declare function signature(frame: FramePixels): Float32Array;
+/** `||s_i - s_j||^2 / 1024` for all pairs (float64, symmetric, zero diagonal). */
+declare function allPairsSq(sigs: Float32Array[], dim?: number): Float64Array;
+/**
+ * Build the CSR motion graph from the all-pairs visual distance `V`
+ * (row-major n x n). Mirrors `graph.build_graph`.
+ */
+declare function buildGraphFromDistances(V: Float64Array, n: number, frameSeq: ArrayLike<number>, opts?: MotionGraphOptions): MotionGraph;
+/**
+ * Frames -> `motion_graph.json`. The whole offline graph step, in the browser.
+ *
+ * @param frames RGBA pixel buffers (`ImageData` works directly).
+ * @param opts   see {@link MotionGraphOptions}.
+ */
+declare function buildMotionGraph(frames: FramePixels[], opts?: MotionGraphOptions): MotionGraph;
+
+declare const SCHEMA_POSES = "ania.poses";
+declare const SCHEMA_COVERAGE = "ania.coverage";
+/** `dimValid` when the caller does not supply one: the 40 used dims. */
+declare const DIM_VALID_DEFAULT: number[];
+/** Marginal target bins (dim -> edges, weight). "count >= 3" per bin = covered. */
+declare const TARGET_BINS: [string, number[], number][];
+declare const GAP_PRESET: Record<string, string>;
+declare const PRESETS: string[];
+interface Sequence {
+    name: string;
+    low: number;
+    high: number;
+}
+interface CoverageGap {
+    dim: string;
+    bin: number;
+    label: string;
+    need: number;
+    have: number;
+    preset: string;
+}
+interface Coverage {
+    schema: string;
+    version: number;
+    contentHash: string;
+    descriptorVersion: number;
+    frameCount: number;
+    indexedFrames: number;
+    meanConfidence: number;
+    source: string;
+    bins: Record<string, {
+        edges: number[];
+        counts: number[];
+    }>;
+    headYawPitch: {
+        yawEdges: number[];
+        pitchEdges: number[];
+        counts: number[];
+    };
+    hands: {
+        noneVisible: number;
+        leftOnly: number;
+        rightOnly: number;
+        both: number;
+    };
+    gaps: CoverageGap[];
+    coverageScore: number;
+    calibrationPresets: string[];
+}
+/**
+ * Build the `seq` list: idle/talk ranges, actions, then contiguous leftovers as
+ * orphans. Mirrors `index.sequences_from_ranges`.
+ */
+declare function sequencesFromRanges(frameCount: number, idle: [number, number], talk: [number, number], actions?: [string, number, number][]): Sequence[];
+/** Per-frame sequence index. Mirrors `index.frame_seq`. */
+declare function frameSeq(frameCount: number, seqs: Sequence[]): Int32Array;
+interface PosesIndexOptions {
+    /** Per-frame confidence. Default: 1.0 for every frame. */
+    confidence?: ArrayLike<number>;
+    contentHash?: string;
+    generator?: Record<string, unknown>;
+    source?: string;
+    /** Per-dim validity flags. Default {@link DIM_VALID_DEFAULT}. */
+    dimValid?: ArrayLike<number>;
+    cuts?: ArrayLike<number>;
+    motionEnergy?: ArrayLike<number>;
+    /** Emitted dimension count. Default 40 (`NUSED`). */
+    dims?: number;
+}
+/**
+ * Descriptors + masks + sequences -> the `poses.json` object.
+ * Mirrors `index.build_poses`.
+ */
+declare function buildPosesIndex(descriptors: ArrayLike<number>[], masks: ArrayLike<number>, seq: Sequence[], opts?: PosesIndexOptions): PosesBank;
+/**
+ * `poses.json` -> `coverage.json`: which marginal bins the bank actually covers,
+ * which gaps need a calibration preset, and the overall coverage score.
+ * Mirrors `index.build_coverage`.
+ */
+declare function buildCoverage(poses: PosesBank, minCount?: number): Coverage;
+
 /** Extra options for {@link AnimationController.configureLipsSync}. */
 interface LipSyncExtraOptions {
     /** 1..4.5 loud/quiet sweep-speed ratio. Default 2.237. */
@@ -1683,4 +1837,4 @@ declare function getStringList(key: string, locale?: string, opts?: {
 /** Build a translator bound to one locale + optional override table. */
 declare function createTranslator(locale?: string, override?: MessagesOverride): Translator;
 
-export { type ActionAudioHandle, type ActionConfig, type ActionInfo, type AniaAnimationData, type AniaAvatarData, AniaPlayer, type AniaPlayerInstance, type AniaPlayerRenderOptions, AnimationController, type AnimationControllerConfig, AvatarCache, BLENDSHAPE_NAMES, BUILTIN_PLUGINS, COMMAND_LIST, type CacheStats, type CommandContext, type CommandDescriptor, type CommandResult, DEFAULT_LOCALE, DEFAULT_MATCHER_OPTIONS, DESCRIPTOR_VERSION, DIM_GROUP, DIM_INDEX, DIM_NAMES, Emitter, FACE_GROUPS, FALLBACK_LOCALE, FPS_CLAMP_DEFAULT, FPS_FALLBACK, F_BROW_L, F_BROW_R, F_CHEEK_L, F_CHEEK_R, F_EYE_L, F_EYE_L_LIDS, F_EYE_R, F_EYE_R_LIDS, F_IRIS_L, F_IRIS_R, F_LIP_PAIRS, F_MOUTH_CORNERS, F_NOSE_TIP, type FlatLandmarks, type FpsClampOption, type FpsClampWindow, type FrameIntervalArgs, FramePacer, GROUP_NAMES, GROUP_PARAMS, G_BODY, G_BROWS, G_EYES, G_HAND_L, G_HAND_R, G_HEAD, G_MOUTH, G_RESERVED, H_MCP_MID, H_TIPS, H_WRIST, type I18nVars, KIND_HUB, KIND_KNN, KIND_PRED, KIND_SUCC, type LandmarkPoint, type Landmarks, LipAnimator, type LipAnimatorBranch, type LipAnimatorOptions, type LipAnimatorStepArgs, LipSyncAnalyser, type LipSyncAnalyserOptions, type LipSyncConfig, LipSyncDsp, type LipSyncDspOptions, type LipSyncDspReading, type LipSyncServerConfig, type LipSyncSustainStyle, type LoadSource, MAX_DT_MS, MIN_DT_MS, MIRROR_NEGATE, MIRROR_SWAP, MODE_DECAY, MODE_IDLE, MODE_LIVE, MatcherError, type MatcherOptions, type MessagesOverride, type MocapIndex, type MotionGraph, MotionMatcher, NDIMS, NEUTRAL, NUSED, type NativeFps, OneEuroVector, type OptimalSpeeds, PLUGIN_KINDS, POSE_GROUPS, P_EAR_L, P_EAR_R, P_ELBOW_L, P_ELBOW_R, P_EYE_L, P_EYE_R, P_NOSE, P_SHOULDER_L, P_SHOULDER_R, P_WRIST_L, P_WRIST_R, type ParsedHotkey, type PiperInitOptions, type PiperStatus, type PlayerEventMap, type PlayerEventName, type PlayerOptions, type PlayerPosition, type Plugin, type PluginContext, type PluginKind, PluginRegistry, type PluginRegistryLike, type PluginSettingField, type PoseDescriptorMessage, type PosesBank, RETARGET, SEQ_IDLE, SEQ_OTHER, SEQ_TALK, type STTEngine, type STTProvider, STT_PROVIDER_TO_PLUGIN, type SpeechRecognitionOptions, SpeechRecognizer, type StepResult, type TTSConfig, type TTSEngine, type TTSProvider, type TTSResult, TTS_PROVIDER_TO_PLUGIN, type Translator, WEIGHTS, WakeWordEngine, type WakeWordEngineLike, type WakeWordStartConfig, actionAudioPlugin, applyMirror, availableLocales, blank, buildControllerConfig, buildOpennessMap, calcSpeeds, calculateOptimalSpeeds, checkPiperStatus, clearAvatarCache, computeDescriptor, createAniaPlayer, createTranslator, decryptAniaFile, deleteCachedAvatar, disposePiper, executeCommand, fetchActionsConfig, fetchLipSyncConfig, findClosedFrame, fpsFromIntervalMs, frameIntervalMs, getCacheStats, getCachedAvatar, getDefaultRegistry, getPiperStatus, getString, getStringList, getWakeWordEngine, groupVector, hasLocale, headDegrees, initPiper, installPostMessageControl, isWakeWordSupported, matchesHotkey, normalizeFpsClamp, parseCommandLine, parseHotkey, piperSynthesize, playActionAudio, preloadPiper, professionalTTSRequest, registerBuiltins, resolveNativeFps, setCachedAvatar, sttBrowserPlugin, sttGooglePlugin, ttsAzurePlugin, ttsBrowserPlugin, ttsElevenLabsPlugin, ttsGooglePlugin, ttsPiperPlugin, ttsTiktokPlugin, validatePlugin, wakeWordPlugin };
+export { ALPHA, type ActionAudioHandle, type ActionConfig, type ActionInfo, type AniaAnimationData, type AniaAvatarData, AniaPlayer, type AniaPlayerInstance, type AniaPlayerRenderOptions, AnimationController, type AnimationControllerConfig, AvatarCache, BLENDSHAPE_NAMES, BUILTIN_PLUGINS, COMMAND_LIST, type CacheStats, type CommandContext, type CommandDescriptor, type CommandResult, type Coverage, type CoverageGap, DEFAULT_LOCALE, DEFAULT_MATCHER_OPTIONS, DESCRIPTOR_VERSION, DIM_GROUP, DIM_INDEX, DIM_NAMES, DIM_VALID_DEFAULT, EDGE, Emitter, FACE_GROUPS, FALLBACK_LOCALE, FPS_CLAMP_DEFAULT, FPS_FALLBACK, F_BROW_L, F_BROW_R, F_CHEEK_L, F_CHEEK_R, F_EYE_L, F_EYE_L_LIDS, F_EYE_R, F_EYE_R_LIDS, F_IRIS_L, F_IRIS_R, F_LIP_PAIRS, F_MOUTH_CORNERS, F_NOSE_TIP, type FlatLandmarks, type FpsClampOption, type FpsClampWindow, type FrameIntervalArgs, FramePacer, type FramePixels, GAP_PRESET, GRAY, GROUP_NAMES, GROUP_PARAMS, G_BODY, G_BROWS, G_EYES, G_HAND_L, G_HAND_R, G_HEAD, G_MOUTH, G_RESERVED, H_MCP_MID, H_TIPS, H_WRIST, type I18nVars, KIND_HUB, KIND_KNN, KIND_PRED, KIND_SUCC, type LandmarkPoint, type Landmarks, LipAnimator, type LipAnimatorBranch, type LipAnimatorOptions, type LipAnimatorStepArgs, LipSyncAnalyser, type LipSyncAnalyserOptions, type LipSyncConfig, LipSyncDsp, type LipSyncDspOptions, type LipSyncDspReading, type LipSyncServerConfig, type LipSyncSustainStyle, type LoadSource, MAX_DT_MS, MIN_DT_MS, MIRROR_NEGATE, MIRROR_SWAP, MODE_DECAY, MODE_IDLE, MODE_LIVE, MatcherError, type MatcherOptions, type MessagesOverride, type MocapIndex, type MotionGraph, type MotionGraphOptions, MotionMatcher, NDIMS, NEUTRAL, NUSED, type NativeFps, OneEuroVector, type OptimalSpeeds, PLUGIN_KINDS, POSE_GROUPS, PRESETS, P_EAR_L, P_EAR_R, P_ELBOW_L, P_ELBOW_R, P_EYE_L, P_EYE_R, P_NOSE, P_SHOULDER_L, P_SHOULDER_R, P_WRIST_L, P_WRIST_R, type ParsedHotkey, type PiperInitOptions, type PiperStatus, type PlayerEventMap, type PlayerEventName, type PlayerOptions, type PlayerPosition, type Plugin, type PluginContext, type PluginKind, PluginRegistry, type PluginRegistryLike, type PluginSettingField, type PoseDescriptorMessage, type PosesBank, type PosesIndexOptions, RETARGET, SCHEMA_COVERAGE, SCHEMA_POSES, SEQ_IDLE, SEQ_OTHER, SEQ_TALK, SIG_LEN, type STTEngine, type STTProvider, STT_PROVIDER_TO_PLUGIN, type Sequence, type SpeechRecognitionOptions, SpeechRecognizer, type StepResult, TARGET_BINS, type TTSConfig, type TTSEngine, type TTSProvider, type TTSResult, TTS_PROVIDER_TO_PLUGIN, type Translator, WEIGHTS, W_ALPHA, W_EDGE, W_GRAY, WakeWordEngine, type WakeWordEngineLike, type WakeWordStartConfig, actionAudioPlugin, allPairsSq, applyMirror, availableLocales, blank, boxResizeRgba, buildControllerConfig, buildCoverage, buildGraphFromDistances, buildMotionGraph, buildOpennessMap, buildPosesIndex, calcSpeeds, calculateOptimalSpeeds, checkPiperStatus, clearAvatarCache, computeDescriptor, createAniaPlayer, createTranslator, decryptAniaFile, deleteCachedAvatar, disposePiper, executeCommand, fetchActionsConfig, fetchLipSyncConfig, findClosedFrame, fpsFromIntervalMs, frameIntervalMs, frameSeq, getCacheStats, getCachedAvatar, getDefaultRegistry, getPiperStatus, getString, getStringList, getWakeWordEngine, groupVector, hasLocale, headDegrees, initPiper, installPostMessageControl, isWakeWordSupported, matchesHotkey, normalizeFpsClamp, parseCommandLine, parseHotkey, piperSynthesize, playActionAudio, preloadPiper, professionalTTSRequest, pyRound, registerBuiltins, resolveNativeFps, sequencesFromRanges, setCachedAvatar, signature, sttBrowserPlugin, sttGooglePlugin, ttsAzurePlugin, ttsBrowserPlugin, ttsElevenLabsPlugin, ttsGooglePlugin, ttsPiperPlugin, ttsTiktokPlugin, validatePlugin, wakeWordPlugin };
