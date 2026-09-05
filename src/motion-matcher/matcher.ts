@@ -228,7 +228,13 @@ export class MotionMatcher {
 
     this.F = new Float64Array(n * NDIMS);
     for (let i = 0; i < n; i++) {
-      for (let d = 0; d < dims; d++) this.F[i * NDIMS + d] = data[i * dims + d];
+      for (let d = 0; d < dims; d++) {
+        // A bank row is data from disk: one non-finite entry would make every
+        // cost against that frame NaN. Treat it as "not measured" (0, the value
+        // an unset dim already has) rather than letting it into the cost space.
+        const v = data[i * dims + d];
+        this.F[i * NDIMS + d] = Number.isFinite(v) ? v : 0;
+      }
     }
 
     const masks = poses.mask ? Int32Array.from(poses.mask) : new Int32Array(n).fill(0xff);
@@ -382,7 +388,17 @@ export class MotionMatcher {
       }
       for (let i = 0; i < NDIMS; i++) x[i] = RETARGET[i] ? mapped[i] : x[i];
     }
+    // Never let a non-finite value reach the filter or `xHat`. One NaN in the
+    // One-Euro state is permanent (`xHat + a*(x - xHat)` stays NaN forever), and
+    // one NaN dim makes every candidate cost NaN in `scores()`, so every
+    // `Number.isFinite(S[j])` test fails, the cost loop selects nothing, and the
+    // avatar freezes on the current frame reporting `S_best = -1`, `E_best = 0`
+    // and a climbing `dwell`. A producer that emits garbage must degrade to
+    // "that dim reads neutral", never to a freeze. Finite inputs are untouched,
+    // so the Python parity fixtures are unaffected.
+    for (let i = 0; i < NDIMS; i++) if (!Number.isFinite(x[i])) x[i] = this.neutral[i];
     if (this.oneEuro) x = this.oneEuro.filterMasked(tMs, x, mask);
+    for (let i = 0; i < NDIMS; i++) if (!Number.isFinite(x[i])) x[i] = this.neutral[i];
     const act = groupVector(mask);
     for (let i = 0; i < NDIMS; i++) if (act[i] > 0.5) this.xHat[i] = x[i];
     this.maskLive = mask;
@@ -437,10 +453,16 @@ export class MotionMatcher {
       const row = i * NDIMS;
       let s = 0;
       for (let d = 0; d < NDIMS; d++) {
+        // Skip dims that contribute nothing — a masked-off group, a dim the bank
+        // marked invalid, or a zero weight (every reserved dim, and the mouth
+        // dims the audio policy zeroes). Their term is exactly `0`, so dropping
+        // it is bit-identical for finite inputs, but it also stops `0 * NaN` from
+        // poisoning the whole row when a value slipped through non-finite.
+        if (this.Vmat[row + d] === 0 || wv[d] === 0) continue;
         const diff = this.F[row + d] - x[d];
         s += diff * diff * this.Vmat[row + d] * wv[d];
       }
-      S[i] = s;
+      S[i] = Number.isFinite(s) ? s : Infinity;
     }
     let den: Float64Array;
     if (this.denCacheMask === mask && this.denCache) {
@@ -587,6 +609,17 @@ export class MotionMatcher {
         bestJ = j;
         bestIsEdge = isEdge;
       }
+    }
+
+    // Last-resort liveness: if the cost loop rejected every candidate (all
+    // scores non-finite — an unusable bank, or a mask/`dimValid` combination
+    // whose total weight never reaches the `den >= 1` floor) the avatar would
+    // hold frame `i` forever. Falling through to the natural successor keeps it
+    // animating on the bank's own timeline instead. Unreachable whenever any
+    // candidate scored, so the parity fixtures never take this branch.
+    if (bestKey === null) {
+      bestJ = this.isNatural(i, i + 1) ? i + 1 : this.restFrame;
+      bestIsEdge = true;
     }
 
     // ---- state update

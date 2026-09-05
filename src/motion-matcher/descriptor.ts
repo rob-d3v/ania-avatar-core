@@ -179,8 +179,12 @@ const rotatePoint = (x: number, y: number, cx: number, cy: number, angle: number
 // ---- landmark input shapes ---------------------------------------------------
 
 /** Flat row-major landmarks: `[x0,y0,z0, x1,y1,z1, ...]` (stride 3) or with a
- * trailing visibility column for pose (stride 4). */
-export type FlatLandmarks = Float64Array | number[];
+ * trailing visibility column for pose (stride 4).
+ *
+ * Any numeric TypedArray is accepted, not just `Float64Array`: a capture worker
+ * posting landmarks across `postMessage` normally allocates `Float32Array`
+ * (half the bytes, transferable), and that buffer must take the flat path. */
+export type FlatLandmarks = Float64Array | Float32Array | ArrayLike<number>;
 
 /** MediaPipe-JS landmark point shape. */
 export interface LandmarkPoint {
@@ -200,9 +204,22 @@ interface LandmarkView {
   vis(i: number): number;
 }
 
-const isFlat = (input: Landmarks): input is FlatLandmarks =>
-  input instanceof Float64Array ||
-  (Array.isArray(input) && (input.length === 0 || typeof input[0] === 'number'));
+/**
+ * Flat buffer vs. array-of-points.
+ *
+ * This used to test `input instanceof Float64Array || Array.isArray(input)`, which
+ * silently misrouted a `Float32Array` — the shape every browser capture worker
+ * posts — into {@link viewObjects}. There `pts[i].x` reads `undefined` off a
+ * number, so every geometry-derived dim came out `NaN` while the group bits in
+ * the mask stayed set, and the matcher then found `NaN` in every candidate cost
+ * and froze on one frame forever. Probe the element type instead of the exact
+ * constructor: any numeric TypedArray (and any `ArrayLike<number>`) is flat.
+ */
+const isFlat = (input: Landmarks): input is FlatLandmarks => {
+  if (ArrayBuffer.isView(input)) return true;
+  const arr = input as ArrayLike<unknown>;
+  return arr.length === 0 || typeof arr[0] === 'number';
+};
 
 const viewFlat = (flat: FlatLandmarks, stride: number): LandmarkView => {
   const count = Math.floor(flat.length / stride);
@@ -229,7 +246,7 @@ const viewObjects = (pts: ReadonlyArray<LandmarkPoint>): LandmarkView => {
 
 const view = (input: Landmarks | null | undefined, stride: number): LandmarkView | null => {
   if (input == null) return null;
-  return isFlat(input) ? viewFlat(input, stride) : viewObjects(input);
+  return isFlat(input) ? viewFlat(input, stride) : viewObjects(input as ReadonlyArray<LandmarkPoint>);
 };
 
 // ---- descriptor construction --------------------------------------------------
@@ -496,8 +513,26 @@ export function computeDescriptor(
     mask |= POSE_GROUPS;
   }
   // Python casts the assembled float64 buffer to float32 before mirroring.
+  //
+  // The same pass also enforces the contract the matcher relies on and that
+  // `descriptor.py` gets for free from numpy: a descriptor NEVER carries a
+  // non-finite value. Degenerate landmarks (a divide-by-zero, a truncated
+  // buffer, an estimator that returned `undefined` coordinates) fall back to
+  // NEUTRAL for that dim and the offending group's mask bit is cleared, so a
+  // consumer sees "that group was not observed" instead of a NaN that would
+  // poison every weighted cost downstream.
   const values = new Float64Array(NDIMS);
-  for (let i = 0; i < NDIMS; i++) values[i] = Math.fround(out[i]);
+  let bad = 0;
+  for (let i = 0; i < NDIMS; i++) {
+    const v = Math.fround(out[i]);
+    if (Number.isFinite(v)) {
+      values[i] = v;
+    } else {
+      values[i] = NEUTRAL[i];
+      bad |= 1 << DIM_GROUP[i];
+    }
+  }
+  mask &= ~bad;
   if (mirror) return applyMirror(values, mask);
   return [values, mask];
 }

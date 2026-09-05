@@ -500,8 +500,12 @@ declare const H_MCP_MID = 9;
 declare const H_TIPS: [number, number, number, number];
 declare const BLENDSHAPE_NAMES: readonly ["jawOpen", "mouthSmileLeft", "mouthSmileRight", "mouthFrownLeft", "mouthFrownRight", "mouthPucker", "mouthFunnel", "eyeWideLeft", "eyeWideRight", "browInnerUp", "browDownLeft", "browDownRight"];
 /** Flat row-major landmarks: `[x0,y0,z0, x1,y1,z1, ...]` (stride 3) or with a
- * trailing visibility column for pose (stride 4). */
-type FlatLandmarks = Float64Array | number[];
+ * trailing visibility column for pose (stride 4).
+ *
+ * Any numeric TypedArray is accepted, not just `Float64Array`: a capture worker
+ * posting landmarks across `postMessage` normally allocates `Float32Array`
+ * (half the bytes, transferable), and that buffer must take the flat path. */
+type FlatLandmarks = Float64Array | Float32Array | ArrayLike<number>;
 /** MediaPipe-JS landmark point shape. */
 interface LandmarkPoint {
     x: number;
