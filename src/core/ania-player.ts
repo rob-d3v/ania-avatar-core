@@ -6,7 +6,7 @@
 // asks the AnimationController which frame to draw.
 
 import { AnimationController } from './animation-controller';
-import type { AnimationControllerConfig, AniaAvatarData } from '../types';
+import type { AnimationControllerConfig, AniaAvatarData, MocapWarpState } from '../types';
 
 export interface AniaPlayerRenderOptions {
   width: number;
@@ -23,6 +23,13 @@ export class AniaPlayer {
   private animationFrame: number | null = null;
   private lastRenderedFrame = -1;
   private frameMime: string;
+
+  // ---- mocap compositing scratch (allocated lazily, only on the mocap path) ----
+  private warpCanvas: HTMLCanvasElement | null = null;
+  private warpCtx: CanvasRenderingContext2D | null = null;
+  private maskCanvas: HTMLCanvasElement | null = null;
+  private maskCtx: CanvasRenderingContext2D | null = null;
+  private maskKey = '';
 
   public fileData: AniaAvatarData | null = null;
   public animationController: AnimationController | null = null;
@@ -68,6 +75,139 @@ export class AniaPlayer {
     }
   }
 
+  /**
+   * Draw one mocap tick: the body frame as decoded, then — when the level asked for a
+   * head-only warp — the head region re-drawn through the affine transform behind a
+   * feathered elliptical mask, and finally the §4.2 alpha blend of the frame we are
+   * jumping away from.
+   *
+   * `warp === null` (mocap off, or the matcher not driving) short-circuits straight
+   * back to {@link renderFrame}, which is what keeps the no-mocap output byte-identical.
+   */
+  async renderMocapFrame(index: number, warp: MocapWarpState | null): Promise<void> {
+    if (!warp) return this.renderFrame(index);
+    const ctx = this.ctx;
+    const img = await this.loadFrame(index);
+    if (!img || !ctx) return;
+    this.lastRenderedFrame = -1; // a warped frame is never a redundant redraw
+    const W = this.canvas.width;
+    const H = this.canvas.height;
+    const p = warp.params;
+    const identity =
+      Math.abs(p.tx) < 0.5 && Math.abs(p.ty) < 0.5 && Math.abs(p.rot_deg) < 0.05 && Math.abs(p.scale - 1) < 1e-3;
+
+    ctx.clearRect(0, 0, W, H);
+    // 1. the body: the frame exactly as decoded.
+    ctx.drawImage(img, 0, 0, W, H);
+
+    // 2. the head: the same frame under the residual transform, composited through the
+    //    head ellipse so the shoulders and the background do not slide with it.
+    if (!identity) {
+      if (warp.warpRegion === 'full' || !warp.region) {
+        ctx.save();
+        this.applyTransform(ctx, p);
+        ctx.clearRect(0, 0, W, H);
+        ctx.drawImage(img, 0, 0, W, H);
+        ctx.restore();
+      } else {
+        const layer = this.ensureWarpLayer(W, H);
+        if (layer) {
+          const lctx = layer.ctx;
+          lctx.setTransform(1, 0, 0, 1, 0, 0);
+          lctx.clearRect(0, 0, W, H);
+          lctx.save();
+          this.applyTransform(lctx, p);
+          lctx.drawImage(img, 0, 0, W, H);
+          lctx.restore();
+          // punch the warped layer down to the head ellipse
+          const mask = this.ensureMask(W, H, warp.region);
+          if (mask) {
+            lctx.globalCompositeOperation = 'destination-in';
+            lctx.drawImage(mask, 0, 0);
+            lctx.globalCompositeOperation = 'source-over';
+          }
+          ctx.drawImage(layer.canvas, 0, 0);
+        }
+      }
+    }
+
+    // 3. the crossfade: the outgoing frame drawn over the top at (1 - alpha).
+    const fade = warp.crossfade;
+    if (fade && fade.fromFrame >= 0 && fade.alpha < 1) {
+      const prev = this.frameImages.get(fade.fromFrame);
+      if (prev) {
+        const prevAlpha = ctx.globalAlpha;
+        ctx.globalAlpha = 1 - fade.alpha;
+        ctx.drawImage(prev, 0, 0, W, H);
+        ctx.globalAlpha = prevAlpha;
+      }
+    }
+  }
+
+  /** `out = R·S·(in - pivot) + pivot + t`, as a canvas transform. */
+  private applyTransform(ctx: CanvasRenderingContext2D, p: MocapWarpState['params']): void {
+    const [px, py] = p.pivot;
+    ctx.translate(px + p.tx, py + p.ty);
+    ctx.rotate((p.rot_deg * Math.PI) / 180);
+    ctx.scale(p.scale, p.scale);
+    ctx.translate(-px, -py);
+  }
+
+  private ensureWarpLayer(w: number, h: number): { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } | null {
+    if (!this.warpCanvas || this.warpCanvas.width !== w || this.warpCanvas.height !== h) {
+      if (typeof document === 'undefined') return null;
+      this.warpCanvas = document.createElement('canvas');
+      this.warpCanvas.width = w;
+      this.warpCanvas.height = h;
+      this.warpCtx = this.warpCanvas.getContext('2d');
+    }
+    return this.warpCtx ? { canvas: this.warpCanvas, ctx: this.warpCtx } : null;
+  }
+
+  /**
+   * The feathered head ellipse as an alpha bitmap. Same ramp as the Python
+   * `affine.region_alpha`: 1 inside, 0 outside, a linear fall-off of `feather`
+   * (measured along the y axis) across the boundary — expressed as a radial gradient
+   * on a unit circle that an ellipse transform stretches, so there is no per-pixel JS.
+   * Cached per (region, size); the region only changes when the matcher picks another
+   * frame, so the per-tick cost is one lookup.
+   */
+  private ensureMask(w: number, h: number, region: NonNullable<MocapWarpState['region']>): HTMLCanvasElement | null {
+    const key = [w, h, region.cx.toFixed(3), region.cy.toFixed(3), region.rx.toFixed(3), region.ry.toFixed(3), region.feather.toFixed(3)].join('|');
+    if (this.maskCanvas && this.maskKey === key) return this.maskCanvas;
+    if (typeof document === 'undefined') return null;
+    if (!this.maskCanvas || this.maskCanvas.width !== w || this.maskCanvas.height !== h) {
+      this.maskCanvas = document.createElement('canvas');
+      this.maskCanvas.width = w;
+      this.maskCanvas.height = h;
+      this.maskCtx = this.maskCanvas.getContext('2d');
+    }
+    const mctx = this.maskCtx;
+    if (!mctx) return null;
+    const rx = Math.max(1e-3, region.rx);
+    const ry = Math.max(1e-3, region.ry);
+    const f = Math.max(1e-3, region.feather / ry);
+    mctx.setTransform(1, 0, 0, 1, 0, 0);
+    mctx.clearRect(0, 0, w, h);
+    mctx.save();
+    // work in normalised-ellipse space: a unit circle of radius (1 + f)
+    mctx.translate(region.cx * w, region.cy * h);
+    mctx.scale(rx * w, ry * h);
+    const outer = 1 + f;
+    const g = mctx.createRadialGradient(0, 0, 0, 0, 0, outer);
+    // alpha = clamp((1 + f - r) / f, 0, 1): flat 1 up to r = 1, linear to 0 at 1 + f
+    g.addColorStop(0, 'rgba(255,255,255,1)');
+    g.addColorStop(Math.min(0.999999, 1 / outer), 'rgba(255,255,255,1)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    mctx.fillStyle = g;
+    mctx.beginPath();
+    mctx.arc(0, 0, outer, 0, Math.PI * 2);
+    mctx.fill();
+    mctx.restore();
+    this.maskKey = key;
+    return this.maskCanvas;
+  }
+
   /** Start the rAF render loop. */
   play(): void {
     if (this.isPlaying) return;
@@ -77,7 +217,11 @@ export class AniaPlayer {
       if (!this.isPlaying) return;
       if (this.animationController) {
         const frameIndex = this.animationController.getNextFrame(timestamp);
-        if (frameIndex >= 0) await this.renderFrame(frameIndex);
+        if (frameIndex >= 0) {
+          const warp = this.animationController.getMocapWarp(this.canvas.width, this.canvas.height, timestamp);
+          if (warp) await this.renderMocapFrame(frameIndex, warp);
+          else await this.renderFrame(frameIndex);
+        }
       }
       this.animationFrame = requestAnimationFrame(animate);
     };
@@ -107,6 +251,11 @@ export class AniaPlayer {
     this.stop();
     this.frameImages.clear();
     this.lastRenderedFrame = -1;
+    this.warpCanvas = null;
+    this.warpCtx = null;
+    this.maskCanvas = null;
+    this.maskCtx = null;
+    this.maskKey = '';
   }
 }
 

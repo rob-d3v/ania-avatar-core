@@ -13,7 +13,7 @@
 // `round(x, n)` on every emitted number (see `pyRound` in graph-builder.ts).
 // ===========================================================================
 
-import { DESCRIPTOR_VERSION, DIM_INDEX, NDIMS, NUSED, groupVector } from './descriptor';
+import { DESCRIPTOR_VERSION, DIM_INDEX, NDIMS, NUSED, RETARGET, groupVector } from './descriptor';
 import { pyRound } from './graph-builder';
 import type { PosesBank } from './matcher';
 
@@ -214,6 +214,18 @@ export interface PosesIndexOptions {
   motionEnergy?: ArrayLike<number>;
   /** Emitted dimension count. Default 40 (`NUSED`). */
   dims?: number;
+  /**
+   * When given, `ranges.reach` is attached from these coverage bins exactly like
+   * `index.attach_reach`. Omit it and the output is byte-identical to the pre-levels
+   * `build_poses` (which is why the Python reference attaches the reach in a second
+   * pass, after `build_coverage`).
+   */
+  coverage?: Coverage | null;
+  /**
+   * `ranges.reach` bin threshold. A bin holding at least this many frames is a pose
+   * the bank can hold long enough to be seen. Default 3.
+   */
+  reachMinCount?: number;
 }
 
 /**
@@ -313,7 +325,7 @@ export function buildPosesIndex(
     for (let c = 0; c < dims; c++) data[i * dims + c] = pyRound(R[i * NDIMS + c], 3);
   }
 
-  return {
+  const out = {
     schema: SCHEMA_POSES,
     descriptorVersion: DESCRIPTOR_VERSION,
     dims,
@@ -335,6 +347,85 @@ export function buildPosesIndex(
     neutral: Array.from(neutral.subarray(0, dims), (v) => pyRound(v, 3)),
     restFrame: best,
   } as PosesBank;
+
+  if (opts.coverage) attachReach(out, opts.coverage, opts.reachMinCount ?? 3);
+  return out;
+}
+
+// ------------------------------------------------------------------ ranges.reach
+/**
+ * `ranges.reach` — the range each dim can actually be *shown* at, not the p05/p95 of
+ * the whole index. Mirrors `index.build_reach`.
+ *
+ * The p05/p95 pair answers "where do most frames sit", which is the wrong question for
+ * a retarget: on `Nanda3_v2` the 127 appended wide-yaw frames are 13 % of 959, so the
+ * p05/p95 of the bank squashes a user turning ±40° into ±6° and the deep frames are
+ * never asked for. `reach` answers "where can this bank *go*": the union of the
+ * coverage bins that hold at least `minCount` frames, i.e. the poses the bank can hold
+ * long enough to be seen, clipped to the values actually present so a bin edge never
+ * promises a frame that does not exist.
+ *
+ * Falls back to p05/p95 for a dim with no coverage bins, or with fewer than two filled
+ * bins (one filled bin carries no range information — its edges are an artefact of the
+ * binning, not a measurement). Returns `{lo, hi}` covering every emitted dim.
+ */
+export function buildReach(
+  poses: PosesBank,
+  coverage: Coverage | null | undefined,
+  minCount = 3,
+): { lo: number[]; hi: number[] } {
+  const n = Math.trunc(Number(poses.frameCount));
+  const d = Math.trunc(Number(poses.dims ?? NUSED));
+  const R = poses.data;
+  const rng = poses.ranges || {};
+  const p05src = rng.p05 ? Array.from(rng.p05, Number) : [];
+  const p95src = rng.p95 ? Array.from(rng.p95, Number) : [];
+  const lo = p05src.slice(0, d);
+  const hi = p95src.slice(0, d);
+  if (lo.length < d || hi.length < d) {
+    // malformed index: nothing to widen
+    return { lo: lo.map((v) => pyRound(v, 3)), hi: hi.map((v) => pyRound(v, 3)) };
+  }
+  const conf = poses.confidence ? Array.from(poses.confidence as ArrayLike<number>, Number) : new Array(n).fill(1.0);
+  const masks = poses.mask ? Array.from(poses.mask, (m) => Math.trunc(Number(m))) : new Array(n).fill(0xff);
+  const bins = (coverage && coverage.bins) || {};
+  for (const name of Object.keys(bins)) {
+    const di = DIM_INDEX[name];
+    if (di === undefined || di >= d || !RETARGET[di]) continue;
+    const spec = bins[name];
+    const counts = Array.from(spec.counts || [], (c) => Math.trunc(Number(c)));
+    const edges = Array.from(spec.edges || [], Number);
+    const fill: number[] = [];
+    for (let b = 0; b < counts.length; b++) if (counts[b] >= minCount) fill.push(b);
+    if (fill.length < 2 || edges.length < counts.length + 1) continue;
+    let min = Infinity;
+    let max = -Infinity;
+    let any = false;
+    for (let i = 0; i < n; i++) {
+      if (!(conf[i] >= 0.6)) continue;
+      if (!(groupVector(masks[i])[di] > 0.5)) continue;
+      const v = Number(R[i * d + di]);
+      any = true;
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+    if (!any) continue;
+    lo[di] = Math.max(edges[fill[0]], min);
+    hi[di] = Math.min(edges[fill[fill.length - 1] + 1], max);
+    if (hi[di] - lo[di] < 1e-6) {
+      // degenerate: keep the p05/p95 pair
+      lo[di] = p05src[di];
+      hi[di] = p95src[di];
+    }
+  }
+  return { lo: lo.map((v) => pyRound(v, 3)), hi: hi.map((v) => pyRound(v, 3)) };
+}
+
+/** Put {@link buildReach} under `poses.ranges.reach` (in place) and return `poses`. */
+export function attachReach(poses: PosesBank, coverage: Coverage | null | undefined, minCount = 3): PosesBank {
+  if (!poses.ranges) poses.ranges = {};
+  (poses.ranges as { reach?: { lo: number[]; hi: number[] } }).reach = buildReach(poses, coverage, minCount);
+  return poses;
 }
 
 // -------------------------------------------------------------- buildCoverage

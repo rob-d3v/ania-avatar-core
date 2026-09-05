@@ -22,11 +22,14 @@ import type {
   AniaPlayerInstance,
   LipSyncSustainStyle,
   LoadSource,
+  MocapComfortInput,
+  MocapConfigureInput,
+  SmoothCutConfigureInput,
   PlayerEventMap,
   PlayerEventName,
   PlayerOptions,
 } from '../types';
-import type { MocapIndex, PoseDescriptorMessage } from '../motion-matcher';
+import type { PoseDescriptorMessage } from '../motion-matcher';
 
 const isCanvas = (el: Element): el is HTMLCanvasElement =>
   el.tagName === 'CANVAS' || el instanceof HTMLCanvasElement;
@@ -266,7 +269,7 @@ export function createAniaPlayer(
       controller?.setSpeeds(idleSpeed, talkSpeed);
     },
 
-    configureMocap(index: MocapIndex | null) {
+    configureMocap(index: MocapConfigureInput | null) {
       return controller?.configureMocap(index) ?? false;
     },
 
@@ -278,6 +281,40 @@ export function createAniaPlayer(
       controller?.setMocapEnabled(enabled);
     },
 
+    setMocapLevel(level: string) {
+      return controller?.setMocapLevel(level) ?? 'off';
+    },
+
+    setMocapComfort(comfort: MocapComfortInput) {
+      return controller?.setMocapComfort(comfort) ?? null;
+    },
+
+    setMouthSource(source: string) {
+      return controller?.setMouthSource(source) ?? 'audio';
+    },
+
+    pushMicOpenness(value: number | null, atMs?: number) {
+      controller?.pushMicOpenness(value, atMs);
+    },
+
+    getMocapCapabilities() {
+      return (
+        controller?.getMocapCapabilities() ?? {
+          caps: {},
+          level: 'off',
+          requestedLevel: 'off',
+          blocked: false,
+          active: false,
+          canBlend: true,
+          crossfade: 'auto' as const,
+          channels: [],
+          missingChannels: [],
+          warnings: [],
+          comfort: null,
+        }
+      );
+    },
+
     isMocapActive() {
       return controller?.isMocapActive() ?? false;
     },
@@ -286,6 +323,9 @@ export function createAniaPlayer(
       return controller?.getMocapMode() ?? null;
     },
 
+    configureSmoothCut(config: SmoothCutConfigureInput | null) {
+      return controller?.configureSmoothCut(config) ?? false;
+    },
     getMocapDebug() {
       return controller?.getMocapDebug() ?? null;
     },

@@ -449,6 +449,28 @@ declare class FramePacer {
 declare const DESCRIPTOR_VERSION = 1;
 declare const NDIMS = 48;
 declare const NUSED = 40;
+/**
+ * Revision of the `browRaise` mapping only (see the BROWS block of
+ * {@link computeDescriptor}). Revision 1 divided a 0.12-neutral by 0.06 and read
+ * +1.00 on 100 % of the frames of both reference drivers — the dim was a constant,
+ * so `probeCaps` force-zeroed `caps.brows` while it was in force. Revision 2 re-fits
+ * the constants from the measured ratio distributions.
+ *
+ * Deliberately NOT a {@link DESCRIPTOR_VERSION} bump: a bump invalidates every
+ * indexed bank at load time and the frozen matcher parity fixture, while the
+ * bank-side half of the §5.1 probe (browRaise span >= 0.15 over >= 2 filled bins)
+ * already refuses a bank indexed with the old constants.
+ */
+declare const BROW_MAPPING_VERSION = 2;
+/**
+ * Raw brow ratio ((eye centre y - brow y) / cheek width, de-rolled), measured
+ * 2026-09-05 over the two reference drivers. The old (0.12, 0.06) pair saturated at
+ * +1 for every ratio >= 0.18, i.e. for every frame of both drivers. This pair puts
+ * them together at 0.14..0.94 with no clamping at either end and keeps headroom
+ * under the avatar banks (0.05..0.12).
+ */
+declare const BROW_NEUTRAL = 0.15;
+declare const BROW_DIVISOR = 0.24;
 declare const G_HEAD = 0;
 declare const G_MOUTH = 1;
 declare const G_EYES = 2;
@@ -571,6 +593,21 @@ declare class OneEuroVector {
  * pinned by the parity fixtures under `AniaAPP/tests/fixtures/mocap`.
  */
 
+/**
+ * §6 rule 4 ("never exceed the bank's own head range by more than 30 %"): the
+ * retarget clamp is ±10 % of the span for every dim and ±30 % for the two head angles.
+ */
+declare const RETARGET_OVERSHOOT: Float64Array;
+/** §4.5 expression hold — one-sided dims only; blinks, head, body and hands must be fast. */
+declare const HOLD_DIMS: readonly number[];
+/** Held only under `mouth_policy = "mocap"` (the camera owns the mouth). */
+declare const HOLD_DIM_MOUTH_OPEN: number;
+/** Dims the ARTICULATE sub-state amplifies / attenuates. */
+declare const ARTICULATE_MOUTH_DIMS: readonly number[];
+declare const ARTICULATE_HEAD_DIMS: readonly number[];
+/** Head bins for the blink search — the same edges `coverage.json` uses. */
+declare const BLINK_YAW_EDGES: readonly number[];
+declare const BLINK_PITCH_EDGES: readonly number[];
 declare const MODE_LIVE = "LIVE";
 declare const MODE_DECAY = "DECAY";
 declare const MODE_IDLE = "IDLE";
@@ -590,6 +627,14 @@ interface StepResult {
     preload: number[];
     handoff: boolean;
     teleport: boolean;
+    /** `c(prev, next)`: 0 natural, the graph cost for an edge, or `c_jump` for a teleport. */
+    transition_cost: number;
+    /** Idle micro-motion is running (reaction levels §4.4). */
+    breathing: boolean;
+    /** This frame was forced by the blink priority event. */
+    blink: boolean;
+    /** The mouth is the primary objective this tick (ARTICULATE). */
+    articulating: boolean;
     debug: Record<string, number>;
 }
 /**
@@ -602,12 +647,15 @@ interface MatcherOptions {
     c_jump: number;
     w_a_mocap: number;
     w_a_audio: number;
-    mouth_policy: 'audio' | 'mocap';
+    /** `"audio"` | `"mocap"` | `"auto"` (reaction levels §4.3). */
+    mouth_policy: 'audio' | 'mocap' | 'auto';
     stale_ms: number;
     idle_after_ms: number;
     decay_tau_ms: number;
     teleport_cooldown_ms: number;
     teleport_min_gain: number;
+    /** `false` == `teleport_min_gain = +Infinity` (level `presence`). */
+    allow_teleport: boolean;
     min_run_ticks: number;
     recent_len: number;
     global_m: number;
@@ -625,6 +673,67 @@ interface MatcherOptions {
     /** Python-only float64-vs-float32 toggle; JS numbers are always float64, so
      * this is accepted for wire compatibility but has no effect here. */
     parity_strict?: boolean;
+    /** Per-dim multiplier on `WEIGHTS` (§2.1). A gain of 0 drops the dim from both the
+     * numerator and the denominator, so `E_best` stays comparable between levels. */
+    dim_gain?: ArrayLike<number> | null;
+    /** Retarget onto `ranges.reach` instead of p05/p95. */
+    use_reach: boolean;
+    /** level gain × intensity (§2.3). */
+    retarget_gain: number;
+    /** `caps.mouth`: arms the `auto` handover. */
+    mouth_camera_allowed: boolean;
+    /** §4.3 silence hysteresis before the camera takes the mouth. */
+    mouth_handover_ms: number;
+    /** §6 rule 1 wins over `mouth_policy = "mocap"`. */
+    talking_forces_audio: boolean;
+    /** §4.5 expression hold (0 = off). */
+    hold_ms: number;
+    hold_release_ms: number;
+    /** §4.4 idle micro-motion. */
+    breathing: boolean;
+    breathing_dwell_ticks: number;
+    breathing_bonus: number;
+    blink_event: boolean;
+    blink_threshold: number;
+    /** What counts as "eye closed" in the bank. */
+    blink_frame_threshold: number;
+    blink_refractory_ms: number;
+    blink_hold_ticks: number;
+    articulate: boolean;
+    articulate_window_ms: number;
+    articulate_var_threshold: number;
+    articulate_rise: number;
+    articulate_hold_ms: number;
+    articulate_mouth_gain: number;
+    articulate_head_gain: number;
+    /** Head bins around the current one. */
+    articulate_bin_slack: number;
+    articulate_step_penalty: number;
+    /**
+     * Where the mouth-OPEN value comes from once the user owns the mouth: `"camera"` the
+     * webcam's MAR only, `"mic"` the microphone envelope only, `"hybrid"`
+     * `max(mic, camera × 0.6)` — the mic wins when the user speaks, the camera still
+     * carries a silent open mouth. Smile / width / pucker are always the camera's.
+     */
+    mouth_blend: 'camera' | 'mic' | 'hybrid';
+    mouth_camera_weight: number;
+    /**
+     * Which frames the matcher may show.
+     *
+     * `all` is the legacy-parity default: every frame of the bank is a candidate.
+     * `legacy` restricts the search to the avatar's OWN frames — the ones inside its
+     * `idle` / `talk` / `action:*` sequences — and locks out everything an Ania 2.0
+     * coverage upgrade appended (indexed as `orphan:*`), plus any range in
+     * `excluded_ranges`. 2026-09-05: the live session walked into that generated block
+     * and the result was "os quadros mais aleatórios do mundo" — a different render, a
+     * camera in frame, and the talk range never reached again.
+     */
+    frame_pool: 'legacy' | 'all';
+    /**
+     * Extra frame ranges to lock out, as inclusive `[low, high]` pairs — the manifest's
+     * `video.ania2.coverage` block, handed in by the host.
+     */
+    excluded_ranges?: ArrayLike<ArrayLike<number>> | null;
 }
 declare const DEFAULT_MATCHER_OPTIONS: MatcherOptions;
 /** `ania.poses` bank (`poses.json`), as consumed by {@link MotionMatcher}. */
@@ -639,6 +748,11 @@ interface PosesBank {
     ranges?: {
         p05?: ArrayLike<number>;
         p95?: ArrayLike<number>;
+        /** `index.build_reach`: the range the bank can actually *show*. */
+        reach?: {
+            lo?: ArrayLike<number>;
+            hi?: ArrayLike<number>;
+        } | null;
     };
     restFrame?: number;
     seq?: {
@@ -683,16 +797,28 @@ declare class MotionMatcher {
     private readonly neutral;
     private readonly p05;
     private readonly p95;
+    /** Per-dim multiplier applied to `WEIGHTS` before scoring (reaction levels §2.1). */
+    readonly dimGain: Float64Array;
+    /** `ranges.reach.lo` (or p05 when the bank carries no reach). */
+    readonly reachLo: Float64Array;
+    /** `ranges.reach.hi` (or p95 when the bank carries no reach). */
+    readonly reachHi: Float64Array;
+    /** Whether the bank actually carried a `ranges.reach` block. */
+    readonly hasReach: boolean;
     private restFrame;
     private readonly seqOf;
     private readonly seqKindOf;
+    /** 1 where the frame sits in a sequence the creator authored (idle/talk/action). */
+    private readonly seqLegacyOf;
+    /** 1 where the frame may be shown at all (`frame_pool` + `excluded_ranges`). */
+    readonly allowed: Uint8Array;
     private readonly kindIndex;
     private readonly cutAfter;
     private readonly offsets;
     private readonly to;
     private readonly cost;
     private readonly edgeCost;
-    private readonly oneEuro;
+    private oneEuro;
     private xHat;
     private maskLive;
     private lastPoseAt;
@@ -712,7 +838,51 @@ declare class MotionMatcher {
     private denCacheMask;
     private denCache;
     private emaEBest;
+    /** Visual cost of the transition actually taken on the last `step` (§4.2 crossfade input). */
+    lastTransitionCost: number;
+    /** Whether the last `step` was running the §4.4 idle micro-motion. */
+    breathingActive: boolean;
+    private silenceSince;
+    private mouthPolicyEff;
+    /**
+     * Which policy actually owned the mouth on the last step (`audio` | `mocap`) — the
+     * §4.3 handover as it resolved, not as it was configured. Read by the parity fixture,
+     * which records it per tick, and by the HUD.
+     *
+     * Distinct from {@link mouthSource}, which answers "did the AVATAR's audio or the
+     * user's CAMERA supply the value" and is spelled `audio` | `camera`.
+     */
+    get mouthPolicy(): 'audio' | 'mocap';
+    private holdPeak;
+    private holdT;
+    private holdInit;
+    /** Frames of this bank whose eyes are closed, and their head bins. */
+    private readonly blinkFrames;
+    private readonly yawBin;
+    private readonly pitchBin;
+    /** Optional per-frame openness (the legacy lip-sync map), NaN where unknown. */
+    private openness;
+    private hasOpenness;
+    /** Wall-clock-free blink state. */
+    lastBlinkAt: number;
+    blinkEvents: number;
+    private blinkPrev;
+    private blinkHold;
+    /** ARTICULATE state. */
+    articulating: boolean;
+    articulateUntil: number;
+    micOpenness: number | null;
+    /** When the last mic sample was pushed, or `null` if the caller never timestamps. */
+    private micPushedAt;
+    private mouthHist;
     constructor(poses: PosesBank, graph?: MotionGraph | null, options?: Partial<MatcherOptions>, oneEuro?: OneEuroVector | null);
+    /**
+     * Adopt the legacy lip-sync openness map (`AnimationController.buildOpennessMap`) as
+     * the primary mouth measure of the ARTICULATE state, so the camera path picks the same
+     * frames the audio path would instead of re-deriving "openness" from the descriptor's
+     * MAR. Indexed relative to `talkLow`, exactly as the player stores it.
+     */
+    setOpennessMap(opennessMap: ArrayLike<number> | null | undefined, talkLow: number): void;
     /** The idle frame nearest the neutral pose — the DECAY-mode hub target. */
     getRestFrame(): number;
     reset(): void;
@@ -720,14 +890,141 @@ declare class MotionMatcher {
     setAudio(talking: boolean, envelope: number, intensity?: number): void;
     setMouthPolicy(policy: string): void;
     hasFreshPose(nowMs: number): boolean;
+    private holdDims;
+    /**
+     * Hold a one-sided expression at its peak for `hold_ms`, then release it linearly
+     * over `hold_release_ms`. Blinks, head, body and hands are exempt — they must be
+     * fast. Runs on the filtered target, before the matcher, so every runtime gets the
+     * behaviour from one place.
+     */
+    private applyHold;
+    /**
+     * The eye-closed frame to jump to: prefer one in the same head bin, else the cheapest
+     * transition from the graph, then by pose-cost, then by index.
+     */
+    private pickBlinkFrame;
+    /**
+     * Frame to force this tick because of a blink, or `null`. Updates the edge state on
+     * every tick so the detector cannot latch.
+     */
+    private blinkStep;
+    /**
+     * 0..1 speech envelope of the USER's microphone (`mouth_blend` mic/hybrid).
+     *
+     * The camera keeps smile / width / pucker; the mic only owns how OPEN the mouth is,
+     * which is the one channel a webcam at 12 Hz cannot resolve fast enough to look like
+     * speech. `null` = no mic.
+     */
+    setMicOpenness(openness: number | null | undefined, atMs?: number): void;
+    /**
+     * The mouth-open target the ARTICULATE search aims at: by default the louder of the mic
+     * envelope and the attenuated camera opening, so a user who is speaking drives the
+     * mouth even when the webcam is too slow to catch the articulation.
+     */
+    mouthOpenTarget(): number;
+    /**
+     * Speech-like activity on the mouth target keeps the sub-state armed for
+     * `articulate_hold_ms` after the last sign of it.
+     */
+    private articulateActive;
+    /**
+     * Pick the frame whose MOUTH matches best inside the current head bin.
+     *
+     * Candidates: every frame whose yaw/pitch bins are within `articulate_bin_slack` of the
+     * current frame's, plus the current frame's graph edges (so the search can still follow
+     * a cheap transition out of a thin bin). Cost: the normal weighted SSD with MOUTH ×4
+     * and HEAD ×0.5 — or, when the bank carries the legacy openness map, the same
+     * `|openness - target|` the audio path minimises, which is what makes the camera and
+     * the audio choose the same mouths.
+     */
+    private articulatePick;
+    /**
+     * `audio` while the voice owns the mouth, `mocap` when the camera does.
+     *
+     * `mouth_policy = "auto"` follows the audio with hysteresis: talking → audio
+     * immediately; silence → wait `mouth_handover_ms` and only then hand the mouth to
+     * the camera, and any talking inside that window cancels the pending switch.
+     * `talking_forces_audio` applies §6 rule 1 to the static `mocap` policy too (level
+     * `mirror`): no camera mouth while audio is playing.
+     */
+    private effectiveMouthPolicy;
+    /**
+     * What is driving the mouth right now, in the words the HUD uses: `"audio"` (the
+     * avatar's own voice / lip-sync) or `"camera"` (the user's mouth). Follows the
+     * effective policy, so it flips back to `audio` the instant the avatar starts
+     * speaking at every level, including `mirror` (§6 rule 1).
+     */
+    get mouthSource(): 'audio' | 'camera';
     private modeAt;
     private isNatural;
     private edgesOf;
     private transition;
     private scores;
     step(nowMs: number, currentFrame: number, isCached?: (j: number) => boolean): StepResult;
+    /** One bank frame's own descriptor row (the affine head-region input). */
+    frameDescriptor(frame: number): Float64Array;
+    /** The live (filtered, retargeted) descriptor target. */
+    getTarget(): Float64Array;
+    /** The live group mask of the last pushed pose. */
+    getLiveMask(): number;
+    /** The bank's neutral pose at one dim (the DECAY target). */
+    neutralAt(dim: number): number;
+    /** The bank's p05/p95 at one dim (the legacy, non-reach retarget range). */
+    p05At(dim: number): number;
+    p95At(dim: number): number;
+    /** Swap (or drop, with `null`) the One-Euro filter — for tests that isolate the hold. */
+    setOneEuro(filter: OneEuroVector | null): void;
     /** Live target minus the chosen frame's descriptor (for the affine warp). */
     residual(frame: number): Float64Array;
+    /**
+     * Boolean per frame: may the matcher show it? (`MatcherOptions.frame_pool`)
+     *
+     * `all` (the legacy-parity default) allows everything. `legacy` allows only the
+     * sequences the creator authored and drops every explicitly excluded range (the
+     * manifest's `video.ania2.coverage` block, handed in by the host). A policy that would
+     * empty the bank is ignored — a frozen avatar is worse than a wrong frame.
+     */
+    private buildPool;
+    /** How many frames the current pool leaves reachable (HUD / stats). */
+    get poolSize(): number;
+    /**
+     * Visual cost of the step i -> j: 0 for a natural step, the graph's edge cost for a
+     * cheap transition, `c_jump` for a cut nothing sanctions. Public because the lab
+     * scores whole runs with it (`transitionCostMean`), including runs this matcher did
+     * not choose — the legacy player's own playback, for instance.
+     */
+    transitionCost(i: number, j: number): number;
+    /**
+     * True exactly once per blink of the USER, refractory-gated. Reads the filtered
+     * target, so it costs nothing extra and cannot latch (the edge state is updated on
+     * every call, whether or not the event fires).
+     */
+    blinkEdge(nowMs: number): boolean;
+    /**
+     * The eye-closed frame to detour to: inside the SAME sequence as the cursor and no
+     * further than `maxDelta` frames away, nearest first (ties by index).
+     *
+     * Both constraints exist so the detour is invisible: neighbouring frames of one
+     * sequence differ by a blink and little else, so the cut in and the cut back read as
+     * the blink itself rather than as a jump.
+     */
+    blinkFrameNear(i: number, maxDelta?: number): number | null;
+    /**
+     * Of the cycler's own start positions, the one whose smile and head yaw sit closest to
+     * the user right now. Deterministic (ties by index), pool-aware, and never invents a
+     * frame: it only reorders a choice the legacy engine was about to make at random,
+     * which is the one moment a cut is already happening.
+     */
+    startPointScore(candidates: ArrayLike<number> | null | undefined): number | null;
+    /**
+     * 0..1 openness of the USER's microphone for the legacy talk path, or `null`.
+     *
+     * `null` means the mic has nothing to say — none was ever pushed, the caller pushed
+     * `null`, or the last sample is older than `staleMs`. A stale sample must not keep
+     * driving the mouth: a capture that dies mid-word would leave the avatar frozen with
+     * its mouth open.
+     */
+    micOpennessAt_(nowMs: number, staleMs?: number): number | null;
     /** RMS pose error of x vs one frame under a live mask (E units). */
     poseError(x: ArrayLike<number>, mask: number, frame: number): number;
 }
@@ -873,6 +1170,18 @@ interface PosesIndexOptions {
     motionEnergy?: ArrayLike<number>;
     /** Emitted dimension count. Default 40 (`NUSED`). */
     dims?: number;
+    /**
+     * When given, `ranges.reach` is attached from these coverage bins exactly like
+     * `index.attach_reach`. Omit it and the output is byte-identical to the pre-levels
+     * `build_poses` (which is why the Python reference attaches the reach in a second
+     * pass, after `build_coverage`).
+     */
+    coverage?: Coverage | null;
+    /**
+     * `ranges.reach` bin threshold. A bin holding at least this many frames is a pose
+     * the bank can hold long enough to be seen. Default 3.
+     */
+    reachMinCount?: number;
 }
 /**
  * Descriptors + masks + sequences -> the `poses.json` object.
@@ -880,11 +1189,904 @@ interface PosesIndexOptions {
  */
 declare function buildPosesIndex(descriptors: ArrayLike<number>[], masks: ArrayLike<number>, seq: Sequence[], opts?: PosesIndexOptions): PosesBank;
 /**
+ * `ranges.reach` — the range each dim can actually be *shown* at, not the p05/p95 of
+ * the whole index. Mirrors `index.build_reach`.
+ *
+ * The p05/p95 pair answers "where do most frames sit", which is the wrong question for
+ * a retarget: on `Nanda3_v2` the 127 appended wide-yaw frames are 13 % of 959, so the
+ * p05/p95 of the bank squashes a user turning ±40° into ±6° and the deep frames are
+ * never asked for. `reach` answers "where can this bank *go*": the union of the
+ * coverage bins that hold at least `minCount` frames, i.e. the poses the bank can hold
+ * long enough to be seen, clipped to the values actually present so a bin edge never
+ * promises a frame that does not exist.
+ *
+ * Falls back to p05/p95 for a dim with no coverage bins, or with fewer than two filled
+ * bins (one filled bin carries no range information — its edges are an artefact of the
+ * binning, not a measurement). Returns `{lo, hi}` covering every emitted dim.
+ */
+declare function buildReach(poses: PosesBank, coverage: Coverage | null | undefined, minCount?: number): {
+    lo: number[];
+    hi: number[];
+};
+/** Put {@link buildReach} under `poses.ranges.reach` (in place) and return `poses`. */
+declare function attachReach(poses: PosesBank, coverage: Coverage | null | undefined, minCount?: number): PosesBank;
+/**
  * `poses.json` -> `coverage.json`: which marginal bins the bank actually covers,
  * which gaps need a calibration preset, and the overall coverage score.
  * Mirrors `index.build_coverage`.
  */
 declare function buildCoverage(poses: PosesBank, minCount?: number): Coverage;
+
+/**
+ * Ania 2.0 reaction levels — one user dial, one option table, every port identical.
+ *
+ * 1:1 TypeScript port of `AniaAPP/src/ania_player/plugins/mocap_webcam/levels.py`.
+ *
+ * The user picks **one** thing: how much of their face the avatar copies
+ * (`off | presence | expressive | mirror`). Everything else — matcher dim gains,
+ * mouth policy, teleport gate, One-Euro cutoffs, retarget gain, affine caps — is
+ * derived here by the tables of the spec page
+ * `Ania Creators/wiki/concepts/ania-2-0-reaction-levels.md` (§2), so the Python
+ * reference runtime, this web engine and the legacy IIFE all resolve the same
+ * numbers from the same six comfort keys.
+ *
+ * Two entry points:
+ *
+ * `probeCaps(poses, coverage)` — what the *bank* can physically show (§5.1).
+ * `resolveOptions(comfort, caps)` — the six-key comfort object (§3) + the caps =>
+ * every knob the matcher, the One-Euro filter and the affine warp need, plus a
+ * `warnings` list of pt-BR sentences (§5.4) and the level actually granted.
+ *
+ * Design rule the tables encode (§2.1): the level never edits `WEIGHTS`. It produces
+ * a per-dim gain vector and the matcher uses `w_i = WEIGHTS[i] * dimGain[i]`; a gain
+ * of 0 drops the dim from both the numerator and the denominator, so `E_best` stays
+ * comparable between levels.
+ */
+
+declare const LEVEL_OFF = "off";
+declare const LEVEL_PRESENCE = "presence";
+declare const LEVEL_EXPRESSIVE = "expressive";
+declare const LEVEL_MIRROR = "mirror";
+declare const LEVEL_ORDER: readonly ["off", "presence", "expressive", "mirror"];
+type MocapLevel = (typeof LEVEL_ORDER)[number];
+type CrossfadeMode = 'auto' | 'on' | 'off';
+/**
+ * Which piece of software actually decides the frame.
+ *
+ *   `legacy`  the player's own AnimationController keeps playing its idle/talk sequences
+ *             exactly as it always has (ping-pong, start points, openness map). The
+ *             camera and the microphone only decide WHICH segment plays and WHEN to cut.
+ *   `matcher` the MotionMatcher picks a frame per tick (the pre-pivot behaviour).
+ *
+ * The live verdict that forced this (2026-09-05, "é a transição... no Ania 1.0 é
+ * bonitão"): per-frame matching at 25 Hz destroys the temporal coherence the legacy
+ * playback has, and no amount of teleport gating brings it back — the transitions
+ * themselves are the product.
+ */
+declare const ENGINE_LEGACY = "legacy";
+declare const ENGINE_MATCHER = "matcher";
+type EngineMode = 'legacy' | 'matcher';
+/**
+ * Which frames of the bank a level may show.
+ *
+ *   `legacy` only the avatar's OWN frames — the ones inside its idle / talk / action
+ *            ranges. Frames appended by an Ania 2.0 coverage upgrade (the manifest's
+ *            `video.ania2.coverage` block, indexed as `orphan:*` sequences) are
+ *            excluded: they come from a different render, and on 2026-09-05 the live
+ *            session walked straight into that block ("os quadros mais aleatórios do
+ *            mundo, com a câmera na mão").
+ *   `all`    every frame, coverage included. Opt-in, `mirror` only.
+ */
+declare const FRAME_POOL_LEGACY = "legacy";
+declare const FRAME_POOL_ALL = "all";
+declare const FRAME_POOLS: readonly ["legacy", "all"];
+type FramePool = (typeof FRAME_POOLS)[number];
+/**
+ * §4.7 — `presence` blink detour: how far from the cursor an eye-closed frame may sit
+ * and still be a cut nobody sees. Frames this close inside one sequence are
+ * near-identical, so the cut in and the cut back read as the blink itself.
+ */
+declare const BLINK_DETOUR_MAX_DELTA = 30;
+declare const BLINK_DETOUR_TICKS = 2;
+/**
+ * §4.8 — the user's microphone drives the LEGACY talk path (open fast, close slow, so an
+ * intra-sentence pause does not drop the avatar back to idle).
+ */
+declare const MIC_TALK_THRESHOLD = 0.12;
+declare const MIC_TALK_OPEN_TICKS = 1;
+declare const MIC_TALK_CLOSE_TICKS = 8;
+/**
+ * The brow mapping was a constant (+1.00 on 100 % of frames of both drivers) up to
+ * revision 1; §5.1's driver-side gate forced `caps.brows = 0` while that was true.
+ * `descriptor.BROW_MAPPING_VERSION` is bumped by the re-fit, which lifts the gate.
+ */
+declare const BROW_GATE_MIN_MAPPING_VERSION = 2;
+declare const INTENSITY_MIN = 0.5;
+declare const INTENSITY_MAX = 1.5;
+declare const SMOOTHING_MIN = 0.5;
+declare const SMOOTHING_MAX = 2;
+declare const RETARGET_GAIN_MIN = 0.4;
+declare const RETARGET_GAIN_MAX = 1.9;
+declare const CROSSFADE_MODES: readonly CrossfadeMode[];
+/**
+ * Where the user's mouth-OPEN value comes from once the level hands the mouth over.
+ * `audio` means it never does (the avatar's own voice keeps it) — that is `presence`.
+ */
+declare const MOUTH_SOURCES: readonly ["audio", "camera", "mic", "hybrid"];
+type MouthSource = (typeof MOUTH_SOURCES)[number];
+/**
+ * Live feedback 2026-09-05 ("acho que nem meu mic tá sendo usado"): a webcam delivers
+ * 11-13 descriptors/s in the running player, which cannot resolve syllables, so the
+ * levels that hand the mouth over default to the microphone blended with the camera.
+ */
+declare const LEVEL_MOUTH_SOURCE: Record<string, MouthSource>;
+declare const CROSSFADE_COST = 6;
+declare const CROSSFADE_MS = 120;
+declare const CROSSFADE_TICKS = 3;
+declare const MOUTH_HANDOVER_MS = 250;
+declare const BREATHING_DWELL_TICKS = 25;
+declare const BREATHING_COST_BONUS = 0.004;
+declare const HEAD_YAW_DEG_PER_UNIT = 30;
+declare const STRINGS: Record<string, string>;
+/** UI copy (§1). */
+declare const LEVEL_UI: Record<string, {
+    name: string;
+    subtitle: string;
+}>;
+interface LevelGain {
+    head: number;
+    mouth: number;
+    blink: number;
+    eyes: number;
+    brows: number;
+    body: number;
+    hands: number;
+}
+interface LevelComfortDefaults {
+    intensity: number;
+    smoothing: number;
+    crossfade: CrossfadeMode;
+    breathing: boolean;
+    mirror: boolean;
+}
+interface LevelAffine {
+    base_strength: number;
+    max_translate_frac: number;
+    max_rotate_deg: number;
+    max_scale_dev: number;
+    /** Head-only mode caps (`paramsForHead`): much tighter, because a head that slides
+     * away from a static body opens a seam at the collar. */
+    head_max_translate_frac: number;
+    head_max_rotate_deg: number;
+}
+interface LevelSpec {
+    ui: {
+        name: string;
+        subtitle: string;
+    };
+    active: boolean;
+    /** Who picks the frame at this level (2026-09-05 pivot). */
+    engine?: EngineMode;
+    /** Which frames of the bank this level may show. */
+    frame_pool?: FramePool;
+    /** Whether a residual affine warp is computed at all. */
+    affine_enabled?: boolean;
+    gain?: LevelGain;
+    matcher?: Partial<MatcherOptions> & Record<string, unknown>;
+    retarget_gain?: number;
+    one_euro?: Record<number, number>;
+    affine?: LevelAffine;
+    comfort?: LevelComfortDefaults;
+    hold_ms?: number;
+}
+/**
+ * `mouth` here is the gain the MOUTH dims get while the camera owns the mouth
+ * (`mouth_policy === "mocap"`). While the audio owns it the mouth dims are 0 by
+ * construction: the matcher overwrites mouthOpen/jawOpen with the lip-sync envelope
+ * and zeroes the four expression weights, so no driver mouth value reaches the cost.
+ */
+declare const LEVELS: Record<string, LevelSpec>;
+/** §5.2 — caps that block a level outright vs caps that only warn. */
+declare const BLOCKERS: Record<string, readonly string[]>;
+declare const WARNERS: Record<string, readonly string[]>;
+/** Channel labels for the "olhos · sorriso · boca" line (§2.6). */
+declare const CHANNEL_LABEL: Record<string, string>;
+/** One i18n string from §5.4 with its placeholders filled. */
+declare function text(key: string, kw?: Record<string, unknown>): string;
+interface MocapCaps {
+    face: number;
+    head: number;
+    blink: number;
+    mouth: number;
+    smile: number;
+    gaze: number;
+    brows: number;
+    hands: number;
+    mouthShapes: number;
+    /** Renderer capability: can the host composite two frames? Defaulted to 1. */
+    blend: number;
+    metrics: Record<string, number>;
+    reason?: string;
+    [key: string]: unknown;
+}
+type CoverageLike = Coverage | {
+    bins?: Record<string, {
+        counts?: ArrayLike<number>;
+        edges?: ArrayLike<number>;
+    }>;
+} | null | undefined;
+/**
+ * What this bank can physically show (§5.1). Pure; same thresholds in every port.
+ *
+ * `poses` is a parsed `poses.json`; `coverage` a parsed `coverage.json` (bins with
+ * `count >= 3` are "filled"). Returns 0/1 caps plus a `metrics` block the UI needs
+ * to word its sentences, and `blend` (renderer capability) defaulted to 1 — the
+ * caller overwrites it at attach time.
+ */
+declare function probeCaps(poses: PosesBank | null | undefined, coverage?: CoverageLike, browMappingVersion?: number): MocapCaps;
+/**
+ * Per-dim multiplier applied to `WEIGHTS` (§2.1). MOUTH carries the *camera* gain;
+ * while the audio owns the mouth the matcher zeroes the driver's contribution itself.
+ */
+declare function dimGainFor(level: string, caps: Partial<MocapCaps>): Float64Array;
+/**
+ * Per-dim One-Euro min-cutoff (§2.4). EYES is pinned at its base 3.0 Hz at every level
+ * and for every slider position — a filtered blink is a lost blink.
+ */
+declare function oneEuroMinCutoff(level: string, smoothing?: number): Float64Array;
+/**
+ * §4.2 trigger, as a pure function so every port and the tests agree.
+ *
+ * A transition costs `>= CROSSFADE_COST` (6) when it is a visible jump — every
+ * teleport included, whose `c_jump` is 8. `auto` blends wherever the renderer can;
+ * `off` never; `on` blends but degrades to never on a renderer that cannot composite
+ * (and then the teleport is not taken at all, see {@link resolveOptions}).
+ */
+declare function shouldCrossfade(transitionCost: number, crossfade: string, canBlend?: boolean): boolean;
+/** `alpha(t) = clamp(t / min(120 ms, 3 ticks), 0, 1)` — the new frame's weight. */
+declare function crossfadeAlpha(elapsedMs: number, durationMs?: number): number;
+interface MocapComfort {
+    level: string;
+    intensity: number;
+    smoothing: number;
+    crossfade: CrossfadeMode;
+    breathing: boolean;
+    mirror: boolean;
+    /** Advanced, additive: where the user's mouth-OPEN value comes from. */
+    mouth_source?: MouthSource;
+    /** Advanced, additive: override the level's candidate policy. */
+    frame_pool?: FramePool;
+}
+/** The six keys, in spec order, at their per-level defaults (§3.1). */
+declare function defaultComfort(level: string): MocapComfort;
+/** The wire form (§3.2): the six keys, in that order, lower-camel, no nesting. */
+declare function serializeComfort(comfort: Partial<MocapComfort> | null | undefined): MocapComfort;
+interface MocapWarning {
+    key: string;
+    text: string;
+}
+interface ResolvedAffine {
+    /** `false` at a level that never warps (`presence`); `strength` is then 0 too. */
+    enabled?: boolean;
+    strength: number;
+    max_translate_frac: number;
+    max_rotate_deg: number;
+    max_scale_dev: number;
+    head_max_translate_frac: number;
+    head_max_rotate_deg: number;
+    breathing: boolean;
+}
+interface ResolvedOptions {
+    level: string;
+    requested_level: string;
+    blocked: boolean;
+    active: boolean;
+    comfort: MocapComfort;
+    crossfade?: CrossfadeMode;
+    can_blend?: boolean;
+    /** Where the user's mouth-OPEN value comes from at this level. */
+    mouth_source?: MouthSource;
+    /** Whether this level wants a microphone envelope fed via `setMicOpenness`. */
+    needs_mic?: boolean;
+    /** `legacy` = Ania 1.0 cycling + the Sutil hooks; `matcher` = frame-by-frame. */
+    engine?: EngineMode;
+    /** Which frames the matcher may land on (`legacy` excludes the coverage blocks). */
+    frame_pool?: FramePool;
+    /** Whether a residual affine warp is computed at all at this level. */
+    affine_enabled?: boolean;
+    /** §Sutil hook 2: a blink detours into the current sequence. */
+    blink_detour?: boolean;
+    /** §Sutil hook 3: the cycler's start point is biased toward the user. */
+    start_point_bias?: boolean;
+    /** §Sutil hook 1: the user's mic drives the legacy talk path. */
+    mic_talk?: boolean;
+    matcher?: Partial<MatcherOptions> & Record<string, unknown>;
+    one_euro_min_cutoff?: Float64Array;
+    affine?: ResolvedAffine;
+    retarget_gain?: number;
+    hold_ms?: number;
+    mirror?: boolean;
+    breathing?: boolean;
+    caps: Partial<MocapCaps>;
+    channels: string[];
+    missing_channels?: string[];
+    warnings: MocapWarning[];
+    ui?: {
+        name: string;
+        subtitle: string;
+    };
+}
+/**
+ * Comfort object + bank capabilities -> every knob, plus the pt-BR warnings.
+ *
+ * Never throws and never silently downgrades: when a level is blocked the result
+ * carries the granted level, `blocked = true`, the requested level and a warning
+ * naming the missing thing and the fix (§5.4).
+ */
+declare function resolveOptions(comfort: Partial<MocapComfort> | null | undefined, caps?: Partial<MocapCaps> | null): ResolvedOptions;
+interface LevelCard {
+    level: string;
+    name: string;
+    subtitle: string;
+    enabled: boolean;
+    reason: string;
+    warnings: string[];
+    channels: string[];
+}
+/**
+ * One card per level for the picker (§2.6): name, subtitle, whether the user may pick
+ * it, and — when they may not — the reason, which names the missing thing and the fix.
+ * A level that only *degrades* stays selectable and carries its warnings.
+ */
+declare function levelCards(caps?: Partial<MocapCaps> | null): LevelCard[];
+/** Which piece of software picks the frame at this level (`ENGINE_*`). */
+declare function engineOf(level: string): EngineMode;
+/** This level's default candidate pool (`FRAME_POOL_*`). */
+declare function framePoolOf(level: string): FramePool;
+/** The subset of {@link resolveOptions} that `new MotionMatcher(..., options)` accepts. */
+declare function matcherKwargs(resolved: ResolvedOptions): Partial<MatcherOptions>;
+/**
+ * Can the user's own mouth reach this level's avatar at all — by any route?
+ *
+ * True from `presence` up. At `presence` the route is NOT the matcher: the microphone
+ * envelope is fed to the player's own lip-sync path (talk range + openness map), which is
+ * the thing the user actually liked ("no Ania 1.0 é bonitão"). `expressive` and `mirror`
+ * hand the mouth to the matcher instead — see {@link matcherCameraMouth}.
+ */
+declare function allowsCameraMouth(level: string): boolean;
+/**
+ * May the MATCHER score the user's mouth (`mouth_policy === "mocap"`)?
+ *
+ * `presence` never does — its frames come from the legacy cycler, so a hand-edited
+ * `mouth_policy: "mocap"` must not half-mirror it (that is the configuration that
+ * produced "eu falo mas ela não fala" in the first live session: the level said
+ * presence, the advanced key said camera, and the two disagreed about who owned the
+ * mouth). `expressive` hands the mouth over after 250 ms of avatar silence, `mirror`
+ * whenever the avatar is silent.
+ */
+declare function matcherCameraMouth(level: string): boolean;
+/** Whether the level actually drives the avatar (everything but `off`). */
+declare function levelActive(level: string): boolean;
+
+/**
+ * Residual 2-D affine warp — the "head move X/Y" trick applied to a frame bank.
+ *
+ * 1:1 TypeScript port of `AniaAPP/src/ania_player/plugins/mocap_webcam/affine.py`.
+ *
+ * The matcher picks the nearest frame; the residual between the live descriptor and
+ * that frame's descriptor (yaw, pitch, roll, body offset) is turned into a small
+ * rotation / translation / scale of the frame. Even a bank with 3 head bins then
+ * follows the user continuously instead of snapping.
+ *
+ * Gains are deliberately modest and clamped: this is a *residual*, not a puppet.
+ * Pure module — no canvas, no DOM. {@link paramsFromResidual} produces the numbers;
+ * the renderer applies them (see `AniaPlayer.renderFrame`).
+ */
+interface AffineGains {
+    /** Fraction of width per descriptor unit (1.0 = ±30°). */
+    yaw_px_per_unit: number;
+    /** Fraction of height per unit. */
+    pitch_px_per_unit: number;
+    /** Degrees per unit (1.0 = 30°); < 1 keeps it subtle. */
+    roll_deg_per_unit: number;
+    pitch_scale_per_unit: number;
+    body_x_frac: number;
+    body_y_frac: number;
+    max_translate_frac: number;
+    max_rotate_deg: number;
+    max_scale_dev: number;
+    /** Rotate about the face region, not the image centre. */
+    pivot_y_frac: number;
+    breathe_hz: number;
+    breathe_ty_frac: number;
+    breathe_scale: number;
+    head_max_translate_frac: number;
+    head_max_rotate_deg: number;
+}
+declare const DEFAULT_AFFINE_GAINS: AffineGains;
+interface AffineParams {
+    /** Pixels. */
+    tx: number;
+    ty: number;
+    rot_deg: number;
+    scale: number;
+    pivot: [number, number];
+}
+declare function isIdentity(p: AffineParams, eps?: number): boolean;
+/**
+ * Residual -> tx/ty/rot/scale, clamped by the level's caps.
+ *
+ * `breathingT` (seconds, derived from the matcher tick counter) adds the §4.4
+ * micro-oscillation *before* the caps, so a breathing avatar still respects
+ * `max_translate_frac` / `max_scale_dev` exactly.
+ */
+declare function paramsFromResidual(residual: ArrayLike<number>, width: number, height: number, gains?: Partial<AffineGains> | null, strength?: number, breathingT?: number | null): AffineParams;
+/**
+ * `resolveOptions().affine` -> {@link AffineGains} (caps only; the per-unit gains and
+ * the pivot stay at their defaults at every level, see §2.5).
+ */
+declare function gainsFromOptions(affineOpts?: Partial<AffineGains> | null): AffineGains;
+/** Half-width = 1.20 × cheek width. */
+declare const HEAD_RX_PER_W = 1.2;
+/** Half-height = 1.65 × cheek width. */
+declare const HEAD_RY_PER_W = 1.65;
+/** Ellipse centre sits below the eye line by 0.30 × cheek width. */
+declare const HEAD_DROP_PER_W = 0.3;
+/** Soft edge, fraction of the frame height (the neck line). */
+declare const HEAD_FEATHER_FRAC = 0.08;
+/** ...but never less than 12 % of the head's own height. */
+declare const HEAD_FEATHER_MIN_OF_HEAD = 0.12;
+/** Fallback when the frame carries no BODY group: the upper 45 % of the frame. */
+declare const HEAD_FALLBACK: [number, number, number, number];
+/** Feathered ellipse the residual warp is allowed to touch. Fractions of the frame. */
+interface HeadRegion {
+    cx: number;
+    cy: number;
+    rx: number;
+    ry: number;
+    feather: number;
+}
+declare function headRegionKey(r: HeadRegion, width: number, height: number): string;
+/** Head ellipse of one bank frame, from its own headX/headY/faceScale (+ body) dims. */
+declare function headRegionFromFrame(frameDesc: ArrayLike<number> | null | undefined, mask?: number, feather?: number): HeadRegion;
+/**
+ * Ramp width in units of the ellipse radius, at least {@link HEAD_FEATHER_MIN_OF_HEAD}
+ * of the head's own height (the head is `2·ry` tall, so 12 % of it is 0.24 radii).
+ */
+declare function featherNorm(region: HeadRegion): number;
+/**
+ * Alpha of the head mask at one normalised point: 1 in the core of the head, ramping to
+ * **exactly 0 on the ellipse boundary** — the neck line — and 0 everywhere outside it.
+ *
+ * The ramp points INWARD on purpose: an outward ramp would let a fraction of the warp
+ * reach the collar, which is what made the neck look detached in the first live test.
+ * With this mask no pixel outside the ellipse is touched at all, so the body is
+ * byte-identical to the decoded frame.
+ */
+declare function regionAlphaAt(region: HeadRegion, xFrac: number, yFrac: number): number;
+/**
+ * `(h, w)` Float32 alpha map in [0, 1] — the exact Python `region_alpha` output, for
+ * tests and for renderers that composite pixel-wise. The canvas path uses a radial
+ * gradient instead (same ramp, no per-pixel JS).
+ */
+declare function regionAlpha(width: number, height: number, region: HeadRegion): Float32Array;
+/**
+ * Re-aim a full-frame residual at a head that has to stay attached to its body.
+ *
+ * Three changes, all of them the difference between "she turned her head" and "her head
+ * slid off": the pivot moves to the **base of the neck** (bottom centre of the head
+ * ellipse) so a rotation swings the chin instead of shearing the collar; the scale is
+ * dropped to 1.0 (scaling the head alone changes head-to-body proportion, which reads as
+ * a different person); and tx/ty/rot are re-clamped to the much tighter head caps.
+ */
+declare function paramsForHead(p: AffineParams, region: HeadRegion, width: number, height: number, gains?: Partial<AffineGains> | null): AffineParams;
+/** Pixel bbox of the head ellipse plus a margin for the pixels the warp pulls in. */
+declare function regionBox(width: number, height: number, region: HeadRegion, marginFrac?: number): [number, number, number, number];
+/** Where a residual warp is allowed to act. */
+type WarpRegion = 'head' | 'full';
+
+/**
+ * SmoothCut — the flagship of Ania 2.0, and the one part of it that has nothing to do
+ * with a camera.
+ *
+ * The owner's verdict on what Ania 2.0 was for (2026-09-05):
+ *
+ *     "o maior problema do Ania 1 era a transição de talk para idle...
+ *      o Ania 2 nasceu justamente pra resolver isso"
+ *
+ * The Ania 1.0 player cuts between sequences by index, not by image. When speech ends it
+ * jumps from wherever the talk sweep happened to be to `idle_range_low` (or to a random
+ * entry from `idle_start_positions`), and the two frames on either side of that cut have
+ * no reason whatsoever to look alike. The mouth is open in one and shut in the next; the
+ * head is turned one way and then the other. That is the pop everybody sees, and it fires
+ * on every talk->idle, idle->talk, action exit and range wrap.
+ *
+ * The motion graph already knows what those cuts cost — it is a table of "these two
+ * frames look alike enough to cut between, and here is how much it shows". So the fix is
+ * not to invent new frames, it is to CHOOSE the entry frame the graph says is cheapest:
+ *
+ *   1. Pick the entry in the target range that minimises `c(current, candidate)`.
+ *   2. If even the best entry is still a visible jump (`>= costThreshold`, the same 6 the
+ *      crossfade trigger uses), look for a short BRIDGE — 1..`maxBridge` frames chained
+ *      through the graph's own edges — and play it on the way in. A bridge is the
+ *      avatar's own footage, so it reads as motion rather than as a dissolve.
+ *   3. Only if no bridge exists does the renderer fall back to a <= 120 ms crossfade.
+ *
+ * Independence is the point of this module. It needs a `motionGraph` and nothing else:
+ * no webcam, no pose bank, no descriptors, no `setMocapEnabled(true)`. A page that only
+ * ever plays TTS gets every one of these cuts fixed. Without a graph every method is
+ * inert and the caller keeps its own choice byte for byte, which is what keeps
+ * `player-runtime/verify.mjs` frame-identical.
+ *
+ * Determinism is load-bearing: every ordering below breaks ties explicitly (cost, then
+ * closeness to the author's own start points, then the lower index), because the three
+ * runtimes and the Python reference all have to land on the same frame.
+ */
+
+/** A transition this expensive is a visible jump (the §4.2 crossfade trigger). */
+declare const CUT_COST_THRESHOLD = 6;
+/** Cost of a cut nothing in the graph sanctions — mirrors `MatcherOptions.c_jump`. */
+declare const CUT_C_JUMP = 8;
+/** Longest bridge the search will play, in frames. */
+declare const CUT_MAX_BRIDGE = 3;
+/** Hard ceiling on edge expansions per bridge search, so a dense graph cannot stall. */
+declare const CUT_MAX_EXPANSIONS = 64;
+/** Longest dissolve, when there is no bridge to play instead. */
+declare const CUT_CROSSFADE_MS = 120;
+/** Costs equal to this many decimal places count as a tie. */
+declare const CUT_TIE_DECIMALS = 3;
+/** A candidate within this much of the best cost is "just as smooth" (bias window). */
+declare const CUT_BIAS_SLACK = 0.5;
+/**
+ * Ceiling on a signature-derived cost. `graph.build_graph` clips at this because a graph
+ * only ever stores CHEAP edges; a cut between two ranges is nowhere near it, so the entry
+ * ranking is deliberately left UNCLIPPED - clipping it would make every candidate tie at
+ * 20 and the search would pick by index, which is exactly the bug that made the first
+ * bench report "0 % improvement" while the picture plainly improved.
+ */
+declare const CUT_COST_CLIP = 20;
+interface SmoothCutOptions {
+    /**
+     * `true` cuts through the graph whenever one is loaded, `false` never does, `'auto'`
+     * is `true` when a graph is present — the same thing, spelled the way a config file
+     * spells it.
+     */
+    enabled: boolean | 'auto';
+    /** Longest bridge to play, in frames. 0 disables bridging (crossfade only). */
+    maxBridge: number;
+    /** Longest dissolve when no bridge is found. */
+    crossfadeMs: number;
+    /** Above this cost the cut is visible and wants a bridge or a dissolve. */
+    costThreshold: number;
+    /** Cost of an unsanctioned cut. */
+    cJump: number;
+    /** Ceiling on edge expansions per bridge search. */
+    maxExpansions: number;
+    /** Costs equal to this many decimal places are a tie (Python `tie_decimals`). */
+    tieDecimals: number;
+    /** How far above the best cost the expression bias may reach (`bias_slack`). */
+    biasSlack: number;
+}
+declare const DEFAULT_SMOOTH_CUT_OPTIONS: SmoothCutOptions;
+/** What the controller should do for one cut. */
+interface CutPlan {
+    /** The frame to enter the target range on. */
+    frame: number;
+    /** The graph cost of the transition actually taken (the worst step of a bridge). */
+    cost: number;
+    /** Cost of the best DIRECT entry, before any bridge. */
+    directCost: number;
+    /** What the legacy random start point would have cost — the before/after number. */
+    baselineCost: number;
+    /** Frames to play on the way in, in order. Empty when the entry is cheap enough. */
+    bridge: number[];
+    /** Whether the renderer should dissolve — only when nothing cheaper was available. */
+    crossfade: boolean;
+    /** `false` when this module had no opinion and `frame` is the caller's own fallback. */
+    planned: boolean;
+}
+/** `(from, to) -> visual cost`. Injected so a host with a pose bank can share the
+ * matcher's own notion of a natural step, which knows where the sequence cuts are. */
+type CutCostFn = (from: number, to: number) => number;
+/**
+ * A second opinion over the candidates that are all equally smooth. Returns one of them,
+ * or `null` to keep the cheapest. This is the seam Sutil's smile/head-yaw hint plugs into.
+ */
+type CutBiasFn = (candidates: number[]) => number | null;
+declare class SmoothCut {
+    private offsets;
+    private to;
+    private edgeCost;
+    /** `from * N + to -> cost`, for the O(1) cost lookup the entry scan needs. */
+    private edgeIndex;
+    private n;
+    private allowed;
+    private costFn;
+    /** `frameCount x SIG_LEN`, row-major float64. `null` until signatures are built. */
+    private sig;
+    /** Row self-dot products, so a distance is one dot product instead of a subtraction. */
+    private sigSq;
+    /** "the frame that naturally follows i" - the two-frame window the graph metric uses. */
+    private nxt;
+    /**
+     * The median distance between naturally consecutive frames: "one playback step". Every
+     * signature cost is divided by it, which is what makes `c = 1` mean the same thing here
+     * as it does in `motion_graph.json`. Leaving this at a placeholder 1.0 makes every cost
+     * ~10^5 times too small and silently disables the bridge and the bias window.
+     */
+    private succMedian;
+    private hasSidecarMedian;
+    readonly opt: SmoothCutOptions;
+    /** Last plan's cost and bridge, for `getMocapDebug()`. */
+    lastCutCost: number;
+    bridgeFrames: number;
+    cuts: number;
+    bridges: number;
+    crossfades: number;
+    constructor(graph?: MotionGraph | null, options?: Partial<SmoothCutOptions>);
+    setGraph(graph: MotionGraph | null): void;
+    /**
+     * Which frame naturally follows each one. Without sequence info the bank is one run, so
+     * it is `i + 1` and the last frame follows itself. Defaulting this to `i` instead leaves
+     * the successor distances empty and the median at its placeholder, which is the failure
+     * mode the Python reference calls out by name.
+     */
+    private ensureNext;
+    /**
+     * Tell the planner where the sequences end, so the two-frame window does not step across
+     * a cut. `seqOf[i]` is any per-frame sequence id (the matcher's `seqOf` does fine).
+     */
+    setSequences(seqOf: ArrayLike<number> | null): void;
+    /** Whether signature costs are available (the sidecar-free ranking). */
+    get ready(): boolean;
+    /**
+     * Adopt a precomputed signature matrix (`frameCount x SIG_LEN`, row-major).
+     *
+     * This is what makes SmoothCut work on an avatar nobody ever indexed: the signatures
+     * come from the decoded frames themselves, so no `motion_graph.json` is required. A
+     * sidecar, when there is one, only improves the BRIDGE (it supplies the authored edges)
+     * and pins `succCostMedian` exactly.
+     */
+    setSignatures(rows: ArrayLike<number> | null, frameCount?: number): void;
+    /**
+     * Decode every frame once and keep its signature. `getFrame` returns the RGBA pixels of
+     * one frame, or `null` when it cannot be decoded; the build is abandoned unless at least
+     * half the bank came back, because a half-measured bank ranks worse than not ranking.
+     */
+    buildSignatures(getFrame: (i: number) => FramePixels | null, frameCount?: number): boolean;
+    private successorDistances;
+    /** Squared signature distance `i -> j`, before the median normalisation. */
+    private sigDist;
+    /**
+     * `c(i, j)` from the signatures, in natural playback steps, or `NaN` when there are
+     * none. Uses the graph's own two-frame window: a splice is only cheap if what comes NEXT
+     * also matches, which is what stops the search entering a run travelling the other way.
+     * Deliberately unclipped - see {@link CUT_COST_CLIP}.
+     */
+    private signatureCost;
+    /** Restrict every choice to this pool (`MatcherOptions.frame_pool`). `null` clears it. */
+    setAllowed(allowed: Uint8Array | null): void;
+    /** Share the matcher's transition cost, which knows where the sequences cut. */
+    setCostFn(fn: CutCostFn | null): void;
+    /** Whether this instance will ever change a caller's choice. */
+    get active(): boolean;
+    get frameCount(): number;
+    private isAllowed;
+    private edgesOf;
+    /**
+     * Visual cost of `from -> to`: 0 for a step the footage already makes, the graph's own
+     * cost for a sanctioned cut, `cJump` for anything else.
+     *
+     * A host that also has the pose bank injects `setCostFn(matcher.transitionCost)`, which
+     * is strictly better informed — it knows that `i -> i+1` across a sequence boundary is
+     * a cut, not a step, and this module on its own cannot.
+     */
+    cost(from: number, to: number): number;
+    /**
+     * The cheapest way into `[low, high]` from `from`.
+     *
+     * `starts` are the author's own entry points for that range (`idle_start_positions` /
+     * `talk_start_positions`); they do not restrict the search, they break its ties, so a
+     * range with two equally cheap entries lands on the one the author actually meant.
+     * `fallback` is what the caller would have done unaided, and is returned verbatim when
+     * this module is inert — that is the byte-identity guarantee.
+     */
+    plan(from: number, low: number, high: number, starts: ArrayLike<number> | null, fallback: number, avoid?: ArrayLike<number> | null, biasFn?: CutBiasFn | null): CutPlan;
+    /**
+     * Shortest visually-cheap walk from `from` into `[lo, hi]`.
+     *
+     * The difference from {@link bridge} is that the destination is a RANGE, so the search
+     * gets to pick the frame it comes out on. That matters: the cheapest entry seen from a
+     * standing start is often unreachable, while some other frame of the same range is one
+     * cheap hop away.
+     *
+     * Bounded Dijkstra on the graph's CSR, minimising the WORST edge on the path — that is
+     * the step the eye actually catches, not the sum — then the hop count, then the index.
+     * Edges at or above `costThreshold` are not walked at all (a bridge made of visible
+     * cuts is not a bridge), frames outside the pool are never expanded, so a coverage
+     * block is not a shortcut, and the whole search is capped at `maxExpansions` pops: a
+     * cut is allowed to be smart, never to drop a frame.
+     */
+    private bridgeToRange;
+    /**
+     * A chain of at most `maxBridge` frames from `from` to `to` through the graph's edges,
+     * or `null`.
+     *
+     * Breadth-first by construction, so the shortest bridge wins; inside one depth the
+     * frontier is expanded in ascending frame order, so the search is deterministic; and
+     * the whole thing is capped at `maxExpansions` edges, so a dense graph costs a bounded
+     * amount of work per cut rather than an unbounded one.
+     */
+    bridge(from: number, to: number): number[] | null;
+    /** Zero the counters (a new avatar, a new session). */
+    reset(): void;
+}
+/**
+ * Mean visual cost of the frame CHANGES in a run — the acceptance metric for the cut
+ * work. Frames that repeat cost nothing (the avatar is holding, not cutting).
+ */
+declare function cutCostMean(frames: ArrayLike<number>, cost: CutCostFn): number;
+
+/**
+ * The `presence` ("Sutil") engine — the legacy player keeps playing, the camera only
+ * nudges it. 1:1 port of
+ * `AniaAPP/src/ania_player/plugins/mocap_webcam/legacy_drive.py`.
+ *
+ * Why this module exists, in the user's own words after the second live test:
+ *
+ *     "é a transição... no Ania 1.0 é bonitão... ela nem tá falando quando eu falo"
+ *
+ * Frame-by-frame motion matching at 25 Hz replaces the player's hand-authored playback —
+ * ping-pong through a sequence, a random start point per cycle, the openness map — with a
+ * per-tick nearest-neighbour search. Every individual frame is defensible and the *motion*
+ * is not, because the transitions are the product. No teleport gate fixes that: the cure
+ * is to stop choosing frames.
+ *
+ * So `Sutil` inverts the responsibility:
+ *
+ * - `AnimationController` keeps the cursor. `SutilDriver.onTick` returns `null` on almost
+ *   every tick, which is the documented "legacy runs this tick" answer.
+ * - The user's **microphone** drives the player's own lip-sync path — the same
+ *   `setTalkingState` + amplitude getters a TTS engine uses. Speaking user -> the avatar
+ *   enters its talk sequence and articulates with its openness map; silence -> back to
+ *   idle the legacy way. The avatar's own audio always wins.
+ * - A **blink** is a two-tick detour to an eye-closed frame *inside the current
+ *   sequence*, handed back at the same position. Neighbouring frames of one sequence
+ *   differ by a blink and little else, so nothing reads as a cut.
+ * - **Smile / head yaw** only bias the frame the cycler picks *at a cut point* — the
+ *   random start position it was about to choose anyway. Never mid-sequence.
+ *
+ * Everything here is duck-typed against the controller and the matcher, so the tests
+ * drive the very same code the player runs.
+ */
+/** The slice of `AnimationController` this module needs. Duck-typed on purpose. */
+interface LegacyHost {
+    setTalkingState(talking: boolean): void;
+    getAmplitudeFn: (() => number) | null;
+    getRmsFn: (() => number) | null;
+    getSpectralOpennessFn: (() => number) | null;
+    getOpennessFn: (() => number) | null;
+    currentFrameIndex: number;
+    startPointHintFn: StartPointHintFn | null;
+}
+/** The one moment an external source may pick a frame: the start of a cycle. */
+type StartPointHintFn = (kind: string, positions: number[]) => number | null;
+/** The slice of `MotionMatcher` this module needs. */
+interface LegacyMatcher {
+    blinkEdge(nowMs: number): boolean;
+    blinkFrameNear(i: number, maxDelta?: number): number | null;
+    startPointScore(candidates: ArrayLike<number> | null | undefined): number | null;
+}
+/**
+ * User microphone envelope -> the player's existing lip-sync path.
+ *
+ * A threshold + frame-counter state machine toggles `setTalkingState`, and the
+ * controller's amplitude getters are redirected to the mic envelope while the bridge owns
+ * the mouth, so the talk branch articulates from the user's voice exactly as it does from
+ * a TTS waveform. The avatar's own audio takes the mouth straight back.
+ *
+ * Nothing is recorded and nothing is sent: what crosses this class is one float per tick.
+ */
+declare class MicTalkBridge {
+    private host;
+    threshold: number;
+    openTicks: number;
+    closeTicks: number;
+    private saved;
+    private hijacked;
+    level: number;
+    /** Are WE the reason the avatar is talking? */
+    owner: boolean;
+    talkTicks: number;
+    silenceTicks: number;
+    talkTicksTotal: number;
+    ticks: number;
+    constructor(host: LegacyHost | null, threshold?: number, openTicks?: number, closeTicks?: number);
+    /**
+     * Redirect the lip-sync getters at our envelope. Idempotent; the originals are restored
+     * by `detach` and are delegated to whenever we do not own the mouth, so a TTS bridge
+     * that grabs them later still wins.
+     */
+    attach(): void;
+    detach(): void;
+    /**
+     * One tick. `openness` is 0..1 from the mic (or the camera fallback), `null` when there
+     * is no source. Returns whether the user is driving the talk.
+     */
+    push(openness: number | null | undefined, avatarTalking: boolean): boolean;
+    /** Give the mouth back (plugin stop, level change, avatar swap). */
+    release(): void;
+    private setTalking;
+    /** Share of ticks the user owned the talk — the acceptance metric. */
+    get talkPct(): number;
+}
+/**
+ * Two ticks on an eye-closed frame of the current sequence, then back home.
+ *
+ * The detour never changes where the cycler *is*: `home` is the frame the legacy engine
+ * had, and it is written straight back when the detour ends, so the sequence resumes from
+ * the same place. State only; the caller owns the frame.
+ */
+declare class BlinkDetour {
+    holdTicks: number;
+    maxDelta: number;
+    remaining: number;
+    home: number | null;
+    frame: number | null;
+    detours: number;
+    misses: number;
+    constructor(holdTicks?: number, maxDelta?: number);
+    reset(): void;
+    /**
+     * `[frame to force, frame to hand back]` for this tick.
+     *
+     * - mid-detour -> `[blink frame, null]`
+     * - last tick  -> `[null, home]`: the caller restores the cursor and lets legacy run
+     * - blink edge -> `[blink frame, null]` if one is close enough, else `[null, null]`
+     * - otherwise  -> `[null, null]`
+     */
+    tick(currentFrame: number, edge: boolean, pick: (i: number) => number | null): [number | null, number | null];
+}
+interface SutilOptions {
+    blinkDetour: boolean;
+    blinkHoldTicks: number;
+    blinkMaxDelta: number;
+    startPointBias: boolean;
+    micTalk: boolean;
+    micTalkThreshold: number;
+    micTalkCloseTicks: number;
+}
+declare const DEFAULT_SUTIL_OPTIONS: SutilOptions;
+/**
+ * `presence` end to end: attach to a controller + a matcher, call `onTick` from the
+ * controller's mocap branch, and the legacy engine does the rest.
+ *
+ * `onTick` returns `null` to let the legacy branch run this tick, or the frame index to
+ * force for the blink detour. It is the ONLY thing this level ever forces.
+ */
+declare class SutilDriver {
+    private host;
+    private matcher;
+    readonly mic: MicTalkBridge | null;
+    readonly detour: BlinkDetour;
+    private savedHint;
+    private attached;
+    ticks: number;
+    forcedTicks: number;
+    hints: number;
+    readonly opt: SutilOptions;
+    constructor(host: LegacyHost | null, matcher: LegacyMatcher | null, options?: Partial<SutilOptions>);
+    attach(): void;
+    detach(): void;
+    /**
+     * The one moment the camera may pick a frame: the cycler is starting a cycle and was
+     * about to choose at random. Bias it toward the user's smile and yaw.
+     */
+    startPointHint(_kind: string, positions: number[]): number | null;
+    /** One tick. Returns the frame to force, or `null` to let legacy playback run. */
+    onTick(nowMs: number, currentFrame: number, micOpenness: number | null, avatarTalking: boolean): number | null;
+    stats(): Record<string, unknown>;
+}
 
 /** Extra options for {@link AnimationController.configureLipsSync}. */
 interface LipSyncExtraOptions {
@@ -952,6 +2154,50 @@ declare class AnimationController {
     /** Fired when the mocap gap EMA (best RMS error) stays above 0.25 for 2s, and
      * again when it recovers. Best-effort UI hook, not covered by parity fixtures. */
     onMocapGapCallback: ((gapOpen: boolean, emaError: number) => void) | null;
+    private mocapPoses;
+    private mocapGraph;
+    private mocapCoverage;
+    private mocapCaps;
+    private mocapResolved;
+    private mocapComfort;
+    /** `"full"` is the default the live sessions settled on; `"head"` is opt-in (§2.5). */
+    private mocapWarpRegion;
+    private mocapCanBlend;
+    private mocapTeleports;
+    private mocapLastTransitionCost;
+    /** §4.2 crossfade state: the frame being blended out and when the blend started. */
+    private mocapFadeFrom;
+    private mocapFadeStart;
+    private mocapFadeMs;
+    /**
+     * Who picks the frame at the level in force. `matcher` runs the Ania 2.0 search every
+     * tick; `legacy` leaves Ania 1.0 playback — the cycling, the start positions, the
+     * ping-pong turns, the authored transitions — in charge and lets the camera in only
+     * through {@link SutilDriver}.
+     */
+    private mocapEngine;
+    private sutil;
+    /**
+     * The flagship of Ania 2.0 and the only part of it that runs with the camera off: at
+     * every sequence change the entry frame is chosen through the motion graph instead of
+     * by index. Inert without a graph, which is what keeps `verify.mjs` frame-identical.
+     */
+    private smoothCut;
+    private smoothCutOptions;
+    private smoothCutRequested;
+    /** Bridge frames still to play before the cut's destination is entered. */
+    private cutQueue;
+    private lastCutCost;
+    private lastCutBaseline;
+    private lastBridgeFrames;
+    /**
+     * The one moment an external source may pick a frame without breaking the playback:
+     * the start of a cycle, where this controller was about to choose at random.
+     * `fn(kind, positions) -> index | null`, `kind` being `'idle' | 'talk' | 'action'`;
+     * anything outside `positions` is ignored. `null` — the default — keeps the controller
+     * byte-for-byte legacy.
+     */
+    startPointHintFn: StartPointHintFn | null;
     constructor(config: AnimationControllerConfig, frameCount: number);
     private jumpToRandomStartPosition;
     setTalkingState(talking: boolean): void;
@@ -1024,20 +2270,134 @@ declare class AnimationController {
      */
     forceLipsClosed(): void;
     /**
-     * Load a pose bank (+ optional motion graph) built for this avatar.
-     * `null` tears the mocap path down. Returns `false` (and logs) on a
+     * Load a pose bank (+ optional motion graph, coverage and reaction level) built for
+     * this avatar. `null` tears the mocap path down. Returns `false` (and logs) on a
      * `descriptorVersion` mismatch — the caller keeps playing normally.
+     *
+     * Everything past `poses` is optional and additive: the pre-levels call shape
+     * `configureMocap({ poses, motionGraph, options })` still behaves exactly as it did,
+     * because a config with no `level` resolves to `off` and leaves `options` in charge.
      */
-    configureMocap(index: MocapIndex | null): boolean;
+    configureMocap(index: MocapConfigureInput | null): boolean;
+    /**
+     * Turn on the Ania 2.0 cut work WITHOUT touching the camera.
+     *
+     * This is the whole feature for a page that only ever plays TTS: hand it the avatar's
+     * `motion_graph.json` and every talk->idle, idle->talk, action exit and range wrap
+     * stops popping, because the entry frame is chosen through the graph instead of by
+     * index. No webcam, no pose bank, no `setMocapEnabled(true)`.
+     *
+     * `enabled: false` — or simply never calling this — leaves the controller byte-for-byte
+     * as it was, which is the regression guard the runtime verifier depends on.
+     */
+    configureSmoothCut(config: {
+        motionGraph?: MotionGraph | null;
+        enabled?: boolean | 'auto';
+        maxBridge?: number;
+        crossfadeMs?: number;
+    } | null): boolean;
+    /** Build or drop the cut planner to match the graph and the requested mode. */
+    private syncSmoothCut;
+    /**
+     * Enter `[low, high]` on the frame the motion graph says is cheapest to cut to, arming
+     * a bridge or a dissolve when even that is a visible jump.
+     *
+     * Returns the caller's own `fallback` untouched whenever there is no graph — every
+     * cut point below calls through here, so that one line is what keeps a graph-less
+     * player frame-identical to the one that shipped.
+     */
+    /**
+     * Enter `[low, high]` through the motion graph at a cut that is NOT a cycle start —
+     * the two hard range wraps in the cycler, where the last frame of a range is spliced
+     * against its first. Returns the frame to show this tick.
+     *
+     * `from` is the frame the viewer is LOOKING at, which at a wrap is not the cursor: the
+     * cycler increments before it notices it has run off the end, so planning from the
+     * cursor would score a pair nobody ever sees. `avoid` rules out that frame and its
+     * neighbours, because entering on the frame the cycler was about to play anyway costs 0
+     * and would win every scan, achieving nothing.
+     */
+    private planCut;
+    /**
+     * The frame a cycle starts on: the hint when there is one and it is a real option, the
+     * historic random choice otherwise. Mirrors the Python reference's
+     * `_pick_start_position`.
+     */
+    private pickStartPosition;
+    /**
+     * Run SmoothCut for a cycle start and return the frame to SHOW now, or `null` when the
+     * planner had no opinion (no graph, nothing rankable) and the caller should keep its
+     * own choice. `this.currentFrameIndex` is left on the entry either way, so cycling
+     * continues from there once any bridge has drained.
+     */
+    private planCutInto;
+    /** Rebuild the matcher from the stored bank + the current comfort object. */
+    private rebuildMatcher;
+    /**
+     * Switch the reaction level in place (`off | presence | expressive | mirror`).
+     * Rebuilds the matcher from the bank already loaded; returns the level actually
+     * granted, which is lower than the one asked for when the bank cannot show it.
+     */
+    setMocapLevel(level: string): string;
+    /** Update one or more comfort keys (§3) without changing the level. */
+    setMocapComfort(comfort: Partial<MocapComfortInput>): ResolvedOptions | null;
+    /**
+     * Where the user's mouth-OPEN value comes from: `audio | camera | mic | hybrid`.
+     * `presence` always keeps `audio` whatever is asked for. Returns the source granted.
+     */
+    setMouthSource(source: string): string;
+    /**
+     * Push the USER's microphone envelope (0..1) for the `mic`/`hybrid` mouth sources.
+     * `null` says there is no mic, which drops the matcher back to the camera's MAR. The
+     * envelope itself is measured capture-side; the matcher only consumes it.
+     */
+    pushMicOpenness(value: number | null, atMs?: number): void;
+    /** Tear the §Sutil driver down and unhook everything it installed. */
+    private teardownSutil;
+    /**
+     * Stand the §Sutil driver up for a legacy-engine level, or tear it down for anything
+     * else. Called on every matcher rebuild, so a level change swaps engines cleanly.
+     */
+    private syncSutil;
+    /** Whether the level in force wants a microphone envelope pushed into it. */
+    mocapNeedsMic(): boolean;
+    /**
+     * Hand the legacy lip-sync openness map to the ARTICULATE search, so the camera path
+     * picks the same mouths the audio path would.
+     */
+    private wireOpennessMap;
+    /**
+     * What this bank can physically show, plus the pt-BR warnings for the level in
+     * force. `caps` are the §5.1 0/1 flags + a `metrics` block; `warnings` carry both
+     * the i18n key and the ready-made sentence.
+     */
+    getMocapCapabilities(): MocapCapabilitiesReport;
+    /** The resolved option table for the level in force (matcher knobs, affine caps). */
+    getMocapOptions(): ResolvedOptions | null;
     /** Feed one live pose sample (from a webcam/mocap capture source). */
     pushPose(desc: PoseDescriptorMessage): void;
     setMocapEnabled(enabled: boolean): void;
     /** Whether the mocap branch drove the last rendered frame. */
     isMocapActive(): boolean;
     getMocapMode(): string | null;
-    getMocapDebug(): Record<string, number> | null;
+    /**
+     * HUD/debug snapshot. Carries the numeric matcher counters plus the four fields the
+     * levels UI shows: the granted `level`, whether the mouth is on `audio` or `camera`
+     * right now, the visual cost of the last transition, and the teleport count.
+     */
+    getMocapDebug(): MocapDebugReport | null;
     /** Live target minus the currently rendered frame's descriptor (affine warp input). */
     getMocapResidual(): number[] | null;
+    /**
+     * Everything the renderer needs for one tick: the affine params for the residual
+     * warp, the head ellipse to composite them through (or `null` for a whole-frame
+     * warp), and the crossfade state when the matcher just took a visible jump.
+     *
+     * Returns `null` while the mocap branch is not driving the avatar, in which case
+     * the renderer draws the frame exactly as it always did — which is what keeps
+     * `verify.mjs` frame-identical with mocap off.
+     */
+    getMocapWarp(width: number, height: number, nowMs: number): MocapWarpState | null;
     /** The talk range, floored and bounded by the real frame count. */
     private talkRange;
     /**
@@ -1287,17 +2647,33 @@ interface AniaPlayerInstance {
     setSpeeds(idleSpeed?: number, talkSpeed?: number): void;
     /** Load a pose bank (+ optional motion graph) for Ania 2.0 motion matching.
      * `null` tears it down. Returns `false` on a `descriptorVersion` mismatch. */
-    configureMocap(index: MocapIndex | null): boolean;
+    configureMocap(index: MocapConfigureInput | null): boolean;
     /** Feed one live pose sample from a webcam/mocap capture source. */
     pushPose(desc: PoseDescriptorMessage): void;
     /** Enable/disable the mocap-driven frame source. */
     setMocapEnabled(enabled: boolean): void;
+    /** Switch the reaction level; returns the level actually granted. */
+    setMocapLevel(level: string): string;
+    /** Update one or more of the six comfort keys without changing the level. */
+    setMocapComfort(comfort: MocapComfortInput): unknown;
+    /** Set the mouth source (`audio | camera | mic | hybrid`); returns the one granted. */
+    setMouthSource(source: string): string;
+    /** Push the USER's microphone envelope (0..1, or `null` for "no mic"). */
+    pushMicOpenness(value: number | null, atMs?: number): void;
+    /**
+     * Ania 2.0 cut smoothing, with or without a camera: hand it the avatar's motion graph
+     * and every sequence change picks its entry frame through the graph. Returns whether
+     * smoothing is actually active.
+     */
+    configureSmoothCut(config: SmoothCutConfigureInput | null): boolean;
+    /** What this bank can show + the pt-BR warnings for the level in force. */
+    getMocapCapabilities(): MocapCapabilitiesReport;
     /** Whether the mocap branch drove the last rendered frame. */
     isMocapActive(): boolean;
     /** `'LIVE' | 'DECAY' | 'IDLE' | null` (null before the first mocap tick). */
     getMocapMode(): string | null;
-    /** Debug counters from the last mocap step (E_best, S_best, candidates, ...). */
-    getMocapDebug(): Record<string, number> | null;
+    /** Debug counters from the last mocap step + level/mouthSource/lastTransitionCost/teleports. */
+    getMocapDebug(): MocapDebugReport | null;
     /** Live target minus the currently rendered frame's descriptor. */
     getMocapResidual(): number[] | null;
     /** The live underlying controller (advanced use). */
@@ -1431,6 +2807,139 @@ interface Translator {
     t: (key: string, vars?: I18nVars) => string;
     list: (key: string) => string[];
 }
+/**
+ * The six comfort keys of §3, all optional. `level` is the single user-facing dial;
+ * everything else has a per-level default and is clamped, never rejected.
+ */
+interface MocapComfortInput {
+    /** `off | presence | expressive | mirror`. */
+    level?: string;
+    /** 0.5 .. 1.5 — scales the retarget gain and the affine strength. */
+    intensity?: number;
+    /** 0.5 .. 2.0 — scales the One-Euro min-cutoff (EYES is pinned at 3 Hz). */
+    smoothing?: number;
+    /** `auto | on | off` — blend a visible jump over <= 120 ms. */
+    crossfade?: 'auto' | 'on' | 'off';
+    /** Idle micro-motion when the user is still (§4.4). */
+    breathing?: boolean;
+    /** Mirror the driver left/right (a selfie view of the user). */
+    mirror?: boolean;
+    /**
+     * Where the user's mouth-OPEN value comes from once the level hands the mouth over:
+     * `audio` (never handed over), `camera` (the webcam MAR), `mic` (the microphone
+     * envelope) or `hybrid` (`max(mic, camera x 0.6)`). `off` is always `audio`; at
+     * `presence` the blend is fed to the player's own lip-sync path, not to the matcher.
+     */
+    mouth_source?: 'audio' | 'camera' | 'mic' | 'hybrid';
+    /**
+     * Which frames of the bank the level may show. `legacy` keeps the avatar inside the
+     * sequences its creator authored (idle / talk / action) and locks out everything an
+     * Ania 2.0 coverage upgrade appended; `all` is opt-in and `mirror` only.
+     */
+    frame_pool?: 'legacy' | 'all';
+}
+/** Argument of `AnimationController.configureMocap`. */
+interface MocapConfigureInput extends MocapComfortInput {
+    poses: MocapIndex['poses'];
+    motionGraph?: MocapIndex['motionGraph'];
+    /** Parsed `coverage.json`. Needed by the §5.1 capability probe. */
+    coverage?: unknown;
+    /** Where a residual warp may act. Default `"full"`; `"head"` is opt-in. */
+    warpRegion?: 'head' | 'full';
+    /** Whether the renderer can composite two frames. Default `true`. */
+    canBlend?: boolean;
+    /** Raw matcher overrides, applied on top of the level's table. */
+    options?: MocapIndex['options'];
+    /** Camel-case alias of `frame_pool`, for hosts that pass a JS-shaped config. */
+    framePool?: 'legacy' | 'all';
+    /**
+     * Ania 2.0 cut smoothing. `true`/`'auto'` picks every sequence entry through the
+     * motion graph (and needs one); `false` keeps the historic index-based cuts.
+     * Independent of the camera: it works with `setMocapEnabled(false)`.
+     */
+    smoothCut?: boolean | 'auto';
+}
+/** Argument of `AnimationController.configureSmoothCut`. */
+interface SmoothCutConfigureInput {
+    /** The avatar's `motion_graph.json`. Without one every cut stays exactly as it was. */
+    motionGraph?: MocapIndex['motionGraph'];
+    enabled?: boolean | 'auto';
+    /** Longest bridge to play on the way into a cut, in frames. Default 3. */
+    maxBridge?: number;
+    /** Longest dissolve when no bridge is found. Default 120 ms. */
+    crossfadeMs?: number;
+}
+/** One pt-BR warning: the i18n key plus the ready-made sentence. */
+interface MocapWarningReport {
+    key: string;
+    text: string;
+}
+/** Result of `AnimationController.getMocapCapabilities()`. */
+interface MocapCapabilitiesReport {
+    caps: Record<string, unknown>;
+    level: string;
+    requestedLevel: string;
+    blocked: boolean;
+    active: boolean;
+    canBlend: boolean;
+    crossfade: 'auto' | 'on' | 'off';
+    channels: string[];
+    missingChannels: string[];
+    warnings: MocapWarningReport[];
+    comfort: Record<string, unknown> | null;
+}
+/** Result of `AnimationController.getMocapDebug()`. */
+interface MocapDebugReport extends Record<string, unknown> {
+    level: string;
+    /** What is driving the mouth right now. */
+    mouthSource: 'audio' | 'camera';
+    lastTransitionCost: number;
+    teleports: number;
+    breathing: boolean;
+    /** Blink priority events taken since the matcher was built. */
+    blinks: number;
+    /** The ARTICULATE sub-state is driving the mouth this tick. */
+    articulating: boolean;
+    /** The configured mouth source (`audio | camera | mic | hybrid`). */
+    mouthSourceMode: string;
+    warpRegion: 'head' | 'full';
+    /** Who picked the frame: `legacy` (Ania 1.0 playback + hooks) or `matcher`. */
+    engine: string;
+    /** Which frames the level may show (`legacy` excludes the coverage blocks). */
+    framePool: string;
+    /** Graph cost of the last sequence cut SmoothCut planned. */
+    lastCutCost: number;
+    /** What that cut would have cost with the legacy random start point. */
+    lastCutBaseline: number;
+    /** How many bridge frames the last cut played on the way in. */
+    bridgeFrames: number;
+}
+/** The §4.2 alpha blend of the outgoing frame over the incoming one. */
+interface MocapCrossfadeState {
+    fromFrame: number;
+    /** Weight of the NEW frame, 0..1. */
+    alpha: number;
+}
+/** Everything the renderer needs for one mocap tick. */
+interface MocapWarpState {
+    params: {
+        tx: number;
+        ty: number;
+        rot_deg: number;
+        scale: number;
+        pivot: [number, number];
+    };
+    /** The feathered head ellipse, or `null` for a whole-frame warp. */
+    region: {
+        cx: number;
+        cy: number;
+        rx: number;
+        ry: number;
+        feather: number;
+    } | null;
+    crossfade: MocapCrossfadeState | null;
+    warpRegion: 'head' | 'full';
+}
 
 /**
  * Create an avatar player on `target`.
@@ -1454,6 +2963,11 @@ declare class AniaPlayer {
     private animationFrame;
     private lastRenderedFrame;
     private frameMime;
+    private warpCanvas;
+    private warpCtx;
+    private maskCanvas;
+    private maskCtx;
+    private maskKey;
     fileData: AniaAvatarData | null;
     animationController: AnimationController | null;
     /**
@@ -1465,6 +2979,28 @@ declare class AniaPlayer {
     loadFrame(index: number): Promise<HTMLImageElement | null>;
     /** Draw a frame by index (skips redundant redraws of the same frame). */
     renderFrame(index: number): Promise<void>;
+    /**
+     * Draw one mocap tick: the body frame as decoded, then — when the level asked for a
+     * head-only warp — the head region re-drawn through the affine transform behind a
+     * feathered elliptical mask, and finally the §4.2 alpha blend of the frame we are
+     * jumping away from.
+     *
+     * `warp === null` (mocap off, or the matcher not driving) short-circuits straight
+     * back to {@link renderFrame}, which is what keeps the no-mocap output byte-identical.
+     */
+    renderMocapFrame(index: number, warp: MocapWarpState | null): Promise<void>;
+    /** `out = R·S·(in - pivot) + pivot + t`, as a canvas transform. */
+    private applyTransform;
+    private ensureWarpLayer;
+    /**
+     * The feathered head ellipse as an alpha bitmap. Same ramp as the Python
+     * `affine.region_alpha`: 1 inside, 0 outside, a linear fall-off of `feather`
+     * (measured along the y axis) across the boundary — expressed as a radial gradient
+     * on a unit circle that an ellipse transform stretches, so there is no per-pixel JS.
+     * Cached per (region, size); the region only changes when the matcher picks another
+     * frame, so the per-tick cost is one lookup.
+     */
+    private ensureMask;
     /** Start the rAF render loop. */
     play(): void;
     /** Stop the render loop (the last frame stays painted). */
@@ -1841,4 +3377,4 @@ declare function getStringList(key: string, locale?: string, opts?: {
 /** Build a translator bound to one locale + optional override table. */
 declare function createTranslator(locale?: string, override?: MessagesOverride): Translator;
 
-export { ALPHA, type ActionAudioHandle, type ActionConfig, type ActionInfo, type AniaAnimationData, type AniaAvatarData, AniaPlayer, type AniaPlayerInstance, type AniaPlayerRenderOptions, AnimationController, type AnimationControllerConfig, AvatarCache, BLENDSHAPE_NAMES, BUILTIN_PLUGINS, COMMAND_LIST, type CacheStats, type CommandContext, type CommandDescriptor, type CommandResult, type Coverage, type CoverageGap, DEFAULT_LOCALE, DEFAULT_MATCHER_OPTIONS, DESCRIPTOR_VERSION, DIM_GROUP, DIM_INDEX, DIM_NAMES, DIM_VALID_DEFAULT, EDGE, Emitter, FACE_GROUPS, FALLBACK_LOCALE, FPS_CLAMP_DEFAULT, FPS_FALLBACK, F_BROW_L, F_BROW_R, F_CHEEK_L, F_CHEEK_R, F_EYE_L, F_EYE_L_LIDS, F_EYE_R, F_EYE_R_LIDS, F_IRIS_L, F_IRIS_R, F_LIP_PAIRS, F_MOUTH_CORNERS, F_NOSE_TIP, type FlatLandmarks, type FpsClampOption, type FpsClampWindow, type FrameIntervalArgs, FramePacer, type FramePixels, GAP_PRESET, GRAY, GROUP_NAMES, GROUP_PARAMS, G_BODY, G_BROWS, G_EYES, G_HAND_L, G_HAND_R, G_HEAD, G_MOUTH, G_RESERVED, H_MCP_MID, H_TIPS, H_WRIST, type I18nVars, KIND_HUB, KIND_KNN, KIND_PRED, KIND_SUCC, type LandmarkPoint, type Landmarks, LipAnimator, type LipAnimatorBranch, type LipAnimatorOptions, type LipAnimatorStepArgs, LipSyncAnalyser, type LipSyncAnalyserOptions, type LipSyncConfig, LipSyncDsp, type LipSyncDspOptions, type LipSyncDspReading, type LipSyncServerConfig, type LipSyncSustainStyle, type LoadSource, MAX_DT_MS, MIN_DT_MS, MIRROR_NEGATE, MIRROR_SWAP, MODE_DECAY, MODE_IDLE, MODE_LIVE, MatcherError, type MatcherOptions, type MessagesOverride, type MocapIndex, type MotionGraph, type MotionGraphOptions, MotionMatcher, NDIMS, NEUTRAL, NUSED, type NativeFps, OneEuroVector, type OptimalSpeeds, PLUGIN_KINDS, POSE_GROUPS, PRESETS, P_EAR_L, P_EAR_R, P_ELBOW_L, P_ELBOW_R, P_EYE_L, P_EYE_R, P_NOSE, P_SHOULDER_L, P_SHOULDER_R, P_WRIST_L, P_WRIST_R, type ParsedHotkey, type PiperInitOptions, type PiperStatus, type PlayerEventMap, type PlayerEventName, type PlayerOptions, type PlayerPosition, type Plugin, type PluginContext, type PluginKind, PluginRegistry, type PluginRegistryLike, type PluginSettingField, type PoseDescriptorMessage, type PosesBank, type PosesIndexOptions, RETARGET, SCHEMA_COVERAGE, SCHEMA_POSES, SEQ_IDLE, SEQ_OTHER, SEQ_TALK, SIG_LEN, type STTEngine, type STTProvider, STT_PROVIDER_TO_PLUGIN, type Sequence, type SpeechRecognitionOptions, SpeechRecognizer, type StepResult, TARGET_BINS, type TTSConfig, type TTSEngine, type TTSProvider, type TTSResult, TTS_PROVIDER_TO_PLUGIN, type Translator, WEIGHTS, W_ALPHA, W_EDGE, W_GRAY, WakeWordEngine, type WakeWordEngineLike, type WakeWordStartConfig, actionAudioPlugin, allPairsSq, applyMirror, availableLocales, blank, boxResizeRgba, buildControllerConfig, buildCoverage, buildGraphFromDistances, buildMotionGraph, buildOpennessMap, buildPosesIndex, calcSpeeds, calculateOptimalSpeeds, checkPiperStatus, clearAvatarCache, computeDescriptor, createAniaPlayer, createTranslator, decryptAniaFile, deleteCachedAvatar, disposePiper, executeCommand, fetchActionsConfig, fetchLipSyncConfig, findClosedFrame, fpsFromIntervalMs, frameIntervalMs, frameSeq, getCacheStats, getCachedAvatar, getDefaultRegistry, getPiperStatus, getString, getStringList, getWakeWordEngine, groupVector, hasLocale, headDegrees, initPiper, installPostMessageControl, isWakeWordSupported, matchesHotkey, normalizeFpsClamp, parseCommandLine, parseHotkey, piperSynthesize, playActionAudio, preloadPiper, professionalTTSRequest, pyRound, registerBuiltins, resolveNativeFps, sequencesFromRanges, setCachedAvatar, signature, sttBrowserPlugin, sttGooglePlugin, ttsAzurePlugin, ttsBrowserPlugin, ttsElevenLabsPlugin, ttsGooglePlugin, ttsPiperPlugin, ttsTiktokPlugin, validatePlugin, wakeWordPlugin };
+export { ALPHA, ARTICULATE_HEAD_DIMS, ARTICULATE_MOUTH_DIMS, type ActionAudioHandle, type ActionConfig, type ActionInfo, type AffineGains, type AffineParams, type AniaAnimationData, type AniaAvatarData, AniaPlayer, type AniaPlayerInstance, type AniaPlayerRenderOptions, AnimationController, type AnimationControllerConfig, AvatarCache, BLENDSHAPE_NAMES, BLINK_DETOUR_MAX_DELTA, BLINK_DETOUR_TICKS, BLINK_PITCH_EDGES, BLINK_YAW_EDGES, BLOCKERS, BREATHING_COST_BONUS, BREATHING_DWELL_TICKS, BROW_DIVISOR, BROW_GATE_MIN_MAPPING_VERSION, BROW_MAPPING_VERSION, BROW_NEUTRAL, BUILTIN_PLUGINS, BlinkDetour, CHANNEL_LABEL, COMMAND_LIST, CROSSFADE_COST, CROSSFADE_MODES, CROSSFADE_MS, CROSSFADE_TICKS, CUT_BIAS_SLACK, CUT_COST_CLIP, CUT_COST_THRESHOLD, CUT_CROSSFADE_MS, CUT_C_JUMP, CUT_MAX_BRIDGE, CUT_MAX_EXPANSIONS, CUT_TIE_DECIMALS, type CacheStats, type CommandContext, type CommandDescriptor, type CommandResult, type Coverage, type CoverageGap, type CrossfadeMode, type CutBiasFn, type CutCostFn, type CutPlan, DEFAULT_AFFINE_GAINS, DEFAULT_LOCALE, DEFAULT_MATCHER_OPTIONS, DEFAULT_SMOOTH_CUT_OPTIONS, DEFAULT_SUTIL_OPTIONS, DESCRIPTOR_VERSION, DIM_GROUP, DIM_INDEX, DIM_NAMES, DIM_VALID_DEFAULT, EDGE, ENGINE_LEGACY, ENGINE_MATCHER, Emitter, type EngineMode, FACE_GROUPS, FALLBACK_LOCALE, FPS_CLAMP_DEFAULT, FPS_FALLBACK, FRAME_POOLS, FRAME_POOL_ALL, FRAME_POOL_LEGACY, F_BROW_L, F_BROW_R, F_CHEEK_L, F_CHEEK_R, F_EYE_L, F_EYE_L_LIDS, F_EYE_R, F_EYE_R_LIDS, F_IRIS_L, F_IRIS_R, F_LIP_PAIRS, F_MOUTH_CORNERS, F_NOSE_TIP, type FlatLandmarks, type FpsClampOption, type FpsClampWindow, type FrameIntervalArgs, FramePacer, type FramePixels, type FramePool, GAP_PRESET, GRAY, GROUP_NAMES, GROUP_PARAMS, G_BODY, G_BROWS, G_EYES, G_HAND_L, G_HAND_R, G_HEAD, G_MOUTH, G_RESERVED, HEAD_DROP_PER_W, HEAD_FALLBACK, HEAD_FEATHER_FRAC, HEAD_FEATHER_MIN_OF_HEAD, HEAD_RX_PER_W, HEAD_RY_PER_W, HEAD_YAW_DEG_PER_UNIT, HOLD_DIMS, HOLD_DIM_MOUTH_OPEN, H_MCP_MID, H_TIPS, H_WRIST, type HeadRegion, type I18nVars, INTENSITY_MAX, INTENSITY_MIN, KIND_HUB, KIND_KNN, KIND_PRED, KIND_SUCC, LEVELS, LEVEL_EXPRESSIVE, LEVEL_MIRROR, LEVEL_MOUTH_SOURCE, LEVEL_OFF, LEVEL_ORDER, LEVEL_PRESENCE, LEVEL_UI, type LandmarkPoint, type Landmarks, type LevelAffine, type LevelCard, type LevelComfortDefaults, type LevelGain, type LevelSpec, LipAnimator, type LipAnimatorBranch, type LipAnimatorOptions, type LipAnimatorStepArgs, LipSyncAnalyser, type LipSyncAnalyserOptions, type LipSyncConfig, LipSyncDsp, type LipSyncDspOptions, type LipSyncDspReading, type LipSyncServerConfig, type LipSyncSustainStyle, type LoadSource, MAX_DT_MS, MIC_TALK_CLOSE_TICKS, MIC_TALK_OPEN_TICKS, MIC_TALK_THRESHOLD, MIN_DT_MS, MIRROR_NEGATE, MIRROR_SWAP, MODE_DECAY, MODE_IDLE, MODE_LIVE, MOUTH_HANDOVER_MS, MOUTH_SOURCES, MatcherError, type MatcherOptions, type MessagesOverride, MicTalkBridge, type MocapCapabilitiesReport, type MocapCaps, type MocapComfort, type MocapComfortInput, type MocapConfigureInput, type MocapCrossfadeState, type MocapDebugReport, type MocapIndex, type MocapLevel, type MocapWarning, type MocapWarningReport, type MocapWarpState, type MotionGraph, type MotionGraphOptions, MotionMatcher, type MouthSource, NDIMS, NEUTRAL, NUSED, type NativeFps, OneEuroVector, type OptimalSpeeds, PLUGIN_KINDS, POSE_GROUPS, PRESETS, P_EAR_L, P_EAR_R, P_ELBOW_L, P_ELBOW_R, P_EYE_L, P_EYE_R, P_NOSE, P_SHOULDER_L, P_SHOULDER_R, P_WRIST_L, P_WRIST_R, type ParsedHotkey, type PiperInitOptions, type PiperStatus, type PlayerEventMap, type PlayerEventName, type PlayerOptions, type PlayerPosition, type Plugin, type PluginContext, type PluginKind, PluginRegistry, type PluginRegistryLike, type PluginSettingField, type PoseDescriptorMessage, type PosesBank, type PosesIndexOptions, RETARGET, RETARGET_GAIN_MAX, RETARGET_GAIN_MIN, RETARGET_OVERSHOOT, type ResolvedAffine, type ResolvedOptions, SCHEMA_COVERAGE, SCHEMA_POSES, SEQ_IDLE, SEQ_OTHER, SEQ_TALK, SIG_LEN, SMOOTHING_MAX, SMOOTHING_MIN, STRINGS, type STTEngine, type STTProvider, STT_PROVIDER_TO_PLUGIN, type Sequence, SmoothCut, type SmoothCutConfigureInput, type SmoothCutOptions, type SpeechRecognitionOptions, SpeechRecognizer, type StartPointHintFn, type StepResult, SutilDriver, type SutilOptions, TARGET_BINS, type TTSConfig, type TTSEngine, type TTSProvider, type TTSResult, TTS_PROVIDER_TO_PLUGIN, type Translator, WARNERS, WEIGHTS, W_ALPHA, W_EDGE, W_GRAY, WakeWordEngine, type WakeWordEngineLike, type WakeWordStartConfig, type WarpRegion, actionAudioPlugin, allPairsSq, allowsCameraMouth, applyMirror, attachReach, availableLocales, blank, boxResizeRgba, buildControllerConfig, buildCoverage, buildGraphFromDistances, buildMotionGraph, buildOpennessMap, buildPosesIndex, buildReach, calcSpeeds, calculateOptimalSpeeds, checkPiperStatus, clearAvatarCache, computeDescriptor, createAniaPlayer, createTranslator, crossfadeAlpha, cutCostMean, decryptAniaFile, defaultComfort, deleteCachedAvatar, dimGainFor, disposePiper, engineOf, executeCommand, featherNorm, fetchActionsConfig, fetchLipSyncConfig, findClosedFrame, fpsFromIntervalMs, frameIntervalMs, framePoolOf, frameSeq, gainsFromOptions, getCacheStats, getCachedAvatar, getDefaultRegistry, getPiperStatus, getString, getStringList, getWakeWordEngine, groupVector, hasLocale, headDegrees, headRegionFromFrame, headRegionKey, initPiper, installPostMessageControl, isIdentity, isWakeWordSupported, levelActive, levelCards, matcherCameraMouth, matcherKwargs, matchesHotkey, normalizeFpsClamp, oneEuroMinCutoff, paramsForHead, paramsFromResidual, parseCommandLine, parseHotkey, piperSynthesize, playActionAudio, preloadPiper, probeCaps, professionalTTSRequest, pyRound, regionAlpha, regionAlphaAt, regionBox, registerBuiltins, resolveNativeFps, resolveOptions, sequencesFromRanges, serializeComfort, setCachedAvatar, shouldCrossfade, signature, sttBrowserPlugin, sttGooglePlugin, text, ttsAzurePlugin, ttsBrowserPlugin, ttsElevenLabsPlugin, ttsGooglePlugin, ttsPiperPlugin, ttsTiktokPlugin, validatePlugin, wakeWordPlugin };

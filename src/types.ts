@@ -275,17 +275,33 @@ export interface AniaPlayerInstance {
   setSpeeds(idleSpeed?: number, talkSpeed?: number): void;
   /** Load a pose bank (+ optional motion graph) for Ania 2.0 motion matching.
    * `null` tears it down. Returns `false` on a `descriptorVersion` mismatch. */
-  configureMocap(index: MocapIndex | null): boolean;
+  configureMocap(index: MocapConfigureInput | null): boolean;
   /** Feed one live pose sample from a webcam/mocap capture source. */
   pushPose(desc: PoseDescriptorMessage): void;
   /** Enable/disable the mocap-driven frame source. */
   setMocapEnabled(enabled: boolean): void;
+  /** Switch the reaction level; returns the level actually granted. */
+  setMocapLevel(level: string): string;
+  /** Update one or more of the six comfort keys without changing the level. */
+  setMocapComfort(comfort: MocapComfortInput): unknown;
+  /** Set the mouth source (`audio | camera | mic | hybrid`); returns the one granted. */
+  setMouthSource(source: string): string;
+  /** Push the USER's microphone envelope (0..1, or `null` for "no mic"). */
+  pushMicOpenness(value: number | null, atMs?: number): void;
+  /**
+   * Ania 2.0 cut smoothing, with or without a camera: hand it the avatar's motion graph
+   * and every sequence change picks its entry frame through the graph. Returns whether
+   * smoothing is actually active.
+   */
+  configureSmoothCut(config: SmoothCutConfigureInput | null): boolean;
+  /** What this bank can show + the pt-BR warnings for the level in force. */
+  getMocapCapabilities(): MocapCapabilitiesReport;
   /** Whether the mocap branch drove the last rendered frame. */
   isMocapActive(): boolean;
   /** `'LIVE' | 'DECAY' | 'IDLE' | null` (null before the first mocap tick). */
   getMocapMode(): string | null;
-  /** Debug counters from the last mocap step (E_best, S_best, candidates, ...). */
-  getMocapDebug(): Record<string, number> | null;
+  /** Debug counters from the last mocap step + level/mouthSource/lastTransitionCost/teleports. */
+  getMocapDebug(): MocapDebugReport | null;
   /** Live target minus the currently rendered frame's descriptor. */
   getMocapResidual(): number[] | null;
   /** The live underlying controller (advanced use). */
@@ -428,4 +444,147 @@ export interface Translator {
   locale: string;
   t: (key: string, vars?: I18nVars) => string;
   list: (key: string) => string[];
+}
+
+// ----- Mocap: reaction levels (Ania 2.0 §2/§3) -----
+
+/**
+ * The six comfort keys of §3, all optional. `level` is the single user-facing dial;
+ * everything else has a per-level default and is clamped, never rejected.
+ */
+export interface MocapComfortInput {
+  /** `off | presence | expressive | mirror`. */
+  level?: string;
+  /** 0.5 .. 1.5 — scales the retarget gain and the affine strength. */
+  intensity?: number;
+  /** 0.5 .. 2.0 — scales the One-Euro min-cutoff (EYES is pinned at 3 Hz). */
+  smoothing?: number;
+  /** `auto | on | off` — blend a visible jump over <= 120 ms. */
+  crossfade?: 'auto' | 'on' | 'off';
+  /** Idle micro-motion when the user is still (§4.4). */
+  breathing?: boolean;
+  /** Mirror the driver left/right (a selfie view of the user). */
+  mirror?: boolean;
+  /**
+   * Where the user's mouth-OPEN value comes from once the level hands the mouth over:
+   * `audio` (never handed over), `camera` (the webcam MAR), `mic` (the microphone
+   * envelope) or `hybrid` (`max(mic, camera x 0.6)`). `off` is always `audio`; at
+   * `presence` the blend is fed to the player's own lip-sync path, not to the matcher.
+   */
+  mouth_source?: 'audio' | 'camera' | 'mic' | 'hybrid';
+  /**
+   * Which frames of the bank the level may show. `legacy` keeps the avatar inside the
+   * sequences its creator authored (idle / talk / action) and locks out everything an
+   * Ania 2.0 coverage upgrade appended; `all` is opt-in and `mirror` only.
+   */
+  frame_pool?: 'legacy' | 'all';
+}
+
+/** Argument of `AnimationController.configureMocap`. */
+export interface MocapConfigureInput extends MocapComfortInput {
+  poses: MocapIndex['poses'];
+  motionGraph?: MocapIndex['motionGraph'];
+  /** Parsed `coverage.json`. Needed by the §5.1 capability probe. */
+  coverage?: unknown;
+  /** Where a residual warp may act. Default `"full"`; `"head"` is opt-in. */
+  warpRegion?: 'head' | 'full';
+  /** Whether the renderer can composite two frames. Default `true`. */
+  canBlend?: boolean;
+  /** Raw matcher overrides, applied on top of the level's table. */
+  options?: MocapIndex['options'];
+  /** Camel-case alias of `frame_pool`, for hosts that pass a JS-shaped config. */
+  framePool?: 'legacy' | 'all';
+  /**
+   * Ania 2.0 cut smoothing. `true`/`'auto'` picks every sequence entry through the
+   * motion graph (and needs one); `false` keeps the historic index-based cuts.
+   * Independent of the camera: it works with `setMocapEnabled(false)`.
+   */
+  smoothCut?: boolean | 'auto';
+}
+
+/** Argument of `AnimationController.configureSmoothCut`. */
+export interface SmoothCutConfigureInput {
+  /** The avatar's `motion_graph.json`. Without one every cut stays exactly as it was. */
+  motionGraph?: MocapIndex['motionGraph'];
+  enabled?: boolean | 'auto';
+  /** Longest bridge to play on the way into a cut, in frames. Default 3. */
+  maxBridge?: number;
+  /** Longest dissolve when no bridge is found. Default 120 ms. */
+  crossfadeMs?: number;
+}
+
+/** One pt-BR warning: the i18n key plus the ready-made sentence. */
+export interface MocapWarningReport {
+  key: string;
+  text: string;
+}
+
+/** Result of `AnimationController.getMocapCapabilities()`. */
+export interface MocapCapabilitiesReport {
+  caps: Record<string, unknown>;
+  level: string;
+  requestedLevel: string;
+  blocked: boolean;
+  active: boolean;
+  canBlend: boolean;
+  crossfade: 'auto' | 'on' | 'off';
+  channels: string[];
+  missingChannels: string[];
+  warnings: MocapWarningReport[];
+  comfort: Record<string, unknown> | null;
+}
+
+/** Result of `AnimationController.getMocapDebug()`. */
+export interface MocapDebugReport extends Record<string, unknown> {
+  level: string;
+  /** What is driving the mouth right now. */
+  mouthSource: 'audio' | 'camera';
+  lastTransitionCost: number;
+  teleports: number;
+  breathing: boolean;
+  /** Blink priority events taken since the matcher was built. */
+  blinks: number;
+  /** The ARTICULATE sub-state is driving the mouth this tick. */
+  articulating: boolean;
+  /** The configured mouth source (`audio | camera | mic | hybrid`). */
+  mouthSourceMode: string;
+  warpRegion: 'head' | 'full';
+  /** Who picked the frame: `legacy` (Ania 1.0 playback + hooks) or `matcher`. */
+  engine: string;
+  /** Which frames the level may show (`legacy` excludes the coverage blocks). */
+  framePool: string;
+  /** Graph cost of the last sequence cut SmoothCut planned. */
+  lastCutCost: number;
+  /** What that cut would have cost with the legacy random start point. */
+  lastCutBaseline: number;
+  /** How many bridge frames the last cut played on the way in. */
+  bridgeFrames: number;
+}
+
+/** The §4.2 alpha blend of the outgoing frame over the incoming one. */
+export interface MocapCrossfadeState {
+  fromFrame: number;
+  /** Weight of the NEW frame, 0..1. */
+  alpha: number;
+}
+
+/** Everything the renderer needs for one mocap tick. */
+export interface MocapWarpState {
+  params: {
+    tx: number;
+    ty: number;
+    rot_deg: number;
+    scale: number;
+    pivot: [number, number];
+  };
+  /** The feathered head ellipse, or `null` for a whole-frame warp. */
+  region: {
+    cx: number;
+    cy: number;
+    rx: number;
+    ry: number;
+    feather: number;
+  } | null;
+  crossfade: MocapCrossfadeState | null;
+  warpRegion: 'head' | 'full';
 }

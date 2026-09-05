@@ -20,6 +20,30 @@ export const DESCRIPTOR_VERSION = 1;
 export const NDIMS = 48;
 export const NUSED = 40;
 
+/**
+ * Revision of the `browRaise` mapping only (see the BROWS block of
+ * {@link computeDescriptor}). Revision 1 divided a 0.12-neutral by 0.06 and read
+ * +1.00 on 100 % of the frames of both reference drivers — the dim was a constant,
+ * so `probeCaps` force-zeroed `caps.brows` while it was in force. Revision 2 re-fits
+ * the constants from the measured ratio distributions.
+ *
+ * Deliberately NOT a {@link DESCRIPTOR_VERSION} bump: a bump invalidates every
+ * indexed bank at load time and the frozen matcher parity fixture, while the
+ * bank-side half of the §5.1 probe (browRaise span >= 0.15 over >= 2 filled bins)
+ * already refuses a bank indexed with the old constants.
+ */
+export const BROW_MAPPING_VERSION = 2;
+
+/**
+ * Raw brow ratio ((eye centre y - brow y) / cheek width, de-rolled), measured
+ * 2026-09-05 over the two reference drivers. The old (0.12, 0.06) pair saturated at
+ * +1 for every ratio >= 0.18, i.e. for every frame of both drivers. This pair puts
+ * them together at 0.14..0.94 with no clamping at either end and keeps headroom
+ * under the avatar banks (0.05..0.12).
+ */
+export const BROW_NEUTRAL = 0.15;
+export const BROW_DIVISOR = 0.24;
+
 // ---- groups -----------------------------------------------------------------
 export const G_HEAD = 0;
 export const G_MOUTH = 1;
@@ -337,7 +361,7 @@ function faceDims(f: LandmarkView, blend: Record<string, number> | null | undefi
   const [, browRy] = rot(F_BROW_R);
   const [, browLy] = rot(F_BROW_L);
   const browR = (cR2y - browRy + (cL2y - browLy)) / (2.0 * W);
-  out[14] = clamp((browR - 0.12) / 0.06, -1.0, 1.0);
+  out[14] = clamp((browR - BROW_NEUTRAL) / BROW_DIVISOR, -1.0, 1.0);
 
   // Blendshape-only dims (0 when the estimator has none).
   const b = blend || {};

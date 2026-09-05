@@ -43,12 +43,52 @@ import {
   normalizeFpsClamp,
 } from '../utils/frame-rate';
 import type { FpsClampWindow } from '../utils/frame-rate';
-import { MatcherError, MotionMatcher, OneEuroVector } from '../motion-matcher';
-import type { MocapIndex, PoseDescriptorMessage } from '../motion-matcher';
+import {
+  MatcherError,
+  MotionMatcher,
+  OneEuroVector,
+  LEVEL_OFF,
+  ENGINE_LEGACY,
+  ENGINE_MATCHER,
+  SmoothCut,
+  SutilDriver,
+  CROSSFADE_MS,
+  crossfadeAlpha,
+  gainsFromOptions,
+  headRegionFromFrame,
+  levelActive,
+  engineOf,
+  paramsForHead,
+  paramsFromResidual,
+  probeCaps,
+  resolveOptions,
+  shouldCrossfade,
+} from '../motion-matcher';
+import type {
+  Coverage,
+  CrossfadeMode,
+  MocapCaps,
+  MocapIndex,
+  CutBiasFn,
+  EngineMode,
+  MotionGraph,
+  PosesBank,
+  SmoothCutOptions,
+  StartPointHintFn,
+  PoseDescriptorMessage,
+  ResolvedOptions,
+  WarpRegion,
+} from '../motion-matcher';
 import type {
   ActionConfig,
   AnimationControllerConfig,
   LipSyncSustainStyle,
+  MocapCapabilitiesReport,
+  MocapComfortInput,
+  MocapConfigureInput,
+  MocapCrossfadeState,
+  MocapDebugReport,
+  MocapWarpState,
 } from '../types';
 
 interface ActiveAction {
@@ -167,6 +207,57 @@ export class AnimationController {
    * again when it recovers. Best-effort UI hook, not covered by parity fixtures. */
   public onMocapGapCallback: ((gapOpen: boolean, emaError: number) => void) | null = null;
 
+  // ----- Reaction levels (Ania 2.0 §2) -----
+  private mocapPoses: PosesBank | null = null;
+  private mocapGraph: MotionGraph | null = null;
+  private mocapCoverage: Coverage | null = null;
+  private mocapCaps: MocapCaps | null = null;
+  private mocapResolved: ResolvedOptions | null = null;
+  private mocapComfort: Partial<MocapComfortInput> = {};
+  /** `"full"` is the default the live sessions settled on; `"head"` is opt-in (§2.5). */
+  private mocapWarpRegion: WarpRegion = 'full';
+  private mocapCanBlend = true;
+  private mocapTeleports = 0;
+  private mocapLastTransitionCost = 0;
+  /** §4.2 crossfade state: the frame being blended out and when the blend started. */
+  private mocapFadeFrom = -1;
+  private mocapFadeStart = 0;
+  private mocapFadeMs = CROSSFADE_MS;
+
+  // ----- §Sutil (2026-09-05 pivot): legacy playback, camera as three hooks -----
+  /**
+   * Who picks the frame at the level in force. `matcher` runs the Ania 2.0 search every
+   * tick; `legacy` leaves Ania 1.0 playback — the cycling, the start positions, the
+   * ping-pong turns, the authored transitions — in charge and lets the camera in only
+   * through {@link SutilDriver}.
+   */
+  private mocapEngine: EngineMode = ENGINE_LEGACY;
+  private sutil: SutilDriver | null = null;
+
+  // ----- SmoothCut: better cuts, with or without a camera -----
+  /**
+   * The flagship of Ania 2.0 and the only part of it that runs with the camera off: at
+   * every sequence change the entry frame is chosen through the motion graph instead of
+   * by index. Inert without a graph, which is what keeps `verify.mjs` frame-identical.
+   */
+  private smoothCut: SmoothCut | null = null;
+  private smoothCutOptions: Partial<SmoothCutOptions> = {};
+  private smoothCutRequested: boolean | 'auto' = 'auto';
+  /** Bridge frames still to play before the cut's destination is entered. */
+  private cutQueue: number[] = [];
+  private lastCutCost = 0;
+  private lastCutBaseline = 0;
+  private lastBridgeFrames = 0;
+
+  /**
+   * The one moment an external source may pick a frame without breaking the playback:
+   * the start of a cycle, where this controller was about to choose at random.
+   * `fn(kind, positions) -> index | null`, `kind` being `'idle' | 'talk' | 'action'`;
+   * anything outside `positions` is ignored. `null` — the default — keeps the controller
+   * byte-for-byte legacy.
+   */
+  public startPointHintFn: StartPointHintFn | null = null;
+
   constructor(config: AnimationControllerConfig, frameCount: number) {
     this.config = config;
     this.frameCount = Math.max(0, Math.floor(num(frameCount, 0)));
@@ -206,16 +297,21 @@ export class AnimationController {
     const positions = talking
       ? this.config.talk_start_positions
       : this.config.idle_start_positions;
+    const range = talking
+      ? { low: this.config.talk_range_low!, high: this.config.talk_range_high! }
+      : { low: this.config.idle_range_low!, high: this.config.idle_range_high! };
 
-    if (positions && positions.length > 0) {
-      const randomIndex = Math.floor(Math.random() * positions.length);
-      this.currentFrameIndex = positions[randomIndex];
-    } else {
-      const range = talking
-        ? { low: this.config.talk_range_low!, high: this.config.talk_range_high! }
-        : { low: this.config.idle_range_low!, high: this.config.idle_range_high! };
-      this.currentFrameIndex = range.low;
-    }
+    // This is THE cut of Ania 1.0 — talk->idle, idle->talk, action exit — and the frame it
+    // lands on was chosen by index, never by image. `pickStartPosition` runs SmoothCut
+    // here; without a graph it hands the legacy choice straight back, so nothing about a
+    // graph-less player changes.
+    this.currentFrameIndex = this.pickStartPosition(
+      talking ? 'talk' : 'idle',
+      positions,
+      range.low,
+      range.low,
+      range.high,
+    );
 
     const useReverse = talking
       ? this.config.reverse_talk_selected
@@ -468,21 +564,263 @@ export class AnimationController {
   // ===== Mocap (Ania 2.0 motion matching) =====
 
   /**
-   * Load a pose bank (+ optional motion graph) built for this avatar.
-   * `null` tears the mocap path down. Returns `false` (and logs) on a
+   * Load a pose bank (+ optional motion graph, coverage and reaction level) built for
+   * this avatar. `null` tears the mocap path down. Returns `false` (and logs) on a
    * `descriptorVersion` mismatch — the caller keeps playing normally.
+   *
+   * Everything past `poses` is optional and additive: the pre-levels call shape
+   * `configureMocap({ poses, motionGraph, options })` still behaves exactly as it did,
+   * because a config with no `level` resolves to `off` and leaves `options` in charge.
    */
-  configureMocap(index: MocapIndex | null): boolean {
+  configureMocap(index: MocapConfigureInput | null): boolean {
     if (index === null) {
       this.matcher = null;
       this.mocapEnabled = false;
       this.mocapActive = false;
       this.mocapMode = null;
       this.mocapDebug = null;
+      this.mocapPoses = null;
+      this.mocapGraph = null;
+      this.mocapCoverage = null;
+      this.mocapCaps = null;
+      this.mocapResolved = null;
+      this.mocapComfort = {};
+      this.mocapTeleports = 0;
+      this.mocapLastTransitionCost = 0;
+      this.mocapFadeFrom = -1;
+      this.mocapEngine = ENGINE_LEGACY;
+      this.teardownSutil();
+      this.cutQueue = [];
       return true;
     }
+    this.mocapPoses = index.poses;
+    this.mocapGraph = index.motionGraph ?? null;
+    this.mocapCoverage = (index.coverage as Coverage | undefined) ?? null;
+    if (index.warpRegion === 'head' || index.warpRegion === 'full') this.mocapWarpRegion = index.warpRegion;
+    if (index.canBlend !== undefined) this.mocapCanBlend = !!index.canBlend;
+    this.mocapCaps = probeCaps(index.poses, this.mocapCoverage);
+    this.mocapCaps.blend = this.mocapCanBlend ? 1 : 0;
+    this.mocapComfort = {
+      level: index.level ?? LEVEL_OFF,
+      intensity: index.intensity,
+      smoothing: index.smoothing,
+      crossfade: index.crossfade,
+      breathing: index.breathing,
+      mirror: index.mirror,
+      frame_pool: index.framePool,
+    };
+    if (index.smoothCut !== undefined) this.smoothCutRequested = index.smoothCut;
+    this.syncSmoothCut();
+    return this.rebuildMatcher(index.options);
+  }
+
+  /**
+   * Turn on the Ania 2.0 cut work WITHOUT touching the camera.
+   *
+   * This is the whole feature for a page that only ever plays TTS: hand it the avatar's
+   * `motion_graph.json` and every talk->idle, idle->talk, action exit and range wrap
+   * stops popping, because the entry frame is chosen through the graph instead of by
+   * index. No webcam, no pose bank, no `setMocapEnabled(true)`.
+   *
+   * `enabled: false` — or simply never calling this — leaves the controller byte-for-byte
+   * as it was, which is the regression guard the runtime verifier depends on.
+   */
+  configureSmoothCut(config: {
+    motionGraph?: MotionGraph | null;
+    enabled?: boolean | 'auto';
+    maxBridge?: number;
+    crossfadeMs?: number;
+  } | null): boolean {
+    if (config === null) {
+      this.smoothCut = null;
+      this.smoothCutRequested = 'auto';
+      this.smoothCutOptions = {};
+      this.cutQueue = [];
+      return true;
+    }
+    if (config.motionGraph !== undefined) this.mocapGraph = config.motionGraph;
+    if (config.enabled !== undefined) this.smoothCutRequested = config.enabled;
+    if (config.maxBridge !== undefined) this.smoothCutOptions.maxBridge = config.maxBridge;
+    if (config.crossfadeMs !== undefined) this.smoothCutOptions.crossfadeMs = config.crossfadeMs;
+    this.syncSmoothCut();
+    // A matcher already standing gives the cut planner the better cost function.
+    if (this.matcher) {
+      this.smoothCut?.setCostFn((a, b) => (this.matcher ? this.matcher.transitionCost(a, b) : 0));
+      this.smoothCut?.setAllowed(this.matcher.allowed);
+    }
+    return !!this.smoothCut?.active;
+  }
+
+  /** Build or drop the cut planner to match the graph and the requested mode. */
+  private syncSmoothCut(): void {
+    if (this.smoothCutRequested === false || !this.mocapGraph) {
+      this.smoothCut = null;
+      this.cutQueue = [];
+      return;
+    }
+    this.smoothCut = new SmoothCut(this.mocapGraph, {
+      ...this.smoothCutOptions,
+      enabled: this.smoothCutRequested,
+    });
+    this.cutQueue = [];
+  }
+
+  /**
+   * Enter `[low, high]` on the frame the motion graph says is cheapest to cut to, arming
+   * a bridge or a dissolve when even that is a visible jump.
+   *
+   * Returns the caller's own `fallback` untouched whenever there is no graph — every
+   * cut point below calls through here, so that one line is what keeps a graph-less
+   * player frame-identical to the one that shipped.
+   */
+  /**
+   * Enter `[low, high]` through the motion graph at a cut that is NOT a cycle start —
+   * the two hard range wraps in the cycler, where the last frame of a range is spliced
+   * against its first. Returns the frame to show this tick.
+   *
+   * `from` is the frame the viewer is LOOKING at, which at a wrap is not the cursor: the
+   * cycler increments before it notices it has run off the end, so planning from the
+   * cursor would score a pair nobody ever sees. `avoid` rules out that frame and its
+   * neighbours, because entering on the frame the cycler was about to play anyway costs 0
+   * and would win every scan, achieving nothing.
+   */
+  private planCut(
+    low: number,
+    high: number,
+    starts: number[] | null | undefined,
+    fallback: number,
+    from: number,
+    avoid: number[] | null,
+  ): number {
+    const shown = this.planCutInto(low, high, starts ? starts.slice() : [], fallback, null, from, avoid, true);
+    return shown === null ? fallback : shown;
+  }
+
+  /**
+   * The frame a cycle starts on: the hint when there is one and it is a real option, the
+   * historic random choice otherwise. Mirrors the Python reference's
+   * `_pick_start_position`.
+   */
+  private pickStartPosition(
+    kind: string,
+    positions: number[] | undefined,
+    fallback: number,
+    low?: number,
+    high?: number,
+  ): number {
+    const pos = positions ? positions.slice() : [];
+    // Exactly ONE draw per cut, always, whichever branch wins below. The legacy player
+    // consumed one `Math.random()` here, and a second one would shift every later random
+    // start point in the run — a divergence that is invisible in a screenshot and fatal
+    // to "no graph => byte-identical", which is the guarantee this feature ships on.
+    const choice = pos.length ? pos[Math.floor(Math.random() * pos.length)] : fallback;
+
+    // Order of authority: SmoothCut (cheapest visual entry, with the author's start points
+    // as the tie-break and the expression hint as a secondary tie-break inside its
+    // near-optimal set) -> the bare hint -> the draw the player has always made.
+    const sc = this.smoothCut;
+    if (sc && sc.active && low !== undefined && high !== undefined) {
+      const fn = this.startPointHintFn;
+      const bias: CutBiasFn | null = fn
+        ? (cands) => {
+            try {
+              return fn(kind, cands.slice());
+            } catch {
+              return null;
+            }
+          }
+        : null;
+      const entry = this.planCutInto(low, high, pos, choice, bias, undefined, null, false);
+      if (entry !== null) return entry;
+    }
+
+    if (!pos.length) return fallback;
+    const fn = this.startPointHintFn;
+    if (fn) {
+      let hint: number | null = null;
+      try {
+        hint = fn(kind, pos.slice());
+      } catch {
+        hint = null;
+      }
+      if (hint !== null && Number.isFinite(hint)) {
+        const h = Math.trunc(hint);
+        if (pos.indexOf(h) >= 0) return h;
+      }
+    }
+    return choice;
+  }
+
+  /**
+   * Run SmoothCut for a cycle start and return the frame to SHOW now, or `null` when the
+   * planner had no opinion (no graph, nothing rankable) and the caller should keep its
+   * own choice. `this.currentFrameIndex` is left on the entry either way, so cycling
+   * continues from there once any bridge has drained.
+   */
+  private planCutInto(
+    low: number,
+    high: number,
+    starts: number[],
+    baseline: number,
+    bias: CutBiasFn | null,
+    from?: number,
+    avoid?: number[] | null,
+    renderNow = true,
+  ): number | null {
+    const sc = this.smoothCut;
+    if (!sc || !sc.active) return null;
+    const src = from === undefined ? this.currentFrameIndex : from;
+    const plan = sc.plan(src, low, high, starts, baseline, avoid ?? null, bias);
+    if (!plan.planned) return null;
+    this.lastCutCost = plan.cost;
+    this.lastCutBaseline = plan.baselineCost;
+    this.lastBridgeFrames = plan.bridge.length;
+    if (plan.crossfade && this.mocapCanBlend) {
+      this.mocapFadeFrom = src;
+      this.mocapFadeStart = nowMs();
+      this.mocapFadeMs = Math.min(sc.opt.crossfadeMs, 3 * this.getFrameDuration());
+    }
+    // The cursor always ends on the entry, so cycling continues from there. What differs
+    // is what reaches the screen first.
+    this.currentFrameIndex = plan.frame;
+    if (plan.bridge.length) {
+      // Play the bridge ahead of the entry, or the viewer sees the entry, then the
+      // bridge, then the entry again — planning that is real and smoothing that is
+      // imaginary. When the caller is not about to render (a talk<->idle switch), the
+      // whole walk goes on the queue instead.
+      if (renderNow) {
+        this.cutQueue = plan.bridge.slice(1).concat([plan.frame]);
+        return plan.bridge[0];
+      }
+      this.cutQueue = plan.bridge.concat([plan.frame]);
+      return plan.frame;
+    }
+    this.cutQueue = renderNow ? [] : [plan.frame];
+    return plan.frame;
+  }
+
+  /** Rebuild the matcher from the stored bank + the current comfort object. */
+  private rebuildMatcher(extraOptions?: Partial<MocapIndex['options']>): boolean {
+    if (!this.mocapPoses) return false;
+    const res = resolveOptions(this.mocapComfort as never, this.mocapCaps);
+    this.mocapResolved = res;
+    // `off` (or a level blocked all the way down to it) leaves the level knobs out
+    // entirely, so an explicit `options` object still drives the matcher as before.
+    const levelOpts = res.active ? { ...(res.matcher || {}) } : {};
+    const options = { ...levelOpts, ...(extraOptions || {}) };
+    const oneEuro = res.active && res.one_euro_min_cutoff ? new OneEuroVector(res.one_euro_min_cutoff) : new OneEuroVector();
     try {
-      this.matcher = new MotionMatcher(index.poses, index.motionGraph ?? null, index.options, new OneEuroVector());
+      this.matcher = new MotionMatcher(this.mocapPoses, this.mocapGraph, options as never, oneEuro);
+      this.wireOpennessMap();
+      this.mocapTeleports = 0;
+      this.mocapLastTransitionCost = 0;
+      this.mocapFadeFrom = -1;
+      this.mocapEngine = (res.engine ?? engineOf(res.level)) as EngineMode;
+      this.syncSutil(res);
+      // the matcher knows where the sequences cut and which frames the pool allows;
+      // SmoothCut is strictly better informed with it than without
+      this.smoothCut?.setCostFn((a, b) => (this.matcher ? this.matcher.transitionCost(a, b) : 0));
+      this.smoothCut?.setAllowed(this.matcher ? this.matcher.allowed : null);
       return true;
     } catch (err) {
       if (err instanceof MatcherError) {
@@ -492,6 +830,109 @@ export class AnimationController {
       }
       throw err;
     }
+  }
+
+  /**
+   * Switch the reaction level in place (`off | presence | expressive | mirror`).
+   * Rebuilds the matcher from the bank already loaded; returns the level actually
+   * granted, which is lower than the one asked for when the bank cannot show it.
+   */
+  setMocapLevel(level: string): string {
+    this.mocapComfort = { ...this.mocapComfort, level };
+    if (!this.mocapPoses) return LEVEL_OFF;
+    this.rebuildMatcher();
+    const granted = this.mocapResolved?.level ?? LEVEL_OFF;
+    this.setMocapEnabled(levelActive(granted));
+    return granted;
+  }
+
+  /** Update one or more comfort keys (§3) without changing the level. */
+  setMocapComfort(comfort: Partial<MocapComfortInput>): ResolvedOptions | null {
+    this.mocapComfort = { ...this.mocapComfort, ...comfort };
+    if (this.mocapPoses) this.rebuildMatcher();
+    return this.mocapResolved;
+  }
+
+  /**
+   * Where the user's mouth-OPEN value comes from: `audio | camera | mic | hybrid`.
+   * `presence` always keeps `audio` whatever is asked for. Returns the source granted.
+   */
+  setMouthSource(source: string): string {
+    this.mocapComfort = { ...this.mocapComfort, mouth_source: source as MocapComfortInput['mouth_source'] };
+    if (this.mocapPoses) this.rebuildMatcher();
+    return this.mocapResolved?.mouth_source ?? 'audio';
+  }
+
+  /**
+   * Push the USER's microphone envelope (0..1) for the `mic`/`hybrid` mouth sources.
+   * `null` says there is no mic, which drops the matcher back to the camera's MAR. The
+   * envelope itself is measured capture-side; the matcher only consumes it.
+   */
+  pushMicOpenness(value: number | null, atMs?: number): void {
+    this.matcher?.setMicOpenness(value, atMs ?? nowMs());
+  }
+
+  /** Tear the §Sutil driver down and unhook everything it installed. */
+  private teardownSutil(): void {
+    this.sutil?.detach();
+    this.sutil = null;
+  }
+
+  /**
+   * Stand the §Sutil driver up for a legacy-engine level, or tear it down for anything
+   * else. Called on every matcher rebuild, so a level change swaps engines cleanly.
+   */
+  private syncSutil(res: ResolvedOptions | null): void {
+    const wants = !!res?.active && (res.engine ?? ENGINE_MATCHER) === ENGINE_LEGACY && !!this.matcher;
+    this.teardownSutil();
+    if (!wants) return;
+    this.sutil = new SutilDriver(this as never, this.matcher as never, {
+      blinkDetour: res!.blink_detour !== false,
+      startPointBias: res!.start_point_bias !== false,
+      micTalk: res!.mic_talk !== false,
+    });
+    this.sutil.attach();
+  }
+
+  /** Whether the level in force wants a microphone envelope pushed into it. */
+  mocapNeedsMic(): boolean {
+    return !!this.mocapResolved?.needs_mic;
+  }
+
+  /**
+   * Hand the legacy lip-sync openness map to the ARTICULATE search, so the camera path
+   * picks the same mouths the audio path would.
+   */
+  private wireOpennessMap(): void {
+    if (!this.matcher || !this.opennessMap) return;
+    this.matcher.setOpennessMap(this.opennessMap, this.talkRange().low);
+  }
+
+  /**
+   * What this bank can physically show, plus the pt-BR warnings for the level in
+   * force. `caps` are the §5.1 0/1 flags + a `metrics` block; `warnings` carry both
+   * the i18n key and the ready-made sentence.
+   */
+  getMocapCapabilities(): MocapCapabilitiesReport {
+    const res = this.mocapResolved;
+    return {
+      caps: this.mocapCaps ?? probeCaps(null),
+      level: res?.level ?? LEVEL_OFF,
+      requestedLevel: res?.requested_level ?? (this.mocapComfort.level ?? LEVEL_OFF),
+      blocked: !!res?.blocked,
+      active: !!res?.active,
+      canBlend: this.mocapCanBlend,
+      crossfade: (res?.crossfade ?? 'auto') as CrossfadeMode,
+      channels: res?.channels ?? [],
+      missingChannels: res?.missing_channels ?? [],
+      warnings: (res?.warnings ?? []).map((w) => ({ key: w.key, text: w.text })),
+      comfort: res?.comfort ? ({ ...res.comfort } as Record<string, unknown>) : null,
+    };
+  }
+
+  /** The resolved option table for the level in force (matcher knobs, affine caps). */
+  getMocapOptions(): ResolvedOptions | null {
+    return this.mocapResolved;
   }
 
   /** Feed one live pose sample (from a webcam/mocap capture source). */
@@ -513,13 +954,82 @@ export class AnimationController {
     return this.mocapMode;
   }
 
-  getMocapDebug(): Record<string, number> | null {
-    return this.mocapDebug;
+  /**
+   * HUD/debug snapshot. Carries the numeric matcher counters plus the four fields the
+   * levels UI shows: the granted `level`, whether the mouth is on `audio` or `camera`
+   * right now, the visual cost of the last transition, and the teleport count.
+   */
+  getMocapDebug(): MocapDebugReport | null {
+    // SmoothCut runs with the camera off and no pose bank, so a page that only ever
+    // called `configureSmoothCut` still has cut numbers worth reading. Returning `null`
+    // there would hide the one feature that works without mocap at all.
+    if (!this.mocapDebug && !this.smoothCut?.active) return null;
+    return {
+      ...(this.mocapDebug || {}),
+      level: this.mocapResolved?.level ?? LEVEL_OFF,
+      mouthSource: this.matcher ? this.matcher.mouthSource : 'audio',
+      lastTransitionCost: this.mocapLastTransitionCost,
+      teleports: this.mocapTeleports,
+      breathing: this.matcher ? this.matcher.breathingActive : false,
+      blinks: this.matcher ? this.matcher.blinkEvents : 0,
+      articulating: this.matcher ? this.matcher.articulating : false,
+      mouthSourceMode: this.mocapResolved?.mouth_source ?? 'audio',
+      warpRegion: this.mocapWarpRegion,
+      engine: this.mocapEngine,
+      framePool: this.mocapResolved?.frame_pool ?? 'legacy',
+      lastCutCost: this.lastCutCost,
+      lastCutBaseline: this.lastCutBaseline,
+      bridgeFrames: this.lastBridgeFrames,
+    };
   }
 
   /** Live target minus the currently rendered frame's descriptor (affine warp input). */
   getMocapResidual(): number[] | null {
     return this.matcher ? Array.from(this.matcher.residual(this.currentFrameIndex)) : null;
+  }
+
+  /**
+   * Everything the renderer needs for one tick: the affine params for the residual
+   * warp, the head ellipse to composite them through (or `null` for a whole-frame
+   * warp), and the crossfade state when the matcher just took a visible jump.
+   *
+   * Returns `null` while the mocap branch is not driving the avatar, in which case
+   * the renderer draws the frame exactly as it always did — which is what keeps
+   * `verify.mjs` frame-identical with mocap off.
+   */
+  getMocapWarp(width: number, height: number, nowMs: number): MocapWarpState | null {
+    if (!this.matcher || !this.mocapActive || !this.mocapResolved?.active) return null;
+    // A warped head on top of a legacy-played sequence is exactly the "sticker" the live
+    // test rejected, so `presence` computes no warp at all.
+    if (this.mocapEngine === ENGINE_LEGACY || this.mocapResolved.affine_enabled === false) return null;
+    const res = this.mocapResolved;
+    const gains = gainsFromOptions(res.affine);
+    const breathingT = this.matcher.breathingActive ? (this.mocapDebug?.tick ?? 0) * 0.04 : null;
+    let params = paramsFromResidual(
+      this.matcher.residual(this.currentFrameIndex),
+      width,
+      height,
+      gains,
+      res.affine?.strength ?? 1.0,
+      breathingT,
+    );
+    const region =
+      this.mocapWarpRegion === 'head'
+        ? headRegionFromFrame(this.matcher.frameDescriptor(this.currentFrameIndex), 0xff)
+        : null;
+    // Head-only mode re-aims the transform: pivot at the neck base, scale pinned to 1,
+    // and the far tighter head caps — or the head slides off the shoulders.
+    if (region) params = paramsForHead(params, region, width, height, gains);
+    let fade: MocapCrossfadeState | null = null;
+    if (this.mocapFadeFrom >= 0) {
+      const elapsed = nowMs - this.mocapFadeStart;
+      if (elapsed >= this.mocapFadeMs) {
+        this.mocapFadeFrom = -1;
+      } else {
+        fade = { fromFrame: this.mocapFadeFrom, alpha: crossfadeAlpha(elapsed, this.mocapFadeMs) };
+      }
+    }
+    return { params, region, crossfade: fade, warpRegion: this.mocapWarpRegion };
   }
 
   /** The talk range, floored and bounded by the real frame count. */
@@ -624,16 +1134,64 @@ export class AnimationController {
       return Math.floor(a.frame);
     }
 
-    // --- Mocap (motion matching against a live pose stream) ---
-    if (this.mocapEnabled && this.matcher) {
+    // --- SmoothCut bridge: the frames that carry the avatar into the cut ---
+    // A bridge is the avatar's own footage played on the way in, so it reads as motion
+    // rather than as a dissolve. `currentFrameIndex` already sits on the destination —
+    // the queue only decides what the viewer sees on the way there.
+    if (this.cutQueue.length) {
+      if (!this.pacer.advanceDue(now, this.getFrameDuration(), paced)) return -1;
+      return Math.floor(this.cutQueue.shift() as number);
+    }
+
+    // --- Sutil: Ania 1.0 playback, camera and mic as three narrow hooks ---
+    // The driver answers `null` on almost every tick, which is the documented "legacy
+    // runs this tick"; the only frame it ever forces is the two-tick blink detour.
+    // Gated on the DRIVER existing, not on `mocapEngine`, and that distinction is load
+    // bearing: `resolveOptions` reports `engine: 'legacy'` for level `off` too, so gating
+    // on the constant would swallow the matcher branch for the pre-levels call shape
+    // (`configureMocap({ poses, motionGraph, options })` + `setMocapEnabled(true)`, which
+    // is every already-deployed host) — the matcher would be built and never stepped.
+    // `syncSutil` only stands a driver up for an ACTIVE legacy-engine level, which is
+    // exactly the condition Python gates on (`plugin.py`: `if self._sutil is not None`).
+    if (this.mocapEnabled && this.matcher && this.sutil) {
+      {
+        const forced = this.sutil.onTick(
+          now,
+          this.currentFrameIndex,
+          this.matcher.micOpennessAt_(now, this.matcher.opt.stale_ms),
+          this.isTalking && !(this.sutil.mic?.owner ?? false),
+        );
+        if (forced !== null) {
+          if (!this.pacer.advanceDue(now, this.getFrameDuration(), paced)) return -1;
+          this.mocapActive = true;
+          this.currentFrameIndex = forced;
+          return Math.floor(forced);
+        }
+      }
+      this.mocapActive = false;
+      // fall through to the legacy branches below — that is the whole point of Sutil
+    } else if (this.mocapEnabled && this.matcher) {
       const fresh = this.matcher.hasFreshPose(now);
       if (fresh || this.mocapActive) {
         if (!this.pacer.advanceDue(now, this.getFrameDuration(), paced)) return -1;
 
+        const prevFrame = this.currentFrameIndex;
         const r = this.matcher.step(now, this.currentFrameIndex);
         this.currentFrameIndex = r.frame;
         this.mocapMode = r.mode;
         this.mocapDebug = r.debug;
+        this.mocapLastTransitionCost = r.transition_cost;
+        if (r.teleport) this.mocapTeleports += 1;
+        // §4.2: a transition this expensive is a visible jump. Arm the alpha blend so
+        // the renderer crossfades the previous frame out over <= 120 ms.
+        if (
+          r.frame !== prevFrame &&
+          shouldCrossfade(r.transition_cost, this.mocapResolved?.crossfade ?? 'auto', this.mocapCanBlend)
+        ) {
+          this.mocapFadeFrom = prevFrame;
+          this.mocapFadeStart = now;
+          this.mocapFadeMs = Math.min(CROSSFADE_MS, 3 * this.getFrameDuration());
+        }
 
         const emaE = r.debug.ema_E;
         if (emaE > 0.25) {
@@ -692,24 +1250,42 @@ export class AnimationController {
       ? { low: this.config.talk_range_low!, high: this.config.talk_range_high! }
       : { low: this.config.idle_range_low!, high: this.config.idle_range_high! };
 
+    // The frame still on screen — the one a cut would be seen against.
+    const shown = this.currentFrameIndex;
+    // Set by a planned cut when the frame to show now is not the cursor (a bridge).
+    let renderFrame: number | null = null;
     this.currentFrameIndex += this.direction;
 
+    const starts = this.isTalking ? this.config.talk_start_positions : this.config.idle_start_positions;
     if (this.currentFrameIndex >= range.high) {
       if (this.config.reverse_idle_selected || this.config.reverse_talk_selected) {
+        // A ping-pong turn is not a cut: `high - 1` is the frame the footage was already
+        // on. Re-choosing it through the graph would MANUFACTURE a jump, so it is left
+        // exactly as it was.
         this.direction = -1;
         this.currentFrameIndex = range.high - 1;
       } else {
-        this.currentFrameIndex = range.low;
+        // A wrap IS a cut — the last frame of the range against its first, two images
+        // with nothing in common. This is the second place Ania 1.0 pops.
+        renderFrame = this.planCut(range.low, range.high, starts, range.low, shown, [
+          shown - 1,
+          shown,
+          shown + 1,
+        ]);
       }
     } else if (this.currentFrameIndex < range.low) {
       if (this.config.reverse_idle_selected || this.config.reverse_talk_selected) {
         this.direction = 1;
         this.currentFrameIndex = range.low + 1;
       } else {
-        this.currentFrameIndex = range.high - 1;
+        renderFrame = this.planCut(range.low, range.high, starts, range.high - 1, shown, [
+          shown - 1,
+          shown,
+          shown + 1,
+        ]);
       }
     }
 
-    return Math.floor(this.currentFrameIndex);
+    return Math.floor(renderFrame === null ? this.currentFrameIndex : renderFrame);
   }
 }
