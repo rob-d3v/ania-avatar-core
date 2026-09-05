@@ -6,6 +6,7 @@
 // ===========================================================================
 
 import type { FpsClampOption } from './utils/frame-rate';
+import type { MocapIndex, PoseDescriptorMessage } from './motion-matcher/matcher';
 
 // ----- Providers -----
 
@@ -229,6 +230,9 @@ export interface PlayerEventMap {
   actionStart: string;
   actionEnd: string;
   error: Error;
+  /** Mocap coverage gap: EMA of the best RMS error stayed above 0.25 for 2s
+   * (`true`), or recovered (`false`). Best-effort UI hook. */
+  mocapGap: { gapOpen: boolean; emaError: number };
 }
 
 export type PlayerEventName = keyof PlayerEventMap;
@@ -269,6 +273,21 @@ export interface AniaPlayerInstance {
   setOpennessSource(fn: (() => number) | null): void;
   /** Set idle/talk speeds at runtime. */
   setSpeeds(idleSpeed?: number, talkSpeed?: number): void;
+  /** Load a pose bank (+ optional motion graph) for Ania 2.0 motion matching.
+   * `null` tears it down. Returns `false` on a `descriptorVersion` mismatch. */
+  configureMocap(index: MocapIndex | null): boolean;
+  /** Feed one live pose sample from a webcam/mocap capture source. */
+  pushPose(desc: PoseDescriptorMessage): void;
+  /** Enable/disable the mocap-driven frame source. */
+  setMocapEnabled(enabled: boolean): void;
+  /** Whether the mocap branch drove the last rendered frame. */
+  isMocapActive(): boolean;
+  /** `'LIVE' | 'DECAY' | 'IDLE' | null` (null before the first mocap tick). */
+  getMocapMode(): string | null;
+  /** Debug counters from the last mocap step (E_best, S_best, candidates, ...). */
+  getMocapDebug(): Record<string, number> | null;
+  /** Live target minus the currently rendered frame's descriptor. */
+  getMocapResidual(): number[] | null;
   /** The live underlying controller (advanced use). */
   readonly controller: import('./core/animation-controller').AnimationController | null;
   /** The `<canvas>` the engine renders to. */

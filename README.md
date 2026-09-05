@@ -82,6 +82,7 @@ The UMD/IIFE build exposes the global **`AniaAvatarCore`**:
 | Services        | `fetchActionsConfig`, `fetchLipSyncConfig`, `buildOpennessMap`, `professionalTTSRequest`, `WakeWordEngine`, Piper TTS helpers |
 | Utils           | `parseHotkey`, `matchesHotkey`, `playActionAudio`, `calcSpeeds`, `AvatarCache` |
 | i18n            | `getString`, `getStringList`, `createTranslator`, `availableLocales`, `hasLocale` |
+| Mocap (Ania 2.0) | `computeDescriptor`, `OneEuroVector`, `MotionMatcher`, `MatcherError` |
 
 See **[API.md](./API.md)** for the precise, final type signatures — wrapper
 libraries build against that contract.
@@ -137,6 +138,55 @@ registry.register({
   createEngine: () => ({ async speak(text) { /* ... */ } }),
 });
 ```
+
+## Mocap (Ania 2.0)
+
+A TypeScript port of the desktop player's motion-matching core
+(`AniaAPP/src/ania_player/plugins/mocap_webcam/`): a webcam/mocap pose stream
+drives frame selection against a pre-indexed avatar "pose bank", instead of the
+usual idle/talk cycling. It is additive — an avatar with no pose bank behaves
+exactly as before.
+
+```ts
+import { createAniaPlayer } from 'ania-avatar-core';
+
+const player = createAniaPlayer(canvas);
+await player.load({ url: '/avatars/ania.ania' });
+
+// poses.json (+ optional motion_graph.json), fetched however the host prefers:
+const poses = await fetch('/avatars/ania.poses.json').then((r) => r.json());
+const motionGraph = await fetch('/avatars/ania.motion_graph.json').then((r) => r.json());
+
+if (player.configureMocap({ poses, motionGraph })) {
+  player.setMocapEnabled(true);
+}
+
+// Feed one live pose sample per capture tick (from a MediaPipe Face/Pose/Hand
+// pipeline via `computeDescriptor`, or any estimator emitting the same wire shape):
+player.pushPose({ v: 1, t: performance.now(), mask: 127, norm: 'raw', d: values });
+
+player.isMocapActive();   // did the mocap branch drive the last rendered frame?
+player.getMocapMode();    // 'LIVE' | 'DECAY' | 'IDLE' | null
+player.getMocapDebug();   // { E_best, S_best, age_ms, candidates, ema_E, run_ticks, dwell }
+player.getMocapResidual(); // live target minus the chosen frame's descriptor
+```
+
+**Data contract** — PoseDescriptor v1: 48 float values (40 used, 8 reserved) plus
+an 8-bit group mask (`{HEAD, MOUTH, EYES, BROWS, BODY, HAND_L, HAND_R, reserved}`).
+`computeDescriptor(face, blend, pose, hands, mirror)` builds one from MediaPipe-shaped
+landmarks — either flat row-major `Float64Array|number[]` (stride 3 for face/hands,
+4 for pose) or arrays of `{x, y, z?, visibility?}` points — never from a 4x4 head
+matrix, so the capture side, the offline pose indexer, and this port all land in
+the same space. `descriptorVersion` gates everything; `configureMocap` returns
+`false` (and logs) on a mismatch instead of throwing, so a host keeps playing
+normally with mocap simply off.
+
+See `wiki/concepts/ania-2-0-pose-descriptor-and-motion-graph.md` in the
+AnimatedAvatar repo for the full spec (cost space, LIVE/DECAY/IDLE modes, the
+teleport gate, One-Euro tuning per group). The parity fixtures under
+`AniaAPP/tests/fixtures/mocap/` pin this port's behaviour against the Python
+reference bit-for-bit (frame/preload/mode selection is exact; the descriptor and
+One-Euro maths match to float32/float64 rounding).
 
 ## Optional dependencies
 

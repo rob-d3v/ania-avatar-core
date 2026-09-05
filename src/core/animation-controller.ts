@@ -43,6 +43,8 @@ import {
   normalizeFpsClamp,
 } from '../utils/frame-rate';
 import type { FpsClampWindow } from '../utils/frame-rate';
+import { MatcherError, MotionMatcher, OneEuroVector } from '../motion-matcher';
+import type { MocapIndex, PoseDescriptorMessage } from '../motion-matcher';
 import type {
   ActionConfig,
   AnimationControllerConfig,
@@ -152,6 +154,18 @@ export class AnimationController {
    * opens, through its own AGC channel; the gate still keys off the RMS.
    */
   public getSpectralOpennessFn: (() => number) | null = null;
+
+  // ----- Mocap (Ania 2.0 motion matching) -----
+  private matcher: MotionMatcher | null = null;
+  private mocapEnabled = false;
+  private mocapActive = false;
+  private mocapMode: string | null = null;
+  private mocapDebug: Record<string, number> | null = null;
+  private mocapGapMs = 0;
+  private mocapGapFired = false;
+  /** Fired when the mocap gap EMA (best RMS error) stays above 0.25 for 2s, and
+   * again when it recovers. Best-effort UI hook, not covered by parity fixtures. */
+  public onMocapGapCallback: ((gapOpen: boolean, emaError: number) => void) | null = null;
 
   constructor(config: AnimationControllerConfig, frameCount: number) {
     this.config = config;
@@ -451,6 +465,63 @@ export class AnimationController {
     }
   }
 
+  // ===== Mocap (Ania 2.0 motion matching) =====
+
+  /**
+   * Load a pose bank (+ optional motion graph) built for this avatar.
+   * `null` tears the mocap path down. Returns `false` (and logs) on a
+   * `descriptorVersion` mismatch — the caller keeps playing normally.
+   */
+  configureMocap(index: MocapIndex | null): boolean {
+    if (index === null) {
+      this.matcher = null;
+      this.mocapEnabled = false;
+      this.mocapActive = false;
+      this.mocapMode = null;
+      this.mocapDebug = null;
+      return true;
+    }
+    try {
+      this.matcher = new MotionMatcher(index.poses, index.motionGraph ?? null, index.options, new OneEuroVector());
+      return true;
+    } catch (err) {
+      if (err instanceof MatcherError) {
+        console.warn('[ania-avatar-core] configureMocap:', err.message);
+        this.matcher = null;
+        return false;
+      }
+      throw err;
+    }
+  }
+
+  /** Feed one live pose sample (from a webcam/mocap capture source). */
+  pushPose(desc: PoseDescriptorMessage): void {
+    this.matcher?.pushPose(desc.t, desc.mask, desc.d, desc.norm ?? 'raw');
+  }
+
+  setMocapEnabled(enabled: boolean): void {
+    this.mocapEnabled = enabled;
+    if (!enabled) this.mocapActive = false;
+  }
+
+  /** Whether the mocap branch drove the last rendered frame. */
+  isMocapActive(): boolean {
+    return this.mocapActive;
+  }
+
+  getMocapMode(): string | null {
+    return this.mocapMode;
+  }
+
+  getMocapDebug(): Record<string, number> | null {
+    return this.mocapDebug;
+  }
+
+  /** Live target minus the currently rendered frame's descriptor (affine warp input). */
+  getMocapResidual(): number[] | null {
+    return this.matcher ? Array.from(this.matcher.residual(this.currentFrameIndex)) : null;
+  }
+
   /** The talk range, floored and bounded by the real frame count. */
   private talkRange(): { low: number; high: number } {
     const low = Math.floor(num(this.config.talk_range_low, 0));
@@ -531,6 +602,11 @@ export class AnimationController {
     // with `fpsClamp: false` keeps the original "reset to now" gate.
     const paced = this.fpsClamp !== null;
 
+    // The matcher's audio prior has to stay in sync with the mouth every tick,
+    // independent of which branch below actually renders the frame — sound
+    // keeps flowing while e.g. an action plays.
+    if (this.matcher) this.matcher.setAudio(this.isTalking, this.envelope);
+
     // --- Active action takes priority ---
     if (this.activeAction) {
       const a = this.activeAction;
@@ -546,6 +622,42 @@ export class AnimationController {
       }
       this.currentFrameIndex = a.frame;
       return Math.floor(a.frame);
+    }
+
+    // --- Mocap (motion matching against a live pose stream) ---
+    if (this.mocapEnabled && this.matcher) {
+      const fresh = this.matcher.hasFreshPose(now);
+      if (fresh || this.mocapActive) {
+        if (!this.pacer.advanceDue(now, this.getFrameDuration(), paced)) return -1;
+
+        const r = this.matcher.step(now, this.currentFrameIndex);
+        this.currentFrameIndex = r.frame;
+        this.mocapMode = r.mode;
+        this.mocapDebug = r.debug;
+
+        const emaE = r.debug.ema_E;
+        if (emaE > 0.25) {
+          this.mocapGapMs += dt;
+          if (this.mocapGapMs >= 2000 && !this.mocapGapFired) {
+            this.mocapGapFired = true;
+            this.onMocapGapCallback?.(true, emaE);
+          }
+        } else {
+          this.mocapGapMs = 0;
+          if (this.mocapGapFired) {
+            this.mocapGapFired = false;
+            this.onMocapGapCallback?.(false, emaE);
+          }
+        }
+
+        // `handoff`: the matcher has been parked on the idle range long enough
+        // that the legacy cycler should take back over. It resumes from
+        // `currentFrameIndex` as-is below — no `jumpToRandomStartPosition` — so
+        // the frame the matcher settled on is exactly where cycling continues.
+        this.mocapActive = !r.handoff;
+        return Math.floor(this.currentFrameIndex);
+      }
+      this.mocapActive = false;
     }
 
     // --- Audio-driven lip-sync (only while talking, needs an audio hook) ---

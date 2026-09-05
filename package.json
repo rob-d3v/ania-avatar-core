@@ -43,7 +43,7 @@
     "build": "node scripts/gen-strings-index.mjs && tsup",
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist",
-    "test": "node examples/test-frame-rate.mjs && node examples/test-lip-dsp.mjs && node examples/test-lip-animator.mjs"
+    "test": "node examples/test-frame-rate.mjs && node examples/test-lip-dsp.mjs && node examples/test-lip-animator.mjs && node examples/test-mocap-descriptor.mjs && node examples/test-mocap-one-euro.mjs && node examples/test-mocap-matcher.mjs"
   },
   "peerDependencies": {
     "onnxruntime-web": "*",

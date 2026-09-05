@@ -429,6 +429,305 @@ declare class FramePacer {
     reanchor(): void;
 }
 
+/**
+ * PoseDescriptor v1 — the shared pose space of Ania 2.0.
+ *
+ * 1:1 TypeScript port of `AniaAPP/src/ania_player/plugins/mocap_webcam/descriptor.py`.
+ * See that file's docstring and `wiki/concepts/ania-2-0-pose-descriptor-and-motion-graph.md`
+ * for the full spec. Do not change dim order / meaning / constants without bumping
+ * {@link DESCRIPTOR_VERSION} on both sides.
+ *
+ * Landmark input shapes
+ * ----------------------
+ * `computeDescriptor` accepts each of face/pose/hands as either:
+ *   - a flat row-major `Float64Array | number[]` with a fixed stride: 3 for face
+ *     and hands (x, y, z), 4 for pose (x, y, z, visibility) — visibility is always
+ *     read from column 3 for a flat pose array;
+ *   - an array of MediaPipe-JS-shaped `{x, y, z?, visibility?}` points, in which
+ *     case `visibility` is read per-point when present (pose only).
+ */
+declare const DESCRIPTOR_VERSION = 1;
+declare const NDIMS = 48;
+declare const NUSED = 40;
+declare const G_HEAD = 0;
+declare const G_MOUTH = 1;
+declare const G_EYES = 2;
+declare const G_BROWS = 3;
+declare const G_BODY = 4;
+declare const G_HAND_L = 5;
+declare const G_HAND_R = 6;
+declare const G_RESERVED = 7;
+declare const GROUP_NAMES: readonly ["HEAD", "MOUTH", "EYES", "BROWS", "BODY", "HAND_L", "HAND_R", "RESERVED"];
+declare const FACE_GROUPS: number;
+declare const POSE_GROUPS: number;
+declare const DIM_NAMES: string[];
+declare const DIM_INDEX: Record<string, number>;
+declare const DIM_GROUP: Int32Array;
+declare const WEIGHTS: Float64Array;
+declare const RETARGET: boolean[];
+/** Neutral pose ("hands down", face level, body centred). Non-mirrored: the
+ * subject's LEFT hand appears on image-RIGHT (+x). */
+declare const NEUTRAL: Float64Array;
+/** Negate lateral dims, swap L/R pairs. */
+declare const MIRROR_NEGATE: number[];
+declare const MIRROR_SWAP: [number, number][];
+declare const F_NOSE_TIP = 1;
+declare const F_CHEEK_R = 234;
+declare const F_CHEEK_L = 454;
+declare const F_EYE_R: [number, number];
+declare const F_EYE_L: [number, number];
+declare const F_EYE_R_LIDS: [number, number][];
+declare const F_EYE_L_LIDS: [number, number][];
+declare const F_IRIS_R = 468;
+declare const F_IRIS_L = 473;
+declare const F_LIP_PAIRS: [number, number][];
+declare const F_MOUTH_CORNERS: [number, number];
+declare const F_BROW_R = 105;
+declare const F_BROW_L = 334;
+declare const P_NOSE = 0;
+declare const P_EYE_L = 2;
+declare const P_EYE_R = 5;
+declare const P_EAR_L = 7;
+declare const P_EAR_R = 8;
+declare const P_SHOULDER_L = 11;
+declare const P_SHOULDER_R = 12;
+declare const P_ELBOW_L = 13;
+declare const P_ELBOW_R = 14;
+declare const P_WRIST_L = 15;
+declare const P_WRIST_R = 16;
+declare const H_WRIST = 0;
+declare const H_MCP_MID = 9;
+declare const H_TIPS: [number, number, number, number];
+declare const BLENDSHAPE_NAMES: readonly ["jawOpen", "mouthSmileLeft", "mouthSmileRight", "mouthFrownLeft", "mouthFrownRight", "mouthPucker", "mouthFunnel", "eyeWideLeft", "eyeWideRight", "browInnerUp", "browDownLeft", "browDownRight"];
+/** Flat row-major landmarks: `[x0,y0,z0, x1,y1,z1, ...]` (stride 3) or with a
+ * trailing visibility column for pose (stride 4). */
+type FlatLandmarks = Float64Array | number[];
+/** MediaPipe-JS landmark point shape. */
+interface LandmarkPoint {
+    x: number;
+    y: number;
+    z?: number;
+    visibility?: number;
+}
+type Landmarks = FlatLandmarks | ReadonlyArray<LandmarkPoint>;
+declare function blank(): [Float64Array, number];
+declare function applyMirror(values: Float64Array, mask: number): [Float64Array, number];
+/**
+ * Build a PoseDescriptor v1 from generic landmark arrays.
+ *
+ * @param face image-normalised face landmarks (>=468 points), or null
+ * @param blend `{blendshapeName: score}`, or null
+ * @param pose image-normalised pose landmarks (33 points), or null
+ * @param hands 0..2 hand landmark sets, or null
+ * @param mirror self-view webcam: negate lateral dims + swap L/R groups
+ * @returns `[values (48 floats, float32 precision), mask]`
+ */
+declare function computeDescriptor(face?: Landmarks | null, blend?: Record<string, number> | null, pose?: Landmarks | null, hands?: (Landmarks | null | undefined)[] | null, mirror?: boolean): [Float64Array, number];
+/** Per-dim 0/1 vector of active dims for a group mask. */
+declare function groupVector(mask: number): Float64Array;
+/** Approximate (yaw, pitch, roll) in degrees for HUDs / reports. */
+declare function headDegrees(values: ArrayLike<number>): [number, number, number];
+
+/**
+ * One-Euro filter (Casiez et al., CHI 2012), vectorised over a descriptor.
+ *
+ * 1:1 port of `AniaAPP/src/ania_player/plugins/mocap_webcam/one_euro.py`.
+ *
+ * Per-group tuning (min_cutoff Hz, beta): HEAD 1.0/0.3, MOUTH 2.5/1.0, EYES 3.0/1.0
+ * (blinks are fast), BROWS 1.5/0.5, BODY 0.8/0.2, HANDS 1.2/0.5, d_cutoff 1.0
+ * everywhere. Dims absent from the live mask are not updated (their state is
+ * frozen), so a hand that reappears does not "slide in" from a stale value.
+ */
+declare const GROUP_PARAMS: Record<number, [number, number]>;
+declare const MIN_DT_MS = 10;
+declare const MAX_DT_MS = 200;
+declare class OneEuroVector {
+    readonly minCutoff: Float64Array;
+    readonly beta: Float64Array;
+    readonly dCutoff: number;
+    readonly n: number;
+    private xHat;
+    private dxHat;
+    private initialised;
+    private tPrev;
+    constructor(minCutoff?: ArrayLike<number>, beta?: ArrayLike<number>, dCutoff?: number, n?: number);
+    reset(): void;
+    /** Filter sample `x` at time `tMs`. `active` = per-dim 0/1 (or null/undefined = all). */
+    filter(tMs: number, x: ArrayLike<number>, active?: ArrayLike<number> | null): Float64Array;
+    filterMasked(tMs: number, x: ArrayLike<number>, mask: number): Float64Array;
+}
+
+/**
+ * MotionMatcher — deterministic frame selection for a frame-bank avatar.
+ *
+ * 1:1 TypeScript port of `AniaAPP/src/ania_player/plugins/mocap_webcam/matcher.py`.
+ * See that file's docstring and `wiki/concepts/ania-2-0-pose-descriptor-and-motion-graph.md`
+ * for the full spec (cost space, modes, teleport gate, etc). Pure module: no DOM,
+ * no wall clock (time is injected), no RNG — identical semantics to the Python are
+ * pinned by the parity fixtures under `AniaAPP/tests/fixtures/mocap`.
+ */
+
+declare const MODE_LIVE = "LIVE";
+declare const MODE_DECAY = "DECAY";
+declare const MODE_IDLE = "IDLE";
+declare const SEQ_IDLE = 0;
+declare const SEQ_TALK = 1;
+declare const SEQ_OTHER = 2;
+declare const KIND_KNN = 0;
+declare const KIND_SUCC = 1;
+declare const KIND_PRED = 2;
+declare const KIND_HUB = 3;
+declare class MatcherError extends Error {
+    constructor(message: string);
+}
+interface StepResult {
+    frame: number;
+    mode: string;
+    preload: number[];
+    handoff: boolean;
+    teleport: boolean;
+    debug: Record<string, number>;
+}
+/**
+ * Field names match the Python `MatcherOptions` dataclass verbatim (snake_case)
+ * rather than TS convention, so a `poses.json`/options JSON produced for the
+ * Python side can be passed to `new MotionMatcher(...)` unchanged.
+ */
+interface MatcherOptions {
+    w_t: number;
+    c_jump: number;
+    w_a_mocap: number;
+    w_a_audio: number;
+    mouth_policy: 'audio' | 'mocap';
+    stale_ms: number;
+    idle_after_ms: number;
+    decay_tau_ms: number;
+    teleport_cooldown_ms: number;
+    teleport_min_gain: number;
+    min_run_ticks: number;
+    recent_len: number;
+    global_m: number;
+    global_search_every: number;
+    hold_free_ticks: number;
+    hold_penalty_per_tick: number;
+    hold_penalty_max: number;
+    step_penalty: number;
+    cache_penalty: number;
+    lookahead_w: number;
+    allow_skip: boolean;
+    skip_gain: number;
+    idle_handoff_ticks: number;
+    gap_ema_tau_ms: number;
+    /** Python-only float64-vs-float32 toggle; JS numbers are always float64, so
+     * this is accepted for wire compatibility but has no effect here. */
+    parity_strict?: boolean;
+}
+declare const DEFAULT_MATCHER_OPTIONS: MatcherOptions;
+/** `ania.poses` bank (`poses.json`), as consumed by {@link MotionMatcher}. */
+interface PosesBank {
+    descriptorVersion: number;
+    dims?: number;
+    frameCount: number;
+    data: ArrayLike<number>;
+    mask?: ArrayLike<number>;
+    dimValid?: ArrayLike<number>;
+    neutral?: ArrayLike<number>;
+    ranges?: {
+        p05?: ArrayLike<number>;
+        p95?: ArrayLike<number>;
+    };
+    restFrame?: number;
+    seq?: {
+        name: string;
+        low: number;
+        high: number;
+    }[];
+    frameSeq?: ArrayLike<number>;
+    cuts?: ArrayLike<number>;
+    [key: string]: unknown;
+}
+/** `motion_graph.json` CSR, as consumed by {@link MotionMatcher}. */
+interface MotionGraph {
+    offsets: ArrayLike<number>;
+    to: ArrayLike<number>;
+    cost: ArrayLike<number>;
+    kind?: ArrayLike<number>;
+    restFrame?: number;
+    [key: string]: unknown;
+}
+/** Bundle passed to `AnimationController.configureMocap`. */
+interface MocapIndex {
+    poses: PosesBank;
+    motionGraph?: MotionGraph | null;
+    options?: Partial<MatcherOptions>;
+}
+/** Wire message pushed via `AnimationController.pushPose`. */
+interface PoseDescriptorMessage {
+    v: 1;
+    t: number;
+    mask: number;
+    norm?: 'raw' | 'cal';
+    d: ArrayLike<number>;
+}
+declare class MotionMatcher {
+    readonly opt: MatcherOptions;
+    readonly N: number;
+    private readonly F;
+    private readonly Vmat;
+    private readonly dimValid;
+    private readonly weights;
+    private readonly neutral;
+    private readonly p05;
+    private readonly p95;
+    private restFrame;
+    private readonly seqOf;
+    private readonly seqKindOf;
+    private readonly kindIndex;
+    private readonly cutAfter;
+    private readonly offsets;
+    private readonly to;
+    private readonly cost;
+    private readonly edgeCost;
+    private readonly oneEuro;
+    private xHat;
+    private maskLive;
+    private lastPoseAt;
+    private lastStepAt;
+    private talking;
+    private envelope;
+    private intensity;
+    private recent;
+    private runTicks;
+    private dwellTicks;
+    private lastTeleportAt;
+    private idleTicks;
+    private tick;
+    private lastS;
+    private lastDen;
+    private lastGlobal;
+    private denCacheMask;
+    private denCache;
+    private emaEBest;
+    constructor(poses: PosesBank, graph?: MotionGraph | null, options?: Partial<MatcherOptions>, oneEuro?: OneEuroVector | null);
+    /** The idle frame nearest the neutral pose — the DECAY-mode hub target. */
+    getRestFrame(): number;
+    reset(): void;
+    pushPose(tMs: number, mask: number, values: ArrayLike<number>, norm?: 'raw' | 'cal'): void;
+    setAudio(talking: boolean, envelope: number, intensity?: number): void;
+    setMouthPolicy(policy: string): void;
+    hasFreshPose(nowMs: number): boolean;
+    private modeAt;
+    private isNatural;
+    private edgesOf;
+    private transition;
+    private scores;
+    step(nowMs: number, currentFrame: number, isCached?: (j: number) => boolean): StepResult;
+    /** Live target minus the chosen frame's descriptor (for the affine warp). */
+    residual(frame: number): Float64Array;
+    /** RMS pose error of x vs one frame under a live mask (E units). */
+    poseError(x: ArrayLike<number>, mask: number, frame: number): number;
+}
+
 /** Extra options for {@link AnimationController.configureLipsSync}. */
 interface LipSyncExtraOptions {
     /** 1..4.5 loud/quiet sweep-speed ratio. Default 2.237. */
@@ -485,6 +784,16 @@ declare class AnimationController {
      * opens, through its own AGC channel; the gate still keys off the RMS.
      */
     getSpectralOpennessFn: (() => number) | null;
+    private matcher;
+    private mocapEnabled;
+    private mocapActive;
+    private mocapMode;
+    private mocapDebug;
+    private mocapGapMs;
+    private mocapGapFired;
+    /** Fired when the mocap gap EMA (best RMS error) stays above 0.25 for 2s, and
+     * again when it recovers. Best-effort UI hook, not covered by parity fixtures. */
+    onMocapGapCallback: ((gapOpen: boolean, emaError: number) => void) | null;
     constructor(config: AnimationControllerConfig, frameCount: number);
     private jumpToRandomStartPosition;
     setTalkingState(talking: boolean): void;
@@ -556,6 +865,21 @@ declare class AnimationController {
      * and fixed it the same way. It is the one sanctioned jump cut.
      */
     forceLipsClosed(): void;
+    /**
+     * Load a pose bank (+ optional motion graph) built for this avatar.
+     * `null` tears the mocap path down. Returns `false` (and logs) on a
+     * `descriptorVersion` mismatch — the caller keeps playing normally.
+     */
+    configureMocap(index: MocapIndex | null): boolean;
+    /** Feed one live pose sample (from a webcam/mocap capture source). */
+    pushPose(desc: PoseDescriptorMessage): void;
+    setMocapEnabled(enabled: boolean): void;
+    /** Whether the mocap branch drove the last rendered frame. */
+    isMocapActive(): boolean;
+    getMocapMode(): string | null;
+    getMocapDebug(): Record<string, number> | null;
+    /** Live target minus the currently rendered frame's descriptor (affine warp input). */
+    getMocapResidual(): number[] | null;
     /** The talk range, floored and bounded by the real frame count. */
     private talkRange;
     /**
@@ -766,6 +1090,12 @@ interface PlayerEventMap {
     actionStart: string;
     actionEnd: string;
     error: Error;
+    /** Mocap coverage gap: EMA of the best RMS error stayed above 0.25 for 2s
+     * (`true`), or recovered (`false`). Best-effort UI hook. */
+    mocapGap: {
+        gapOpen: boolean;
+        emaError: number;
+    };
 }
 type PlayerEventName = keyof PlayerEventMap;
 /** Imperative handle returned by {@link createAniaPlayer}. */
@@ -797,6 +1127,21 @@ interface AniaPlayerInstance {
     setOpennessSource(fn: (() => number) | null): void;
     /** Set idle/talk speeds at runtime. */
     setSpeeds(idleSpeed?: number, talkSpeed?: number): void;
+    /** Load a pose bank (+ optional motion graph) for Ania 2.0 motion matching.
+     * `null` tears it down. Returns `false` on a `descriptorVersion` mismatch. */
+    configureMocap(index: MocapIndex | null): boolean;
+    /** Feed one live pose sample from a webcam/mocap capture source. */
+    pushPose(desc: PoseDescriptorMessage): void;
+    /** Enable/disable the mocap-driven frame source. */
+    setMocapEnabled(enabled: boolean): void;
+    /** Whether the mocap branch drove the last rendered frame. */
+    isMocapActive(): boolean;
+    /** `'LIVE' | 'DECAY' | 'IDLE' | null` (null before the first mocap tick). */
+    getMocapMode(): string | null;
+    /** Debug counters from the last mocap step (E_best, S_best, candidates, ...). */
+    getMocapDebug(): Record<string, number> | null;
+    /** Live target minus the currently rendered frame's descriptor. */
+    getMocapResidual(): number[] | null;
     /** The live underlying controller (advanced use). */
     readonly controller: AnimationController | null;
     /** The `<canvas>` the engine renders to. */
@@ -1338,4 +1683,4 @@ declare function getStringList(key: string, locale?: string, opts?: {
 /** Build a translator bound to one locale + optional override table. */
 declare function createTranslator(locale?: string, override?: MessagesOverride): Translator;
 
-export { type ActionAudioHandle, type ActionConfig, type ActionInfo, type AniaAnimationData, type AniaAvatarData, AniaPlayer, type AniaPlayerInstance, type AniaPlayerRenderOptions, AnimationController, type AnimationControllerConfig, AvatarCache, BUILTIN_PLUGINS, COMMAND_LIST, type CacheStats, type CommandContext, type CommandDescriptor, type CommandResult, DEFAULT_LOCALE, Emitter, FALLBACK_LOCALE, FPS_CLAMP_DEFAULT, FPS_FALLBACK, type FpsClampOption, type FpsClampWindow, type FrameIntervalArgs, FramePacer, type I18nVars, LipAnimator, type LipAnimatorBranch, type LipAnimatorOptions, type LipAnimatorStepArgs, LipSyncAnalyser, type LipSyncAnalyserOptions, type LipSyncConfig, LipSyncDsp, type LipSyncDspOptions, type LipSyncDspReading, type LipSyncServerConfig, type LipSyncSustainStyle, type LoadSource, type MessagesOverride, type NativeFps, type OptimalSpeeds, PLUGIN_KINDS, type ParsedHotkey, type PiperInitOptions, type PiperStatus, type PlayerEventMap, type PlayerEventName, type PlayerOptions, type PlayerPosition, type Plugin, type PluginContext, type PluginKind, PluginRegistry, type PluginRegistryLike, type PluginSettingField, type STTEngine, type STTProvider, STT_PROVIDER_TO_PLUGIN, type SpeechRecognitionOptions, SpeechRecognizer, type TTSConfig, type TTSEngine, type TTSProvider, type TTSResult, TTS_PROVIDER_TO_PLUGIN, type Translator, WakeWordEngine, type WakeWordEngineLike, type WakeWordStartConfig, actionAudioPlugin, availableLocales, buildControllerConfig, buildOpennessMap, calcSpeeds, calculateOptimalSpeeds, checkPiperStatus, clearAvatarCache, createAniaPlayer, createTranslator, decryptAniaFile, deleteCachedAvatar, disposePiper, executeCommand, fetchActionsConfig, fetchLipSyncConfig, findClosedFrame, fpsFromIntervalMs, frameIntervalMs, getCacheStats, getCachedAvatar, getDefaultRegistry, getPiperStatus, getString, getStringList, getWakeWordEngine, hasLocale, initPiper, installPostMessageControl, isWakeWordSupported, matchesHotkey, normalizeFpsClamp, parseCommandLine, parseHotkey, piperSynthesize, playActionAudio, preloadPiper, professionalTTSRequest, registerBuiltins, resolveNativeFps, setCachedAvatar, sttBrowserPlugin, sttGooglePlugin, ttsAzurePlugin, ttsBrowserPlugin, ttsElevenLabsPlugin, ttsGooglePlugin, ttsPiperPlugin, ttsTiktokPlugin, validatePlugin, wakeWordPlugin };
+export { type ActionAudioHandle, type ActionConfig, type ActionInfo, type AniaAnimationData, type AniaAvatarData, AniaPlayer, type AniaPlayerInstance, type AniaPlayerRenderOptions, AnimationController, type AnimationControllerConfig, AvatarCache, BLENDSHAPE_NAMES, BUILTIN_PLUGINS, COMMAND_LIST, type CacheStats, type CommandContext, type CommandDescriptor, type CommandResult, DEFAULT_LOCALE, DEFAULT_MATCHER_OPTIONS, DESCRIPTOR_VERSION, DIM_GROUP, DIM_INDEX, DIM_NAMES, Emitter, FACE_GROUPS, FALLBACK_LOCALE, FPS_CLAMP_DEFAULT, FPS_FALLBACK, F_BROW_L, F_BROW_R, F_CHEEK_L, F_CHEEK_R, F_EYE_L, F_EYE_L_LIDS, F_EYE_R, F_EYE_R_LIDS, F_IRIS_L, F_IRIS_R, F_LIP_PAIRS, F_MOUTH_CORNERS, F_NOSE_TIP, type FlatLandmarks, type FpsClampOption, type FpsClampWindow, type FrameIntervalArgs, FramePacer, GROUP_NAMES, GROUP_PARAMS, G_BODY, G_BROWS, G_EYES, G_HAND_L, G_HAND_R, G_HEAD, G_MOUTH, G_RESERVED, H_MCP_MID, H_TIPS, H_WRIST, type I18nVars, KIND_HUB, KIND_KNN, KIND_PRED, KIND_SUCC, type LandmarkPoint, type Landmarks, LipAnimator, type LipAnimatorBranch, type LipAnimatorOptions, type LipAnimatorStepArgs, LipSyncAnalyser, type LipSyncAnalyserOptions, type LipSyncConfig, LipSyncDsp, type LipSyncDspOptions, type LipSyncDspReading, type LipSyncServerConfig, type LipSyncSustainStyle, type LoadSource, MAX_DT_MS, MIN_DT_MS, MIRROR_NEGATE, MIRROR_SWAP, MODE_DECAY, MODE_IDLE, MODE_LIVE, MatcherError, type MatcherOptions, type MessagesOverride, type MocapIndex, type MotionGraph, MotionMatcher, NDIMS, NEUTRAL, NUSED, type NativeFps, OneEuroVector, type OptimalSpeeds, PLUGIN_KINDS, POSE_GROUPS, P_EAR_L, P_EAR_R, P_ELBOW_L, P_ELBOW_R, P_EYE_L, P_EYE_R, P_NOSE, P_SHOULDER_L, P_SHOULDER_R, P_WRIST_L, P_WRIST_R, type ParsedHotkey, type PiperInitOptions, type PiperStatus, type PlayerEventMap, type PlayerEventName, type PlayerOptions, type PlayerPosition, type Plugin, type PluginContext, type PluginKind, PluginRegistry, type PluginRegistryLike, type PluginSettingField, type PoseDescriptorMessage, type PosesBank, RETARGET, SEQ_IDLE, SEQ_OTHER, SEQ_TALK, type STTEngine, type STTProvider, STT_PROVIDER_TO_PLUGIN, type SpeechRecognitionOptions, SpeechRecognizer, type StepResult, type TTSConfig, type TTSEngine, type TTSProvider, type TTSResult, TTS_PROVIDER_TO_PLUGIN, type Translator, WEIGHTS, WakeWordEngine, type WakeWordEngineLike, type WakeWordStartConfig, actionAudioPlugin, applyMirror, availableLocales, blank, buildControllerConfig, buildOpennessMap, calcSpeeds, calculateOptimalSpeeds, checkPiperStatus, clearAvatarCache, computeDescriptor, createAniaPlayer, createTranslator, decryptAniaFile, deleteCachedAvatar, disposePiper, executeCommand, fetchActionsConfig, fetchLipSyncConfig, findClosedFrame, fpsFromIntervalMs, frameIntervalMs, getCacheStats, getCachedAvatar, getDefaultRegistry, getPiperStatus, getString, getStringList, getWakeWordEngine, groupVector, hasLocale, headDegrees, initPiper, installPostMessageControl, isWakeWordSupported, matchesHotkey, normalizeFpsClamp, parseCommandLine, parseHotkey, piperSynthesize, playActionAudio, preloadPiper, professionalTTSRequest, registerBuiltins, resolveNativeFps, setCachedAvatar, sttBrowserPlugin, sttGooglePlugin, ttsAzurePlugin, ttsBrowserPlugin, ttsElevenLabsPlugin, ttsGooglePlugin, ttsPiperPlugin, ttsTiktokPlugin, validatePlugin, wakeWordPlugin };

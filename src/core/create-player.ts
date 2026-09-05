@@ -26,6 +26,7 @@ import type {
   PlayerEventName,
   PlayerOptions,
 } from '../types';
+import type { MocapIndex, PoseDescriptorMessage } from '../motion-matcher';
 
 const isCanvas = (el: Element): el is HTMLCanvasElement =>
   el.tagName === 'CANVAS' || el instanceof HTMLCanvasElement;
@@ -71,6 +72,7 @@ export function createAniaPlayer(
     c.onActionStartCallback = (id) => emitter.emit('actionStart', id);
     c.onActionCompleteCallback = (id) => emitter.emit('actionEnd', id);
     c.onActionCancelCallback = (id) => emitter.emit('actionEnd', id);
+    c.onMocapGapCallback = (gapOpen, emaError) => emitter.emit('mocapGap', { gapOpen, emaError });
   };
 
   const applyInitialLipSync = (c: AnimationController): void => {
@@ -262,6 +264,34 @@ export function createAniaPlayer(
 
     setSpeeds(idleSpeed, talkSpeed) {
       controller?.setSpeeds(idleSpeed, talkSpeed);
+    },
+
+    configureMocap(index: MocapIndex | null) {
+      return controller?.configureMocap(index) ?? false;
+    },
+
+    pushPose(desc: PoseDescriptorMessage) {
+      controller?.pushPose(desc);
+    },
+
+    setMocapEnabled(enabled) {
+      controller?.setMocapEnabled(enabled);
+    },
+
+    isMocapActive() {
+      return controller?.isMocapActive() ?? false;
+    },
+
+    getMocapMode() {
+      return controller?.getMocapMode() ?? null;
+    },
+
+    getMocapDebug() {
+      return controller?.getMocapDebug() ?? null;
+    },
+
+    getMocapResidual() {
+      return controller?.getMocapResidual() ?? null;
     },
 
     get controller() {
