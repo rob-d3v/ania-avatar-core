@@ -233,6 +233,25 @@ const runDsp = (dt) => {
 }
 
 // ---- Report ----
+// --- adaptive gate (2026-11-10): quiet TTS opens, breath and room noise stay shut
+{
+  const run = (d, ms, rms) => { let r; for (let t = 0; t < ms; t += 16) r = d.poll(16, rms); return r; };
+  const d = new LipSyncDsp();
+  run(d, 1500, 0.06);           // a sentence at a quiet-TTS level
+  run(d, 400, 0);               // pause between phrases
+  ok('adaptive: weak syllable (0.012) after quiet speech opens', run(d, 120, 0.012).gateOpen);
+  run(d, 600, 0);
+  ok('adaptive: breath (0.004) after speech stays closed', !run(d, 300, 0.004).gateOpen);
+  const fixo = new LipSyncDsp({ adaptiveThreshold: false });
+  run(fixo, 1500, 0.06); run(fixo, 400, 0);
+  ok('fixed gate: 0.012 stays closed as before', !run(fixo, 120, 0.012).gateOpen);
+  const sala = new LipSyncDsp();
+  ok('adaptive: steady room noise (0.01) never opens after it settles', (run(sala, 20000, 0.01), !run(sala, 2000, 0.01).gateOpen));
+  const alto = new LipSyncDsp();
+  run(alto, 1500, 0.2);
+  ok('adaptive: never above the fixed threshold', alto.threshold() <= alto.amplitudeThreshold + 1e-12);
+}
+
 console.log(`\nlip sync dsp: ${pass} passed, ${fail} failed`);
 if (failures.length) {
   console.log('\n' + failures.join('\n'));

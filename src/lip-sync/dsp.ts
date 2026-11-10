@@ -82,6 +82,21 @@ export interface LipSyncDspOptions {
   emaHalfLifeRefMs?: number;
   /** Reference window the peak decay was measured over. Default 30 ms. */
   peakDecayRefMs?: number;
+  /**
+   * Adaptive gate threshold. Default true. A fixed 0.020 RMS left quiet TTS
+   * voices (a Piper voice without peak normalisation sits ~7 dB lower) below the
+   * gate on weak syllables and phrase endings: audio came out and the mouth
+   * stayed shut. With this on, the effective threshold is
+   * `clamp(max(levelPeak * adaptiveRatio, noiseFloor * noiseRatio), minThreshold, amplitudeThreshold)`:
+   * never above the old fixed value, so loud sources behave exactly as before.
+   */
+  adaptiveThreshold?: boolean;
+  /** Fraction of the recent speech level that counts as voiced. Default 0.12 (-18 dB). */
+  adaptiveRatio?: number;
+  /** Multiple of the tracked noise floor the gate stays above. Default 3 (+9.5 dB). */
+  noiseRatio?: number;
+  /** Lowest threshold the adaptive gate may reach. Default 0.010 (-40 dBFS): steady room noise below it never opens, even before the floor tracker settles. */
+  minThreshold?: number;
 }
 
 /** One DSP reading, as returned by {@link LipSyncDsp.poll}. */
@@ -112,6 +127,14 @@ export class LipSyncDsp {
   public peakFloor: number;
   public emaHalfLifeRefMs: number;
   public peakDecayRefMs: number;
+  public adaptiveThreshold: boolean;
+  public adaptiveRatio: number;
+  public noiseRatio: number;
+  public minThreshold: number;
+  /** Slow-decaying peak of the RAW rms (speech level). Survives `reset()`. */
+  public levelPeak = 0;
+  /** Tracked noise floor: falls fast, rises slowly. Survives `reset()`. */
+  public noiseFloor = 0;
 
   /** EMA of the raw RMS. */
   public smoothed = 0;
@@ -134,6 +157,10 @@ export class LipSyncDsp {
     this.peakFloor = finiteOr(options.peakFloor, 0.05);
     this.emaHalfLifeRefMs = finiteOr(options.emaHalfLifeRefMs, REF_BLOCK_MS);
     this.peakDecayRefMs = finiteOr(options.peakDecayRefMs, REF_BLOCK_MS);
+    this.adaptiveThreshold = options.adaptiveThreshold !== false;
+    this.adaptiveRatio = finiteOr(options.adaptiveRatio, 0.12);
+    this.noiseRatio = finiteOr(options.noiseRatio, 3);
+    this.minThreshold = finiteOr(options.minThreshold, 0.01);
 
     this.peak = this.peakFloor;
     this.opennessPeak = this.peakFloor;
@@ -155,6 +182,26 @@ export class LipSyncDsp {
     this.gateOpen = false;
     this.openMs = 0;
     this.closeMs = 0;
+  }
+
+  /**
+   * Gate threshold for this poll. Fixed `amplitudeThreshold` when the adaptive
+   * gate is off; otherwise relative to the recent speech level (same 4 s
+   * half-life as the AGC) and kept above the noise floor, so breath and room
+   * noise stay closed while a quiet voice still opens.
+   */
+  threshold(dt = 0, raw = 0): number {
+    if (!this.adaptiveThreshold) return this.amplitudeThreshold;
+    if (dt > 0) {
+      const decay = Math.pow(PEAK_DECAY_PER_BLOCK, dt / this.peakDecayRefMs);
+      this.levelPeak = Math.max(this.levelPeak * decay, raw);
+      // noise floor: falls in ~100 ms (any pause between phrases pulls it down),
+      // rises with an 8 s half-life (steady room noise gets in; speech barely moves it)
+      const k = raw < this.noiseFloor ? 1 - Math.exp(-dt / 100) : 1 - Math.pow(0.5, dt / 8000);
+      this.noiseFloor += (raw - this.noiseFloor) * k;
+    }
+    const rel = Math.max(this.levelPeak * this.adaptiveRatio, this.noiseFloor * this.noiseRatio);
+    return Math.min(this.amplitudeThreshold, Math.max(this.minThreshold, rel));
   }
 
   isGateOpen(): boolean {
@@ -215,7 +262,7 @@ export class LipSyncDsp {
     // --- 5. Voicing gate with hysteresis. Short to open (the mouth must not
     // lag the first syllable), long to close (so intra-utterance pauses and the
     // gap between TTS chunks do not make the jaw flutter).
-    if (raw > this.amplitudeThreshold) {
+    if (raw > this.threshold(dt, raw)) {
       this.closeMs = 0;
       this.openMs += dt;
       if (!this.gateOpen && this.openMs > this.gateOpenMs) {
